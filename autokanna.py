@@ -28,18 +28,14 @@ class Capture:
     def __init__(self):
         self.cap = threading.Thread(target=self._capture)
         self.cap.daemon = True
-        # self.player_pos = player_pos
 
     def _capture(self):
         with mss.mss() as sct:
             print('started capture')
 
             global player_pos
-            # global cv2
             monitor = {'top': 0, 'left': 0, 'width': 1920, 'height': 1080}
             while True:
-                # print('running capture')
-
                 frame = np.array(sct.grab(monitor))
                 # cv2.imshow('screenshot', Capture._rescale_frame(frame, percent=50))
                 for x in [25 * i for i in range(77)]:
@@ -108,18 +104,11 @@ class Commands:
     def __init__(self):
         self.tengu = threading.Thread(target=self._tengu)         # Tengu thread continuously uses Tengu Strike unless tengu_on is set to False
         self.tengu.daemon = True     # Daemon threads end when the main thread ends
-        # self.player_pos = player_pos
-        # self.enabled = enabled
-        # self.tengu_on = tengu_on
-
+       
     def _tengu(self):
         print('started tengu')
         while True:
-            # if False:
-            # enabled.acquire()
-            if Commands.tengu_on and enabled:      # Commands.tengu_on.value and
-                # enabled.release()
-                # print('running tengu')
+            if Commands.tengu_on and enabled:
                 key_down('q')
                 time.sleep(0.2)
                 key_up('q')
@@ -130,19 +119,12 @@ class Commands:
 
         key_down(direction)
         time.sleep(0.05)
-        key_down('space')
-        time.sleep(0.05)
-        key_up('space')
-        time.sleep(0.05)
+        press('space', 1, up_time=0.05)
         if direction == 'up':
             time.sleep(0.1)
         else:
             time.sleep(0.2)        # Down jump needs more time to accelerate
-        for _ in range(2):      # Press the teleport key twice to ensure it registers in-game
-            key_down('e')
-            time.sleep(0.05)
-            key_up('e')
-            time.sleep(0.1)
+        press('e', 2)
         key_up(direction)
         time.sleep(0.1)
 
@@ -153,44 +135,22 @@ class Commands:
         time.sleep(0.05)
         for _ in range(n):
             if Commands.tengu_on:
-                key_down('q')
-                time.sleep(0.05)
-                key_up('q')
-                time.sleep(0.05)
-            for _ in range(4):
-                key_down('r')
-                time.sleep(0.1)
-                key_up('r')
-                time.sleep(0.1)
+                press('q', 1, up_time=0.05)
+            press('r', 4, down_time=0.1)
         key_up(direction)
         time.sleep(0.1)
 
     def kishin(self):
         time.sleep(0.3)
-        for _ in range(3):
-            key_down('lshift')
-            time.sleep(0.1)
-            key_up('lshift')
-            time.sleep(0.1)
+        press('lshift', 3, down_time=0.1)
     
     def boss(self):
         time.sleep(0.15)
-        # print(player_pos[0])
         if player_pos[0] > 0.5:     # Always cast Yaksha Boss facing the center of the map
-            key_down('left')
-            time.sleep(0.1)
-            key_up('left')
-            time.sleep(0.1)
+            press('left', 1, down_time=0.1)
         else:
-            key_down('right')
-            time.sleep(0.1)
-            key_up('right')
-            time.sleep(0.1)
-        for _ in range(2):
-            key_down('2')
-            time.sleep(0.1)
-            key_up('2')
-            time.sleep(0.2)
+            press('right', 1, down_time=0.1)
+        press('2', 2, down_time=0.1, up_time=0.2)
 
 
 class Point:
@@ -228,8 +188,8 @@ sequence = [Point((0.49, 0.44), attack=False, extras=['kishin']),
             Point((0.44, 0.77))]
 
 sequence = [Point((0.515, 0.64)),
-            Point((0.75, 0.75), attack=False, extras=['boss']),
-            Point((0.750, 0.25), attack=False, extras=['kishin']),
+            Point((0.85, 0.75), attack=False, extras=['boss']),
+            Point((0.75, 0.25), attack=False, extras=['kishin']),
             Point((0.515, 0.64)),
             Point((0.242, 0.75)),
             Point((0.258, 0.25))]
@@ -253,29 +213,15 @@ def main():
 
 def bot():
     print('started bot')
-    # global ns
-    # global enabled
-    # enabled = True
     
     index = 0
-    buff = buff(0)
-    # print(player_pos)
+    b = buff(0)
     while True: 
         if enabled:
-            # print('running bot')
-            # global index
+            b = b(time.time())
             point = sequence[index]
-            # print(point.location)
-            # move(target)
-            # move_next()
-            # commands.shikigami('left', 2)
-            # commands.shikigami('right', 2)
-            # if index == 3:
-            #     time.sleep(0.5)
-            #     commands.kishin()
             point.execute()
             index = (index + 1) % len(sequence)
-            buff = buff(time.time())
 
 
 #################################
@@ -291,12 +237,8 @@ def press(key, n, down_time=0.05, up_time=0.1):
 def distance(a, b):
     return math.sqrt(sum([(a[i] - b[i]) ** 2 for i in range(2)]))
 
-def move(target):
-    # Commands.tengu_on = False      
+def move(target):     
     while distance(player_pos, target) > POSITION_TOLERANCE:
-        # print(player_pos[0], player_pos[1])
-        # print(f'p: {player_pos}\nt:{target}')
-        # Teleport horizontally before teleporting vertically
         if player_pos[0] < target[0]:
             commands.teleport('right')
         else:
@@ -307,48 +249,27 @@ def move(target):
                 commands.teleport('down')
             else:
                 commands.teleport('up')
-    # Commands.tengu_on = True
 
 def buff(time):
     def act(new_time):
-        if new_time - time > 180:
-            time = new_time
-            for _ in range(3):
-                key_down('ctrl')
-
-            time.sleep(0.05)
-            # for _ in range(3):
-            #     key_down('9')
-            #     time.sleep(0.05)
-            #     key_up('9')
-            #     time.sleep(0.3)
+        if time == 0 or new_time - time > 180:
             press('ctrl', 2, up_time=0.2)
-            press('end', 2, up_time=0.2)
-            press('9', 3, up_time=0.3)
-            press('0', 3, up_time=0.3)
-            for _ in range(3):
-                key_down('0')
-                time.sleep(0.05)
-                key_up('0')
-                time.sleep(0.3)
-        return buff(time)
+            press('end', 3, up_time=0.3)
+            press('9', 4, up_time=0.3)
+            press('0', 4, up_time=0.3)
+        else:
+            new_time = time
+        return buff(new_time)
     return act
 
 def start():
     time.sleep(10)
     global enabled
     enabled = True
-    # tengu_on.value = 1
-    # print(enabled.value)
-    # Commands.tengu_on = True
-    # bot()
 
 def stop():
     global enabled
     enabled = False
-    # tengu_on.value = 0
-    # print(enabled.value)
-    # Commands.tengu_on = False
 
 # def toggle_enabled():
 #     print('toggled')
@@ -360,27 +281,15 @@ def stop():
 
 
 if __name__ == '__main__':
-    # ns = multiprocessing.Manager().Namespace()
-    # ns.player_pos = (0, 0)
-    # ns.enabled = False
-    # manager = multiprocessing.Manager()
-    
-    # enabled.value = False
-    # print(ns)
-
     capture = Capture()
     capture.cap.start()
 
     commands = Commands()
     # commands.tengu.start()
 
-    # print('flag')
-
     bt = threading.Thread(target=bot)
     bt.daemon = True
     bt.start()
-
-    # time.sleep(10)
 
     # enabled = True
     # while True:
