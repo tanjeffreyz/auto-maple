@@ -1,6 +1,6 @@
 import mss, cv2, time, threading, vkeys, time, math
 import numpy as np
-import keyboard as kb
+# import keyboard as kb
 import tkinter as tk
 from vkeys import key_down, key_up
 
@@ -8,21 +8,10 @@ from vkeys import key_down, key_up
 #################################
 #       Global Variables        #
 #################################
-POSITION_TOLERANCE = 0.1
+POSITION_TOLERANCE = 0.12
 
 player_pos = (0, 0)
 enabled = False
-# player_pos = multiprocessing.Array('d', [0, 0])
-# # print(player_pos[0])
-# enabled = multiprocessing.Value('i', 0)
-# tengu_on = multiprocessing.Value('i', 0)
-# print(enabled.value)
-# if __name__ == '__main__':
-#     ns = multiprocessing.Manager().Namespace()
-#     ns.player_pos = (0, 0)
-#     ns.enabled = False
-# target = (0.35, 0.35)
-# target = (0.5, 0.35)
 
 
 #################################
@@ -70,6 +59,7 @@ class Capture:
                 tl, br = Capture._match_template(minimap, Capture.player_template)           
                 raw_player_pos = tuple((br[i] + tl[i]) / 2 for i in range(2))
                 player_pos = (raw_player_pos[0] / minimap.shape[1], raw_player_pos[1] / minimap.shape[0])       # player_pos is relative to the minimap's inner box
+                print(player_pos)
                 # print(player_pos[0], player_pos[1])
                 # print(enabled.value)
                 # print(self.player_pos[0], self.player_pos[1])
@@ -88,6 +78,7 @@ class Capture:
                     cv2.circle(minimap, (round((mm_br[0] - mm_tl[0]) * element.location[0]), round((mm_br[1] - mm_tl[1]) * element.location[1])), 3, (0, 255, 0), -1)
 
                 # cv2.imshow('test', _rescale_frame(frame, percent=75))
+                cv2.imshow('mm', minimap)
                 # cv2.imshow('mm', Capture._rescale_frame(minimap, percent=300))
 
                 if cv2.waitKey(1) & 0xFF == 27:     # 27 is ASCII for the Esc key on a keyboard
@@ -111,7 +102,7 @@ class Capture:
 
 
 class Commands:
-    tengu_on = False
+    tengu_on = True
 
 
     def __init__(self):
@@ -139,47 +130,38 @@ class Commands:
 
         key_down(direction)
         time.sleep(0.05)
-        if direction in ['up', 'down']:
-            key_down('space')
-            time.sleep(0.05)
-            key_up('space')
-            if direction == 'up':
-                time.sleep(0.1)
-            else:
-                time.sleep(0.25)        # Down jump needs more time to accelerate
-        
-        # for _ in range(4):      # Press the teleport key twice to ensure it registers in-game
-        #     key_down('e')
-        #     time.sleep(0.075)
-        #     key_up('e')
-        #     time.sleep(0.01)
-
-        for _ in range(3):      # Press the teleport key twice to ensure it registers in-game
-            key_down('e')
+        key_down('space')
+        time.sleep(0.05)
+        key_up('space')
+        time.sleep(0.05)
+        if direction == 'up':
             time.sleep(0.1)
+        else:
+            time.sleep(0.2)        # Down jump needs more time to accelerate
+        for _ in range(2):      # Press the teleport key twice to ensure it registers in-game
+            key_down('e')
+            time.sleep(0.05)
             key_up('e')
-            time.sleep(0.01)
-
+            time.sleep(0.1)
         key_up(direction)
-        time.sleep(0.125)
+        time.sleep(0.1)
 
     def shikigami(self, direction, n=1):
         assert direction in ['left', 'right'], 'Shikigami Haunting can only be used in the left and right directions.'
 
         key_down(direction)
         time.sleep(0.05)
-
         for _ in range(n):
-            # print(i)
-            for _ in range(6):
+            if Commands.tengu_on:
+                key_down('q')
+                time.sleep(0.05)
+                key_up('q')
+                time.sleep(0.05)
+            for _ in range(4):
                 key_down('r')
-                time.sleep(0.075)
+                time.sleep(0.1)
                 key_up('r')
-                time.sleep(0.075)
-                # kb.send('r')
-                # time.sleep(0.15)
-            time.sleep(0.075)
-
+                time.sleep(0.1)
         key_up(direction)
         time.sleep(0.1)
 
@@ -193,7 +175,7 @@ class Commands:
     
     def boss(self):
         time.sleep(0.15)
-        print(player_pos[0])
+        # print(player_pos[0])
         if player_pos[0] > 0.5:     # Always cast Yaksha Boss facing the center of the map
             key_down('left')
             time.sleep(0.1)
@@ -204,11 +186,11 @@ class Commands:
             time.sleep(0.1)
             key_up('right')
             time.sleep(0.1)
-        for _ in range(3):
+        for _ in range(2):
             key_down('2')
             time.sleep(0.1)
             key_up('2')
-            time.sleep(0.1)
+            time.sleep(0.2)
 
 
 class Point:
@@ -238,6 +220,19 @@ sequence = [Point((0.37, 0.82)),
             Point((0.70, 0.58), attack=False, extras=['boss']),
             Point((0.65, 0.82))]
 
+sequence = [Point((0.49, 0.44), attack=False, extras=['kishin']),
+            Point((0.44, 0.77)),
+            Point((0.82, 0.77), attack=False, extras=['boss']),
+            Point((0.77, 0.28)),
+            Point((0.65, 0.77)),
+            Point((0.44, 0.77))]
+
+sequence = [Point((0.515, 0.64)),
+            Point((0.75, 0.75), attack=False, extras=['boss']),
+            Point((0.750, 0.25), attack=False, extras=['kishin']),
+            Point((0.515, 0.64)),
+            Point((0.242, 0.75)),
+            Point((0.258, 0.25))]
 
 
 #################################
@@ -245,7 +240,7 @@ sequence = [Point((0.37, 0.82)),
 #################################
 def main():
     gui = tk.Tk()
-    gui.geometry('300x50')
+    gui.geometry('300x50')      # +0-1080
 
     b_start = tk.Button(gui, text='Start', command=start)
     b_start.pack()
@@ -263,6 +258,7 @@ def bot():
     # enabled = True
     
     index = 0
+    buff = buff(0)
     # print(player_pos)
     while True: 
         if enabled:
@@ -279,16 +275,24 @@ def bot():
             #     commands.kishin()
             point.execute()
             index = (index + 1) % len(sequence)
+            buff = buff(time.time())
 
 
 #################################
 #           Functions           #
 #################################
+def press(key, n, down_time=0.05, up_time=0.1):
+    for _ in range(n):
+        key_down(key)
+        time.sleep(down_time)
+        key_up(key)
+        time.sleep(up_time)
+
 def distance(a, b):
     return math.sqrt(sum([(a[i] - b[i]) ** 2 for i in range(2)]))
 
 def move(target):
-    Commands.tengu_on = False       # TODO: need to change this!!!
+    # Commands.tengu_on = False      
     while distance(player_pos, target) > POSITION_TOLERANCE:
         # print(player_pos[0], player_pos[1])
         # print(f'p: {player_pos}\nt:{target}')
@@ -303,10 +307,35 @@ def move(target):
                 commands.teleport('down')
             else:
                 commands.teleport('up')
-        time.sleep(0.15)
-    Commands.tengu_on = True
+    # Commands.tengu_on = True
+
+def buff(time):
+    def act(new_time):
+        if new_time - time > 180:
+            time = new_time
+            for _ in range(3):
+                key_down('ctrl')
+
+            time.sleep(0.05)
+            # for _ in range(3):
+            #     key_down('9')
+            #     time.sleep(0.05)
+            #     key_up('9')
+            #     time.sleep(0.3)
+            press('ctrl', 2, up_time=0.2)
+            press('end', 2, up_time=0.2)
+            press('9', 3, up_time=0.3)
+            press('0', 3, up_time=0.3)
+            for _ in range(3):
+                key_down('0')
+                time.sleep(0.05)
+                key_up('0')
+                time.sleep(0.3)
+        return buff(time)
+    return act
 
 def start():
+    time.sleep(10)
     global enabled
     enabled = True
     # tengu_on.value = 1
@@ -343,7 +372,7 @@ if __name__ == '__main__':
     capture.cap.start()
 
     commands = Commands()
-    commands.tengu.start()
+    # commands.tengu.start()
 
     # print('flag')
 
@@ -351,4 +380,9 @@ if __name__ == '__main__':
     bt.daemon = True
     bt.start()
 
+    # time.sleep(10)
+
+    # enabled = True
+    # while True:
+    #     time.sleep(10)
     main()

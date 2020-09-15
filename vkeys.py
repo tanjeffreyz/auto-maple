@@ -18,11 +18,13 @@ KEYEVENTF_SCANCODE = 0x0008
 
 MAPVK_VK_TO_VSC = 0
 
-# msdn.microsoft.com/en-us/library/dd375731
+# https://docs.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes?redirectedfrom=MSDN
 v_keys = {'tab': 0x09,  # Special Keys
         'alt': 0x12,
         'space': 0x20,
         'lshift': 0xA0,
+        'ctrl': 0x11,
+        'end': 0x23,
 
         'left': 0x25,   # Arrow Keys
         'up': 0x26,
@@ -127,6 +129,7 @@ user32.SendInput.argtypes = (wintypes.UINT, # nInputs
 #################################
 # counter = 0
 def key_down(key):
+    print(f'key_down: {key}')
     key = key.lower()
     assert key in v_keys.keys(), f"'{key}' is not a recognized keyboard input"
     x = INPUT(type=INPUT_KEYBOARD,
@@ -138,6 +141,7 @@ def key_down(key):
     # print(str(key) + ':' + str(counter))
 
 def key_up(key):
+    print(f'key_up: {key}')
     key = key.lower()
     assert key in v_keys.keys(), f"'{key}' is not a recognized keyboard input"
     x = INPUT(type=INPUT_KEYBOARD,

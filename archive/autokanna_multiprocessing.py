@@ -236,6 +236,12 @@ sequence = [Point((0.37, 0.82)),
             Point((0.70, 0.58), attack=False, extras=['boss']),
             Point((0.65, 0.82))]
 
+sequence = [Point((0.49, 0.44), attack=False, extras=['kishin']),
+            Point((0.44, 0.77)),
+            Point((0.82, 0.77), attack=False, extras=['boss']),
+            Point((0.77, 0.28)),
+            Point((0.65, 0.77)),
+            Point((0.44, 0.77))]
 
 
 #################################
@@ -345,8 +351,11 @@ if __name__ == '__main__':
 
     print('flag')
 
-    bt = multiprocessing.Process(target=bot, args=(enabled, player_pos, None))
+    bt = multiprocessing.Process(target=bot, args=(enabled, player_pos))
     bt.daemon = True
     bt.start()
 
-    main()
+    enabled.value = True
+    while True:
+        time.sleep(10)
+    # main()
