@@ -129,7 +129,7 @@ user32.SendInput.argtypes = (wintypes.UINT, # nInputs
 #################################
 # counter = 0
 def key_down(key):
-    print(f'key_down: {key}')
+    # print(f'key_down: {key}')
     key = key.lower()
     assert key in v_keys.keys(), f"'{key}' is not a recognized keyboard input"
     x = INPUT(type=INPUT_KEYBOARD,
@@ -141,7 +141,7 @@ def key_down(key):
     # print(str(key) + ':' + str(counter))
 
 def key_up(key):
-    print(f'key_up: {key}')
+    # print(f'key_up: {key}')
     key = key.lower()
     assert key in v_keys.keys(), f"'{key}' is not a recognized keyboard input"
     x = INPUT(type=INPUT_KEYBOARD,

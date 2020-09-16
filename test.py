@@ -22,5 +22,12 @@
 # arr[:] = [1.23424, 1.6373]
 # print(arr)
 
-x = y = 3
-print(x, y)
+# x = y = 3
+# print(x, y)
+import time
+import keyboard as kb 
+
+kb.add_hotkey('insert', lambda: print('it worked'))
+
+while True:
+    time.sleep(1)

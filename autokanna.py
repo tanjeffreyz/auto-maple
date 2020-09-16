@@ -1,6 +1,6 @@
 import mss, cv2, time, threading, vkeys, time, math
 import numpy as np
-# import keyboard as kb
+import keyboard as kb
 import tkinter as tk
 from vkeys import key_down, key_up
 
@@ -8,7 +8,7 @@ from vkeys import key_down, key_up
 #################################
 #       Global Variables        #
 #################################
-POSITION_TOLERANCE = 0.12
+POSITION_TOLERANCE = 0.1
 
 player_pos = (0, 0)
 enabled = False
@@ -55,7 +55,8 @@ class Capture:
                 tl, br = Capture._match_template(minimap, Capture.player_template)           
                 raw_player_pos = tuple((br[i] + tl[i]) / 2 for i in range(2))
                 player_pos = (raw_player_pos[0] / minimap.shape[1], raw_player_pos[1] / minimap.shape[0])       # player_pos is relative to the minimap's inner box
-                print(player_pos)
+                # print(player_pos)
+
                 # print(player_pos[0], player_pos[1])
                 # print(enabled.value)
                 # print(self.player_pos[0], self.player_pos[1])
@@ -74,7 +75,7 @@ class Capture:
                     cv2.circle(minimap, (round((mm_br[0] - mm_tl[0]) * element.location[0]), round((mm_br[1] - mm_tl[1]) * element.location[1])), 3, (0, 255, 0), -1)
 
                 # cv2.imshow('test', _rescale_frame(frame, percent=75))
-                cv2.imshow('mm', minimap)
+                # cv2.imshow('mm', minimap)
                 # cv2.imshow('mm', Capture._rescale_frame(minimap, percent=300))
 
                 if cv2.waitKey(1) & 0xFF == 27:     # 27 is ASCII for the Esc key on a keyboard
@@ -154,7 +155,7 @@ class Commands:
 
 
 class Point:
-    def __init__(self, location, attack=True, n=2, extras=[]):
+    def __init__(self, location, attack=True, n=1, extras=[]):
         self.location = location
         self.attack = attack
         self.n = n
@@ -189,10 +190,12 @@ sequence = [Point((0.49, 0.44), attack=False, extras=['kishin']),
 
 sequence = [Point((0.515, 0.64)),
             Point((0.85, 0.75), attack=False, extras=['boss']),
-            Point((0.75, 0.25), attack=False, extras=['kishin']),
+            Point((0.7, 0.25), attack=False, extras=['kishin']),
+            Point((0.85, 0.25), attack=False),
             Point((0.515, 0.64)),
-            Point((0.242, 0.75)),
-            Point((0.258, 0.25))]
+            Point((0.2, 0.75)),
+            Point((0.3, 0.25)),
+            Point((0.2, 0.25), attack=False)]
 
 
 #################################
@@ -271,13 +274,12 @@ def stop():
     global enabled
     enabled = False
 
-# def toggle_enabled():
-#     print('toggled')
-#     global enabled
-#     if enabled:
-#         enabled = False
-#     # else:
-#     #     main()
+def toggle_enabled():
+    global enabled
+    prev = enabled
+    enabled = not enabled
+    print(f"toggled: {'on' if prev else 'off'} --> {'ON' if enabled else 'OFF'}")
+    time.sleep(1)
 
 
 if __name__ == '__main__':
@@ -294,4 +296,8 @@ if __name__ == '__main__':
     # enabled = True
     # while True:
     #     time.sleep(10)
-    main()
+    # main()
+    kb.add_hotkey('insert', toggle_enabled)
+
+    while True:
+        time.sleep(1)
