@@ -24,10 +24,15 @@
 
 # x = y = 3
 # print(x, y)
-import time
-import keyboard as kb 
+# import time
+# import keyboard as kb 
 
-kb.add_hotkey('insert', lambda: print('it worked'))
+# kb.add_hotkey('insert', lambda: print('it worked'))
 
-while True:
-    time.sleep(1)
+# while True:
+#     time.sleep(1)
+
+# print((lambda x: x + x)(15))
+first = (1, 0)
+second = (1, 0)
+print(first == second)

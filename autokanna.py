@@ -12,6 +12,7 @@ POSITION_TOLERANCE = 0.1
 
 player_pos = (0, 0)
 enabled = False
+sequence = []
 
 
 #################################
@@ -118,16 +119,20 @@ class Commands:
     def teleport(self, direction):
         assert direction in ['left', 'up', 'right', 'down'], f"'{direction}' is not a recognized direction."
 
-        key_down(direction)
-        time.sleep(0.05)
+        if direction != 'up':
+            key_down(direction)
+            time.sleep(0.05)
         press('space', 1, up_time=0.05)
         if direction == 'up':
             time.sleep(0.1)
-        else:
+        elif direction == 'down':
             time.sleep(0.2)        # Down jump needs more time to accelerate
-        press('e', 2)
+        if direction == 'up':
+            key_down(direction)
+            time.sleep(0.05)
+        press('e', 3)
         key_up(direction)
-        time.sleep(0.1)
+        time.sleep(0.15)
 
     def shikigami(self, direction, n=1):
         assert direction in ['left', 'right'], 'Shikigami Haunting can only be used in the left and right directions.'
@@ -145,13 +150,27 @@ class Commands:
         time.sleep(0.3)
         press('lshift', 3, down_time=0.1)
     
-    def boss(self):
-        time.sleep(0.15)
-        if player_pos[0] > 0.5:     # Always cast Yaksha Boss facing the center of the map
-            press('left', 1, down_time=0.1)
-        else:
-            press('right', 1, down_time=0.1)
-        press('2', 2, down_time=0.1, up_time=0.2)
+    def boss(self, direction=None):     # Only Yaksha Boss takes an optional directional argument
+        def act():
+            time.sleep(0.15)
+            if direction:
+                press(direction, 1, down_time=0.1)
+            else:
+                if player_pos[0] > 0.5:     # Cast Yaksha Boss facing the center of the map
+                    press('left', 1, down_time=0.1)
+                else:
+                    press('right', 1, down_time=0.1)
+            press('2', 2, down_time=0.1, up_time=0.2)
+        return act
+
+    def fox(self):
+        time.sleep(0.1)
+        press('3', 3, down_time=0.1, up_time=0.15)
+    
+    def exo(self):
+        time.sleep(0.1)
+        press('space', 1, up_time=0.15)
+        press('w', 2)
 
 
 class Point:
@@ -173,23 +192,23 @@ class Point:
 #################################
 #        Initialization         #
 #################################
-sequence = [Point((0.37, 0.82)),
-            Point((0.33, 0.58)),
-            Point((0.3, 0.24)),
-            Point((0.5, 0.35), attack=False, extras=['kishin']),
-            Point((0.71, 0.25)),
-            Point((0.70, 0.58), attack=False, extras=['boss']),
-            Point((0.65, 0.82))]
+# sequence = [Point((0.37, 0.82)),
+#             Point((0.33, 0.58)),
+#             Point((0.3, 0.24)),
+#             Point((0.5, 0.35), attack=False, extras=['kishin']),
+#             Point((0.71, 0.25)),
+#             Point((0.70, 0.58), attack=False, extras=['boss']),
+#             Point((0.65, 0.82))]
 
-sequence = [Point((0.49, 0.44), attack=False, extras=['kishin']),
-            Point((0.44, 0.77)),
-            Point((0.82, 0.77), attack=False, extras=['boss']),
-            Point((0.77, 0.28)),
-            Point((0.65, 0.77)),
-            Point((0.44, 0.77))]
+# sequence = [Point((0.49, 0.44), attack=False, extras=['kishin']),
+#             Point((0.44, 0.77)),
+#             Point((0.82, 0.77), attack=False, extras=['boss']),
+#             Point((0.77, 0.28)),
+#             Point((0.65, 0.77)),
+#             Point((0.44, 0.77))]
 
 sequence = [Point((0.515, 0.64)),
-            Point((0.85, 0.75), attack=False, extras=['boss']),
+            Point((0.85, 0.75), attack=False, extras=['boss()']),
             Point((0.7, 0.25), attack=False, extras=['kishin']),
             Point((0.85, 0.25), attack=False),
             Point((0.515, 0.64)),
@@ -197,30 +216,24 @@ sequence = [Point((0.515, 0.64)),
             Point((0.3, 0.25)),
             Point((0.2, 0.25), attack=False)]
 
+sequence = [Point((0.515, 0.64)),
+            Point((0.85, 0.75), attack=False, extras=['boss()']),
+            Point((0.7, 0.25), attack=False, extras=['kishin']),
+            Point((0.515, 0.64)),
+            Point((0.2, 0.75)),
+            Point((0.3, 0.25))]
+
 
 #################################
 #             Mains             #
 #################################
-def main():
-    gui = tk.Tk()
-    gui.geometry('300x50')      # +0-1080
-
-    b_start = tk.Button(gui, text='Start', command=start)
-    b_start.pack()
-
-    b_stop = tk.Button(gui, text='Stop', command=stop)
-    b_stop.pack()
-
-    gui.call('wm', 'attributes', '.', '-topmost', '1')
-    gui.mainloop()
-
 def bot():
     print('started bot')
     
     index = 0
     b = buff(0)
     while True: 
-        if enabled:
+        if enabled and len(sequence) > 0:
             b = b(time.time())
             point = sequence[index]
             point.execute()
@@ -240,18 +253,24 @@ def press(key, n, down_time=0.05, up_time=0.1):
 def distance(a, b):
     return math.sqrt(sum([(a[i] - b[i]) ** 2 for i in range(2)]))
 
-def move(target):     
-    while distance(player_pos, target) > POSITION_TOLERANCE:
+def move(target):
+    prev_pos = player_pos
+    while enabled and distance(player_pos, target) > POSITION_TOLERANCE:
         if player_pos[0] < target[0]:
             commands.teleport('right')
         else:
             commands.teleport('left')
 
-        if abs(player_pos[1] - target[1]) > POSITION_TOLERANCE:
+        if abs(player_pos[1] - target[1]) > POSITION_TOLERANCE * 1.5:
             if player_pos[1] < target[1]:
                 commands.teleport('down')
             else:
                 commands.teleport('up')
+
+        if player_pos == prev_pos:
+            press('w', 2, up_time=0.05)
+            press('e', 3)
+        prev_pos = player_pos
 
 def buff(time):
     def act(new_time):
@@ -265,15 +284,6 @@ def buff(time):
         return buff(new_time)
     return act
 
-def start():
-    time.sleep(10)
-    global enabled
-    enabled = True
-
-def stop():
-    global enabled
-    enabled = False
-
 def toggle_enabled():
     global enabled
     prev = enabled
@@ -281,23 +291,23 @@ def toggle_enabled():
     print(f"toggled: {'on' if prev else 'off'} --> {'ON' if enabled else 'OFF'}")
     time.sleep(1)
 
+# def prompt():
+#     response = input('>>> ')
+#     # TODO: argparser here
+
 
 if __name__ == '__main__':
     capture = Capture()
     capture.cap.start()
 
     commands = Commands()
-    # commands.tengu.start()
 
     bt = threading.Thread(target=bot)
     bt.daemon = True
     bt.start()
 
-    # enabled = True
-    # while True:
-    #     time.sleep(10)
-    # main()
     kb.add_hotkey('insert', toggle_enabled)
+    # kb.add_hotkey('alt', prompt)
 
     while True:
         time.sleep(1)
