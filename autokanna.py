@@ -291,9 +291,6 @@ def toggle_enabled():
     print(f"toggled: {'on' if prev else 'off'} --> {'ON' if enabled else 'OFF'}")
     time.sleep(1)
 
-# def prompt():
-#     response = input('>>> ')
-#     # TODO: argparser here
 
 
 if __name__ == '__main__':
