@@ -11,6 +11,7 @@ from vkeys import key_down, key_up
 POSITION_TOLERANCE = 0.1
 
 player_pos = (0, 0)
+mm_ratio = 1.0
 enabled = False
 sequence = []
 
@@ -34,14 +35,14 @@ class Capture:
         with mss.mss() as sct:
             print('started capture')
 
-            global player_pos
+            global player_pos, mm_ratio
             monitor = {'top': 0, 'left': 0, 'width': 1920, 'height': 1080}
             while True:
                 frame = np.array(sct.grab(monitor))
-                # cv2.imshow('screenshot', Capture._rescale_frame(frame, percent=50))
-                for x in [25 * i for i in range(77)]:
-                    color = (0, 255, 0) if x % 100 else (255, 0, 0)
-                    cv2.circle(frame, (x, 540), 3, color, -1)
+
+                # for x in [25 * i for i in range(77)]:
+                #     color = (0, 255, 0) if x % 100 else (255, 0, 0)
+                #     cv2.circle(frame, (x, 540), 3, color, -1)
                 
                 # Get the bottom right point of the minimap
                 _, br = Capture._match_template(frame, Capture.minimap_template)
@@ -53,31 +54,28 @@ class Capture:
                 
                 # Crop the frame to only show the minimap
                 minimap = frame[mm_tl[1]:mm_br[1], mm_tl[0]:mm_br[0]]
-                tl, br = Capture._match_template(minimap, Capture.player_template)           
-                raw_player_pos = tuple((br[i] + tl[i]) / 2 for i in range(2))
+                mm_ratio = minimap.shape[1] / minimap.shape[0]
+                p_tl, p_br = Capture._match_template(minimap, Capture.player_template)           
+                raw_player_pos = tuple((p_br[i] + p_tl[i]) / 2 for i in range(2))
                 player_pos = (raw_player_pos[0] / minimap.shape[1], raw_player_pos[1] / minimap.shape[0])       # player_pos is relative to the minimap's inner box
+                # print(minimap.shape[1] / minimap.shape[0])
                 # print(player_pos)
 
-                # print(player_pos[0], player_pos[1])
-                # print(enabled.value)
-                # print(self.player_pos[0], self.player_pos[1])
-
-                cv2.circle(minimap, tuple(round(a) for a in raw_player_pos), 3, (255, 0, 0), -1)
+                # cv2.circle(minimap, tuple(round(a) for a in raw_player_pos), 3, (255, 0, 0), -1)
                 # cv2.circle(minimap, (round((mm_br[0] - mm_tl[0]) * target[0]), round((mm_br[1] - mm_tl[1]) * target[1])), 3, (0, 255, 0), -1)
                 # cv2.rectangle(frame, mm_tl, mm_br, (0, 0, 255), 1)
                 # cv2.rectangle(frame, tl, br, (0, 0, 255), 3)
                 # cv2.circle(frame, tuple(a - MINIMAP_BOTTOM_BORDER for a in br), 3, (0, 255, 0), -1)
-                for i in range(10):
-                    color = (0, 0, 255) if i == 5 else (0, 255, 255)
-                    cv2.circle(minimap, (round((mm_br[0] - mm_tl[0]) * (i + 1) / 10), round((mm_br[1] - mm_tl[1]) / 2)), 1, color, 1)
-                    cv2.circle(minimap, (round((mm_br[0] - mm_tl[0]) / 2), round((mm_br[1] - mm_tl[1]) * (i + 1) / 10)), 1, color, 1)
 
-                for element in sequence:
-                    cv2.circle(minimap, (round((mm_br[0] - mm_tl[0]) * element.location[0]), round((mm_br[1] - mm_tl[1]) * element.location[1])), 3, (0, 255, 0), -1)
+                # for i in range(10):
+                #     color = (0, 0, 255) if i == 5 else (0, 255, 255)
+                #     cv2.circle(minimap, (round((mm_br[0] - mm_tl[0]) * (i + 1) / 10), round((mm_br[1] - mm_tl[1]) / 2)), 1, color, 1)
+                #     cv2.circle(minimap, (round((mm_br[0] - mm_tl[0]) / 2), round((mm_br[1] - mm_tl[1]) * (i + 1) / 10)), 1, color, 1)
 
-                # cv2.imshow('test', _rescale_frame(frame, percent=75))
+                # for element in sequence:
+                #     cv2.circle(minimap, (round((mm_br[0] - mm_tl[0]) * element.location[0]), round((mm_br[1] - mm_tl[1]) * element.location[1])), 3, (0, 255, 0), -1)
+
                 # cv2.imshow('mm', minimap)
-                # cv2.imshow('mm', Capture._rescale_frame(minimap, percent=300))
 
                 if cv2.waitKey(1) & 0xFF == 27:     # 27 is ASCII for the Esc key on a keyboard
                     break
@@ -174,19 +172,23 @@ class Commands:
 
 
 class Point:
-    def __init__(self, location, attack=True, n=1, extras=[]):
+    def __init__(self, location, frequency=1, attack=True, n=1, extras=[]):
         self.location = location
+        self.frequency = frequency
+        self.counter = 0
         self.attack = attack
         self.n = n
         self.extras = extras
 
     def execute(self):
-        move(self.location)
-        for e in self.extras:
-            exec(f'commands.{e}()')
-        if self.attack:
-            commands.shikigami('left', self.n)
-            commands.shikigami('right', self.n)
+        if self.counter == 0:
+            move(self.location)
+            for e in self.extras:
+                exec(f'commands.{e}()')
+            if self.attack:
+                commands.shikigami('left', self.n)
+                commands.shikigami('right', self.n)
+        self.counter = (self.counter + 1) % self.frequency
         
 
 #################################
@@ -216,10 +218,10 @@ sequence = [Point((0.515, 0.64)),
             Point((0.3, 0.25)),
             Point((0.2, 0.25), attack=False)]
 
-sequence = [Point((0.515, 0.64)),
-            Point((0.85, 0.75), attack=False, extras=['boss()']),
+sequence = [Point((0.515, 0.66)),
+            Point((0.85, 0.75), frequency=2, attack=False, extras=['boss()']),
             Point((0.7, 0.25), attack=False, extras=['kishin']),
-            Point((0.515, 0.64)),
+            Point((0.515, 0.66)),
             Point((0.2, 0.75)),
             Point((0.3, 0.25))]
 
@@ -256,12 +258,13 @@ def distance(a, b):
 def move(target):
     prev_pos = player_pos
     while enabled and distance(player_pos, target) > POSITION_TOLERANCE:
-        if player_pos[0] < target[0]:
-            commands.teleport('right')
-        else:
-            commands.teleport('left')
+        if abs(player_pos[1] - target[1]) > POSITION_TOLERANCE * 0.75:
+            if player_pos[0] < target[0]:
+                commands.teleport('right')
+            else:
+                commands.teleport('left')
 
-        if abs(player_pos[1] - target[1]) > POSITION_TOLERANCE * 1.5:
+        if abs(player_pos[1] - target[1]) > POSITION_TOLERANCE * mm_ratio:
             if player_pos[1] < target[1]:
                 commands.teleport('down')
             else:
@@ -276,7 +279,7 @@ def buff(time):
     def act(new_time):
         if time == 0 or new_time - time > 180:
             press('ctrl', 2, up_time=0.2)
-            press('end', 3, up_time=0.3)
+            press('end', 4, up_time=0.3)
             press('9', 4, up_time=0.3)
             press('0', 4, up_time=0.3)
         else:
@@ -305,6 +308,6 @@ if __name__ == '__main__':
 
     kb.add_hotkey('insert', toggle_enabled)
     # kb.add_hotkey('alt', prompt)
-
+    print('ready')
     while True:
         time.sleep(1)
