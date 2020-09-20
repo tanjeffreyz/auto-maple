@@ -17,7 +17,7 @@ mm_ratio = 1.0
 enabled = False
 print_pos = True
 
-frequency, attack, n, extras = 1, True, 1, []
+new_point = None
 sequence = []
 
 
@@ -104,15 +104,16 @@ class Commands:
                 key_up('q')
                 time.sleep(1.75)
 
-    def teleport(self, direction):
+    def teleport(self, direction, jump=True):
         assert direction in ['left', 'up', 'right', 'down'], f"'{direction}' is not a recognized direction."
 
         if direction != 'up':
             key_down(direction)
             time.sleep(0.05)
-        press('space', 1, up_time=0.05)
-        if direction in ['up', 'down']:
-            time.sleep(0.15)
+        if jump:
+            press('space', 2, up_time=0.05)
+            if direction in ['up', 'down']:
+                time.sleep(0.06)
         if direction == 'up':
             key_down(direction)
             time.sleep(0.05)
@@ -255,7 +256,7 @@ def press(key, n, down_time=0.05, up_time=0.1):
         time.sleep(up_time)
 
 def load():
-    global sequence, frequency, attack, n, extras
+    global sequence, new_point
     sequence = []
 
     path = './bots'
@@ -267,10 +268,9 @@ def load():
             csv_reader = csv.reader(f)
             for row in csv_reader:
                 assert len(row) > 1, 'A Point must at least have an x and y position'
-                frequency, attack, n, extras = 1, True, 1, []
-                for a in row[2:]:
-                    exec('global frequency, attack, n, extras; ' + str(a))        # If you don't use global, the variables are assigned LOCALLY INSIDE exec's frame!!!
-                sequence.append(Point(float(row[0]), float(row[1]), frequency, attack, n, extras))
+                args = ''.join([row[i] + (', ' if i != len(row) - 1 else '') for i in range(len(row))])
+                exec(f'global new_point; new_point = Point({args})')
+                sequence.append(new_point)
 
 def distance(a, b):
     return math.sqrt(sum([(a[i] - b[i]) ** 2 for i in range(2)]))
@@ -279,10 +279,11 @@ def move(target):
     prev_pos = player_pos
     while enabled and distance(player_pos, target) > POSITION_TOLERANCE:
         if abs(player_pos[0] - target[0]) > POSITION_TOLERANCE / math.sqrt(2):
+            jump = True if player_pos[1] > target[1] + 0.03 else False   
             if player_pos[0] < target[0]:
-                commands.teleport('right')
+                commands.teleport('right', jump=jump)
             else:
-                commands.teleport('left')
+                commands.teleport('left', jump=jump)
         # else:
         #     time.sleep(0.2)
         # else:
