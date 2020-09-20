@@ -1,8 +1,10 @@
-import mss, cv2, time, threading, vkeys, time, math
+import mss, cv2, time, threading, vkeys, time, math, csv
 import numpy as np
 import keyboard as kb
 import tkinter as tk
 from vkeys import key_down, key_up
+from os import listdir
+from os.path import isfile, join
 
 
 #################################
@@ -13,6 +15,9 @@ POSITION_TOLERANCE = 0.1
 player_pos = (0, 0)
 mm_ratio = 1.0
 enabled = False
+print_pos = True
+
+frequency, attack, n, extras = 1, True, 1, []
 sequence = []
 
 
@@ -40,10 +45,6 @@ class Capture:
             while True:
                 frame = np.array(sct.grab(monitor))
 
-                # for x in [25 * i for i in range(77)]:
-                #     color = (0, 255, 0) if x % 100 else (255, 0, 0)
-                #     cv2.circle(frame, (x, 540), 3, color, -1)
-                
                 # Get the bottom right point of the minimap
                 _, br = Capture._match_template(frame, Capture.minimap_template)
                 mm_tl, mm_br = (Capture.MINIMAP_BOTTOM_BORDER, Capture.MINIMAP_TOP_BORDER), (tuple(a - Capture.MINIMAP_BOTTOM_BORDER for a in br))      # These are relative to entire screenshot
@@ -58,24 +59,13 @@ class Capture:
                 p_tl, p_br = Capture._match_template(minimap, Capture.player_template)           
                 raw_player_pos = tuple((p_br[i] + p_tl[i]) / 2 for i in range(2))
                 player_pos = (raw_player_pos[0] / minimap.shape[1], raw_player_pos[1] / minimap.shape[0])       # player_pos is relative to the minimap's inner box
-                # print(minimap.shape[1] / minimap.shape[0])
-                # print(player_pos)
+                if print_pos:
+                    print(player_pos)
 
-                # cv2.circle(minimap, tuple(round(a) for a in raw_player_pos), 3, (255, 0, 0), -1)
-                # cv2.circle(minimap, (round((mm_br[0] - mm_tl[0]) * target[0]), round((mm_br[1] - mm_tl[1]) * target[1])), 3, (0, 255, 0), -1)
-                # cv2.rectangle(frame, mm_tl, mm_br, (0, 0, 255), 1)
-                # cv2.rectangle(frame, tl, br, (0, 0, 255), 3)
-                # cv2.circle(frame, tuple(a - MINIMAP_BOTTOM_BORDER for a in br), 3, (0, 255, 0), -1)
+                for element in sequence:
+                    cv2.circle(minimap, (round((mm_br[0] - mm_tl[0]) * element.location[0]), round((mm_br[1] - mm_tl[1]) * element.location[1])), 3, (0, 255, 0), -1)
 
-                # for i in range(10):
-                #     color = (0, 0, 255) if i == 5 else (0, 255, 255)
-                #     cv2.circle(minimap, (round((mm_br[0] - mm_tl[0]) * (i + 1) / 10), round((mm_br[1] - mm_tl[1]) / 2)), 1, color, 1)
-                #     cv2.circle(minimap, (round((mm_br[0] - mm_tl[0]) / 2), round((mm_br[1] - mm_tl[1]) * (i + 1) / 10)), 1, color, 1)
-
-                # for element in sequence:
-                #     cv2.circle(minimap, (round((mm_br[0] - mm_tl[0]) * element.location[0]), round((mm_br[1] - mm_tl[1]) * element.location[1])), 3, (0, 255, 0), -1)
-
-                # cv2.imshow('mm', minimap)
+                cv2.imshow('mm', minimap)
 
                 if cv2.waitKey(1) & 0xFF == 27:     # 27 is ASCII for the Esc key on a keyboard
                     break
@@ -121,10 +111,8 @@ class Commands:
             key_down(direction)
             time.sleep(0.05)
         press('space', 1, up_time=0.05)
-        if direction == 'up':
-            time.sleep(0.1)
-        elif direction == 'down':
-            time.sleep(0.2)        # Down jump needs more time to accelerate
+        if direction in ['up', 'down']:
+            time.sleep(0.15)
         if direction == 'up':
             key_down(direction)
             time.sleep(0.05)
@@ -145,8 +133,8 @@ class Commands:
         time.sleep(0.1)
 
     def kishin(self):
-        time.sleep(0.3)
-        press('lshift', 3, down_time=0.1)
+        time.sleep(0.2)
+        press('lshift', 4, down_time=0.1)
     
     def boss(self, direction=None):     # Only Yaksha Boss takes an optional directional argument
         def act():
@@ -163,7 +151,7 @@ class Commands:
 
     def fox(self):
         time.sleep(0.1)
-        press('3', 3, down_time=0.1, up_time=0.15)
+        press('3', 3, down_time=0.1)
     
     def exo(self):
         time.sleep(0.1)
@@ -172,8 +160,8 @@ class Commands:
 
 
 class Point:
-    def __init__(self, location, frequency=1, attack=True, n=1, extras=[]):
-        self.location = location
+    def __init__(self, x, y, frequency=1, attack=True, n=1, extras=[]):
+        self.location = (x, y)
         self.frequency = frequency
         self.counter = 0
         self.attack = attack
@@ -209,21 +197,35 @@ class Point:
 #             Point((0.65, 0.77)),
 #             Point((0.44, 0.77))]
 
-sequence = [Point((0.515, 0.64)),
-            Point((0.85, 0.75), attack=False, extras=['boss()']),
-            Point((0.7, 0.25), attack=False, extras=['kishin']),
-            Point((0.85, 0.25), attack=False),
-            Point((0.515, 0.64)),
-            Point((0.2, 0.75)),
-            Point((0.3, 0.25)),
-            Point((0.2, 0.25), attack=False)]
+# sequence = [Point((0.515, 0.64)),
+#             Point((0.85, 0.75), attack=False, extras=['boss()']),
+#             Point((0.7, 0.25), attack=False, extras=['kishin']),
+#             Point((0.85, 0.25), attack=False),
+#             Point((0.515, 0.64)),
+#             Point((0.2, 0.75)),
+#             Point((0.3, 0.25)),
+#             Point((0.2, 0.25), attack=False)]
 
-sequence = [Point((0.515, 0.66)),
-            Point((0.85, 0.75), frequency=2, attack=False, extras=['boss()']),
-            Point((0.7, 0.25), attack=False, extras=['kishin']),
-            Point((0.515, 0.66)),
-            Point((0.2, 0.75)),
-            Point((0.3, 0.25))]
+# sequence = [Point((0.515, 0.66)),
+#             Point((0.85, 0.75), frequency=2, attack=False, extras=['boss()']),
+#             Point((0.7, 0.25), attack=False, extras=['kishin']),
+#             Point((0.515, 0.66)),
+#             Point((0.2, 0.75)),
+#             Point((0.3, 0.25))]
+
+# sequence = [Point((0.86, 0.16), attack=False, extras=['kishin']),
+#             Point((0.76, 0.53)),
+#             # Point((0.5, 0.53)),
+#             Point((0.33, 0.53), frequency=2, extras=["boss('left')"]),
+#             Point((0.64, 0.36)),
+#             Point((0.63, 0.53))]
+
+sequence = [Point(0.85, 0.16, frequency=2, attack=False, extras=['kishin']),
+            Point(0.69, 0.53),
+            Point(0.51, 0.53),
+            Point(0.31, 0.53, frequency=2, attack=False, extras=["boss('left')"]),
+            Point(0.16, 0.14, frequency=2),
+            Point(0.61, 0.36, frequency=2, extras=['fox'])]
 
 
 #################################
@@ -252,27 +254,53 @@ def press(key, n, down_time=0.05, up_time=0.1):
         key_up(key)
         time.sleep(up_time)
 
+def load():
+    global sequence, frequency, attack, n, extras
+    sequence = []
+
+    path = './bots'
+    csv_files = [f for f in listdir(path) if isfile(join(path, f)) and '.csv' in f]
+    if not csv_files:
+        print('Unable to find .csv bot file.')
+    else:
+        with open(join(path, csv_files[0])) as f:
+            csv_reader = csv.reader(f)
+            for row in csv_reader:
+                assert len(row) > 1, 'A Point must at least have an x and y position'
+                frequency, attack, n, extras = 1, True, 1, []
+                for a in row[2:]:
+                    exec('global frequency, attack, n, extras; ' + str(a))        # If you don't use global, the variables are assigned LOCALLY INSIDE exec's frame!!!
+                sequence.append(Point(float(row[0]), float(row[1]), frequency, attack, n, extras))
+
 def distance(a, b):
     return math.sqrt(sum([(a[i] - b[i]) ** 2 for i in range(2)]))
 
 def move(target):
     prev_pos = player_pos
     while enabled and distance(player_pos, target) > POSITION_TOLERANCE:
-        if abs(player_pos[1] - target[1]) > POSITION_TOLERANCE * 0.75:
+        if abs(player_pos[0] - target[0]) > POSITION_TOLERANCE / math.sqrt(2):
             if player_pos[0] < target[0]:
                 commands.teleport('right')
             else:
                 commands.teleport('left')
+        # else:
+        #     time.sleep(0.2)
+        # else:
+        #     time.sleep(0.5)
 
-        if abs(player_pos[1] - target[1]) > POSITION_TOLERANCE * mm_ratio:
+        if abs(player_pos[1] - target[1]) > POSITION_TOLERANCE / math.sqrt(2):
             if player_pos[1] < target[1]:
                 commands.teleport('down')
             else:
                 commands.teleport('up')
+        # else:
+        #     time.sleep(0.2)
 
+        # counter = counter + 1 if player_pos == prev_pos else 0
         if player_pos == prev_pos:
-            press('w', 2, up_time=0.05)
+            press('w', 2)
             press('e', 3)
+
         prev_pos = player_pos
 
 def buff(time):
@@ -288,15 +316,22 @@ def buff(time):
     return act
 
 def toggle_enabled():
-    global enabled
+    global enabled, print_pos
     prev = enabled
-    enabled = not enabled
+    if not enabled:     # If bot is going to be enabled, reload the bot file
+        load()
+        enabled, print_pos = True, False
+    else:
+        enabled, print_pos = False, True
+    # enabled = not enabled
     print(f"toggled: {'on' if prev else 'off'} --> {'ON' if enabled else 'OFF'}")
     time.sleep(1)
 
 
 
 if __name__ == '__main__':
+    # load()
+
     capture = Capture()
     capture.cap.start()
 

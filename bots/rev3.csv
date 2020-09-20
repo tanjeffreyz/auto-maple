@@ -1,0 +1,6 @@
+0.85,0.16,frequency=2,attack=False,extras=['kishin']
+0.69,0.53
+0.51,0.53
+0.35,0.53,frequency=2,attack=False,extras=["boss('left')"]
+0.17,0.14,frequency=2
+0.61,0.36,frequency=2,extras=['fox']

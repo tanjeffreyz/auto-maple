@@ -1,4 +1,9 @@
-# from autokanna import Capture
+import cv2, threading, time, mss, math
+import numpy as np
+import keyboard as kb
+
+player_pos = (0, 0)
+positions = []
 
 class Capture:
     MINIMAP_TOP_BORDER = 20
@@ -53,10 +58,10 @@ class Capture:
                 #     cv2.circle(minimap, (round((mm_br[0] - mm_tl[0]) * (i + 1) / 10), round((mm_br[1] - mm_tl[1]) / 2)), 1, color, 1)
                 #     cv2.circle(minimap, (round((mm_br[0] - mm_tl[0]) / 2), round((mm_br[1] - mm_tl[1]) * (i + 1) / 10)), 1, color, 1)
 
-                # for element in sequence:
-                #     cv2.circle(minimap, (round((mm_br[0] - mm_tl[0]) * element.location[0]), round((mm_br[1] - mm_tl[1]) * element.location[1])), 3, (0, 255, 0), -1)
+                for element in positions:
+                    cv2.circle(minimap, (round((mm_br[0] - mm_tl[0]) * element[0]), round((mm_br[1] - mm_tl[1]) * element[1])), 3, (0, 255, 0), -1)
 
-                # cv2.imshow('mm', minimap)
+                cv2.imshow('mm', minimap)
 
                 if cv2.waitKey(1) & 0xFF == 27:     # 27 is ASCII for the Esc key on a keyboard
                     break
@@ -78,7 +83,32 @@ class Capture:
         return top_left, bottom_right
 
 
+def print_pos():
+    for i in range(len(positions)):
+        print(f"{'[' if i == 0 else ''}Point({positions[i]}){']' if i == len(positions) - 1 else ','}")
+    print('\n')
 
-pos_cap = Capture()
-pos_cap.cap.start()
+def record():
+    positions.append(tuple(round(pos * 100) / 100 for pos in player_pos))
+    print_pos()
 
+def undo():
+    if positions:
+        positions.pop(len(positions) - 1)
+    if positions:
+        print_pos()
+    else:
+        print('empty\n\n')
+
+
+
+if __name__ == '__main__':
+    pos_cap = Capture()
+    pos_cap.cap.start()
+
+    kb.add_hotkey('insert', record)
+    kb.add_hotkey('end', undo)
+
+    while True:
+        # print(positions)
+        time.sleep(1)
