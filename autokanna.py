@@ -1,7 +1,6 @@
-import mss, cv2, time, threading, vkeys, time, math, csv
+import mss, cv2, time, threading, vkeys, math, csv
 import numpy as np
 import keyboard as kb
-import tkinter as tk
 from vkeys import key_down, key_up
 from os import listdir
 from os.path import isfile, join
