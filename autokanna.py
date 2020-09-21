@@ -12,13 +12,15 @@ from os.path import isfile, join
 #################################
 POSITION_TOLERANCE = 0.1
 
+enabled = False
+ready = False
+
 player_pos = (0, 0)
 mm_ratio = 1.0
-enabled = False
-print_pos = True
 
 new_point = None
 sequence = []
+index = 0
 
 
 #################################
@@ -59,14 +61,15 @@ class Capture:
                 p_tl, p_br = Capture._match_template(minimap, Capture.player_template)           
                 raw_player_pos = tuple((p_br[i] + p_tl[i]) / 2 for i in range(2))
                 player_pos = (raw_player_pos[0] / minimap.shape[1], raw_player_pos[1] / minimap.shape[0])       # player_pos is relative to the minimap's inner box
-                if print_pos:
+                if not enabled:
                     print(player_pos)
-
-                for element in sequence:
-                    cv2.circle(minimap, (round((mm_br[0] - mm_tl[0]) * element.location[0]), round((mm_br[1] - mm_tl[1]) * element.location[1])), 3, (0, 255, 0), -1)
-
+                else:
+                    for element in sequence:
+                        cv2.circle(minimap, (round((mm_br[0] - mm_tl[0]) * element.location[0]), round((mm_br[1] - mm_tl[1]) * element.location[1])), 3, (0, 255, 0), -1)
+                if ready:
+                    cv2.circle(minimap, tuple(round(a) for a in raw_player_pos), 3, (255, 0, 0), -1)
+                
                 cv2.imshow('mm', minimap)
-
                 if cv2.waitKey(1) & 0xFF == 27:     # 27 is ASCII for the Esc key on a keyboard
                     break
 
@@ -232,9 +235,9 @@ class Point:
 #             Mains             #
 #################################
 def bot():
+    global index
     print('started bot')
     
-    index = 0
     b = buff(0)
     while True: 
         if enabled and len(sequence) > 0:
@@ -284,26 +287,26 @@ def distance(a, b):
 def move(target):
     prev_pos = player_pos
     while enabled and distance(player_pos, target) > POSITION_TOLERANCE:
-        if abs(player_pos[0] - target[0]) > POSITION_TOLERANCE / math.sqrt(2):
+        d_x = abs(player_pos[0] - target[0])
+        if d_x > POSITION_TOLERANCE / math.sqrt(2):
             jump = True if player_pos[1] > target[1] + 0.03 else False   
             if player_pos[0] < target[0]:
                 commands.teleport('right', jump=jump)
             else:
                 commands.teleport('left', jump=jump)
         # else:
-        #     time.sleep(0.2)
-        # else:
-        #     time.sleep(0.5)
-
-        if abs(player_pos[1] - target[1]) > POSITION_TOLERANCE / math.sqrt(2):
+        #     time.sleep(0.1)
+        
+        d_y = abs(player_pos[1] - target[1])
+        if d_y > POSITION_TOLERANCE / math.sqrt(2):
             if player_pos[1] < target[1]:
-                commands.teleport('down')
+                jump = True if d_y > 0.333 else False
+                commands.teleport('down', jump=jump)
             else:
                 commands.teleport('up')
         # else:
-        #     time.sleep(0.2)
-
-        # counter = counter + 1 if player_pos == prev_pos else 0
+        #     time.sleep(0.1)
+        
         if player_pos == prev_pos:
             press('w', 2)
             press('e', 3)
@@ -327,13 +330,13 @@ def toggle_enabled():
     prev = enabled
     if not enabled:     # If bot is going to be enabled, reload the bot file
         load()
-        enabled, print_pos = True, False
-    else:
-        enabled, print_pos = False, True
-    # enabled = not enabled
+    enabled = not enabled
     print(f"toggled: {'on' if prev else 'off'} --> {'ON' if enabled else 'OFF'}")
     time.sleep(1)
 
+def reset_index():
+    global index
+    index = 0
 
 
 if __name__ == '__main__':
@@ -349,7 +352,9 @@ if __name__ == '__main__':
     bt.start()
 
     kb.add_hotkey('insert', toggle_enabled)
+    kb.add_hotkey('home', reset_index)
     # kb.add_hotkey('alt', prompt)
+    ready = True
     print('ready')
     while True:
         time.sleep(1)

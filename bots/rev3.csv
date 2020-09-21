@@ -1,5 +1,5 @@
 0.69,0.53
-0.8,0.16,frequency=1,attacks=0,extras=['kishin']
+0.8,0.16,attacks=0,extras=['kishin']
 0.69,0.53
 0.51,0.53
 0.35,0.53,frequency=2,attacks=0,extras=["boss('left')"]
