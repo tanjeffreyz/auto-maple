@@ -180,55 +180,6 @@ class Point:
                 commands.shikigami('left', self.attacks)
                 commands.shikigami('right', self.attacks)
         self.counter = (self.counter + 1) % self.frequency
-        
-
-#################################
-#        Initialization         #
-#################################
-# # sequence = [Point((0.37, 0.82)),
-# #             Point((0.33, 0.58)),
-# #             Point((0.3, 0.24)),
-# #             Point((0.5, 0.35), attack=False, extras=['kishin']),
-# #             Point((0.71, 0.25)),
-# #             Point((0.70, 0.58), attack=False, extras=['boss']),
-# #             Point((0.65, 0.82))]
-
-# # sequence = [Point((0.49, 0.44), attack=False, extras=['kishin']),
-# #             Point((0.44, 0.77)),
-# #             Point((0.82, 0.77), attack=False, extras=['boss']),
-# #             Point((0.77, 0.28)),
-# #             Point((0.65, 0.77)),
-# #             Point((0.44, 0.77))]
-
-# # sequence = [Point((0.515, 0.64)),
-# #             Point((0.85, 0.75), attack=False, extras=['boss()']),
-# #             Point((0.7, 0.25), attack=False, extras=['kishin']),
-# #             Point((0.85, 0.25), attack=False),
-# #             Point((0.515, 0.64)),
-# #             Point((0.2, 0.75)),
-# #             Point((0.3, 0.25)),
-# #             Point((0.2, 0.25), attack=False)]
-
-# # sequence = [Point((0.515, 0.66)),
-# #             Point((0.85, 0.75), frequency=2, attack=False, extras=['boss()']),
-# #             Point((0.7, 0.25), attack=False, extras=['kishin']),
-# #             Point((0.515, 0.66)),
-# #             Point((0.2, 0.75)),
-# #             Point((0.3, 0.25))]
-
-# # sequence = [Point((0.86, 0.16), attack=False, extras=['kishin']),
-# #             Point((0.76, 0.53)),
-# #             # Point((0.5, 0.53)),
-# #             Point((0.33, 0.53), frequency=2, extras=["boss('left')"]),
-# #             Point((0.64, 0.36)),
-# #             Point((0.63, 0.53))]
-
-# sequence = [Point(0.85, 0.16, frequency=2, attack=False, extras=['kishin']),
-#             Point(0.69, 0.53),
-#             Point(0.51, 0.53),
-#             Point(0.31, 0.53, frequency=2, attack=False, extras=["boss('left')"]),
-#             Point(0.16, 0.14, frequency=2),
-#             Point(0.61, 0.36, frequency=2, extras=['fox'])]
 
 
 #################################
