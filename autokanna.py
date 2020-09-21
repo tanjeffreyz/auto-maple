@@ -161,12 +161,11 @@ class Commands:
 
 
 class Point:
-    def __init__(self, x, y, frequency=1, attack=True, n=1, extras=[]):
+    def __init__(self, x, y, frequency=1, attacks=1, extras=[]):
         self.location = (x, y)
         self.frequency = frequency
         self.counter = 0
-        self.attack = attack
-        self.n = n
+        self.attacks = attacks
         self.extras = extras
 
     def execute(self):
@@ -174,59 +173,59 @@ class Point:
             move(self.location)
             for e in self.extras:
                 exec(f'commands.{e}()')
-            if self.attack:
-                commands.shikigami('left', self.n)
-                commands.shikigami('right', self.n)
+            if self.attacks:
+                commands.shikigami('left', self.attacks)
+                commands.shikigami('right', self.attacks)
         self.counter = (self.counter + 1) % self.frequency
         
 
 #################################
 #        Initialization         #
 #################################
-# sequence = [Point((0.37, 0.82)),
-#             Point((0.33, 0.58)),
-#             Point((0.3, 0.24)),
-#             Point((0.5, 0.35), attack=False, extras=['kishin']),
-#             Point((0.71, 0.25)),
-#             Point((0.70, 0.58), attack=False, extras=['boss']),
-#             Point((0.65, 0.82))]
+# # sequence = [Point((0.37, 0.82)),
+# #             Point((0.33, 0.58)),
+# #             Point((0.3, 0.24)),
+# #             Point((0.5, 0.35), attack=False, extras=['kishin']),
+# #             Point((0.71, 0.25)),
+# #             Point((0.70, 0.58), attack=False, extras=['boss']),
+# #             Point((0.65, 0.82))]
 
-# sequence = [Point((0.49, 0.44), attack=False, extras=['kishin']),
-#             Point((0.44, 0.77)),
-#             Point((0.82, 0.77), attack=False, extras=['boss']),
-#             Point((0.77, 0.28)),
-#             Point((0.65, 0.77)),
-#             Point((0.44, 0.77))]
+# # sequence = [Point((0.49, 0.44), attack=False, extras=['kishin']),
+# #             Point((0.44, 0.77)),
+# #             Point((0.82, 0.77), attack=False, extras=['boss']),
+# #             Point((0.77, 0.28)),
+# #             Point((0.65, 0.77)),
+# #             Point((0.44, 0.77))]
 
-# sequence = [Point((0.515, 0.64)),
-#             Point((0.85, 0.75), attack=False, extras=['boss()']),
-#             Point((0.7, 0.25), attack=False, extras=['kishin']),
-#             Point((0.85, 0.25), attack=False),
-#             Point((0.515, 0.64)),
-#             Point((0.2, 0.75)),
-#             Point((0.3, 0.25)),
-#             Point((0.2, 0.25), attack=False)]
+# # sequence = [Point((0.515, 0.64)),
+# #             Point((0.85, 0.75), attack=False, extras=['boss()']),
+# #             Point((0.7, 0.25), attack=False, extras=['kishin']),
+# #             Point((0.85, 0.25), attack=False),
+# #             Point((0.515, 0.64)),
+# #             Point((0.2, 0.75)),
+# #             Point((0.3, 0.25)),
+# #             Point((0.2, 0.25), attack=False)]
 
-# sequence = [Point((0.515, 0.66)),
-#             Point((0.85, 0.75), frequency=2, attack=False, extras=['boss()']),
-#             Point((0.7, 0.25), attack=False, extras=['kishin']),
-#             Point((0.515, 0.66)),
-#             Point((0.2, 0.75)),
-#             Point((0.3, 0.25))]
+# # sequence = [Point((0.515, 0.66)),
+# #             Point((0.85, 0.75), frequency=2, attack=False, extras=['boss()']),
+# #             Point((0.7, 0.25), attack=False, extras=['kishin']),
+# #             Point((0.515, 0.66)),
+# #             Point((0.2, 0.75)),
+# #             Point((0.3, 0.25))]
 
-# sequence = [Point((0.86, 0.16), attack=False, extras=['kishin']),
-#             Point((0.76, 0.53)),
-#             # Point((0.5, 0.53)),
-#             Point((0.33, 0.53), frequency=2, extras=["boss('left')"]),
-#             Point((0.64, 0.36)),
-#             Point((0.63, 0.53))]
+# # sequence = [Point((0.86, 0.16), attack=False, extras=['kishin']),
+# #             Point((0.76, 0.53)),
+# #             # Point((0.5, 0.53)),
+# #             Point((0.33, 0.53), frequency=2, extras=["boss('left')"]),
+# #             Point((0.64, 0.36)),
+# #             Point((0.63, 0.53))]
 
-sequence = [Point(0.85, 0.16, frequency=2, attack=False, extras=['kishin']),
-            Point(0.69, 0.53),
-            Point(0.51, 0.53),
-            Point(0.31, 0.53, frequency=2, attack=False, extras=["boss('left')"]),
-            Point(0.16, 0.14, frequency=2),
-            Point(0.61, 0.36, frequency=2, extras=['fox'])]
+# sequence = [Point(0.85, 0.16, frequency=2, attack=False, extras=['kishin']),
+#             Point(0.69, 0.53),
+#             Point(0.51, 0.53),
+#             Point(0.31, 0.53, frequency=2, attack=False, extras=["boss('left')"]),
+#             Point(0.16, 0.14, frequency=2),
+#             Point(0.61, 0.36, frequency=2, extras=['fox'])]
 
 
 #################################
@@ -240,6 +239,8 @@ def bot():
     while True: 
         if enabled and len(sequence) > 0:
             b = b(time.time())
+            if index >= len(sequence):      # Just in case I delete some Points from sequence while the bot is running
+                index = len(sequence) - 1
             point = sequence[index]
             point.execute()
             index = (index + 1) % len(sequence)
@@ -262,14 +263,19 @@ def load():
     path = './bots'
     csv_files = [f for f in listdir(path) if isfile(join(path, f)) and '.csv' in f]
     if not csv_files:
-        print('Unable to find .csv bot file.')
+        print('Unable to find .csv bot file')
     else:
         with open(join(path, csv_files[0])) as f:
             csv_reader = csv.reader(f)
             for row in csv_reader:
-                assert len(row) > 1, 'A Point must at least have an x and y position'
+                # assert len(row) > 1, 'A Point must at least have an x and y position'
                 args = ''.join([row[i] + (', ' if i != len(row) - 1 else '') for i in range(len(row))])
-                exec(f'global new_point; new_point = Point({args})')
+                try:
+                    exec(f'global new_point; new_point = Point({args})')
+                except:
+                    print(f"Error while creating point 'Point({args})'")
+                    # print(row)
+                    break
                 sequence.append(new_point)
 
 def distance(a, b):
