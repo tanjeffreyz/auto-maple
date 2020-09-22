@@ -13,6 +13,7 @@ POSITION_TOLERANCE = 0.1
 
 enabled = False
 ready = False
+calibrated = False
 
 player_pos = (0, 0)
 mm_ratio = 1.0
@@ -41,34 +42,33 @@ class Capture:
         with mss.mss() as sct:
             print('started capture')
 
-            global player_pos, mm_ratio
+            global player_pos, mm_ratio, calibrated
             monitor = {'top': 0, 'left': 0, 'width': 1920, 'height': 1080}
             while True:
-                frame = np.array(sct.grab(monitor))
+                if not calibrated:
+                    frame = np.array(sct.grab(monitor))
 
-                # Get the bottom right point of the minimap
-                _, br = Capture._match_template(frame, Capture.minimap_template)
-                mm_tl, mm_br = (Capture.MINIMAP_BOTTOM_BORDER, Capture.MINIMAP_TOP_BORDER), (tuple(a - Capture.MINIMAP_BOTTOM_BORDER for a in br))      # These are relative to entire screenshot
-
-                # Make sure the minimap is larger than player_template
-                if mm_br[0] - mm_tl[0] < Capture.player_template.shape[1] or mm_br[1] - mm_tl[1] < Capture.player_template.shape[0]:
-                    mm_br = (mm_tl[0] + Capture.player_template.shape[1], mm_tl[1] + Capture.player_template.shape[0])
-                
-                # Crop the frame to only show the minimap
-                minimap = frame[mm_tl[1]:mm_br[1], mm_tl[0]:mm_br[0]]
-                mm_ratio = minimap.shape[1] / minimap.shape[0]
-                p_tl, p_br = Capture._match_template(minimap, Capture.player_template)           
-                raw_player_pos = tuple((p_br[i] + p_tl[i]) / 2 for i in range(2))
-                player_pos = (raw_player_pos[0] / minimap.shape[1], raw_player_pos[1] / minimap.shape[0])       # player_pos is relative to the minimap's inner box
-                if not enabled:
-                    print(player_pos)
+                    # Get the bottom right point of the minimap
+                    _, br = Capture._match_template(frame[:round(frame.shape[1] / 4),:round(frame.shape[0] / 4)], Capture.minimap_template)
+                    mm_tl, mm_br = (Capture.MINIMAP_BOTTOM_BORDER, Capture.MINIMAP_TOP_BORDER), (tuple(a - Capture.MINIMAP_BOTTOM_BORDER for a in br))      # These are relative to the entire screenshot
+                    calibrated = True
                 else:
-                    for element in sequence:
-                        cv2.circle(minimap, (round((mm_br[0] - mm_tl[0]) * element.location[0]), round((mm_br[1] - mm_tl[1]) * element.location[1])), 3, (0, 255, 0), -1)
-                if ready:
-                    cv2.circle(minimap, tuple(round(a) for a in raw_player_pos), 3, (255, 0, 0), -1)
-                
-                cv2.imshow('mm', minimap)
+                    frame = np.array(sct.grab(monitor))
+
+                    # Crop the frame to only show the minimap
+                    minimap = frame[mm_tl[1]:mm_br[1], mm_tl[0]:mm_br[0]]
+                    mm_ratio = minimap.shape[1] / minimap.shape[0]
+                    p_tl, p_br = Capture._match_template(minimap, Capture.player_template)           
+                    raw_player_pos = tuple((p_br[i] + p_tl[i]) / 2 for i in range(2))
+                    player_pos = (raw_player_pos[0] / minimap.shape[1], raw_player_pos[1] / minimap.shape[0])       # player_pos is relative to the minimap's inner box
+                    if not enabled:
+                        print(player_pos)
+                    else:
+                        for element in sequence:
+                            cv2.circle(minimap, (round((mm_br[0] - mm_tl[0]) * element.location[0]), round((mm_br[1] - mm_tl[1]) * element.location[1])), 3, (0, 255, 0), -1)
+                    if ready:
+                        cv2.circle(minimap, tuple(round(a) for a in raw_player_pos), 3, (255, 0, 0), -1)
+                    cv2.imshow('mm', minimap)
                 if cv2.waitKey(1) & 0xFF == 27:     # 27 is ASCII for the Esc key on a keyboard
                     break
 
@@ -133,7 +133,7 @@ class Commands:
                 press('q', 1, up_time=0.05)
             press('r', 4, down_time=0.1)
         key_up(direction)
-        time.sleep(0.1)
+        time.sleep(0.15)
 
     def kishin(self):
         time.sleep(0.2)
@@ -288,6 +288,10 @@ def reset_index():
     global index
     index = 0
 
+def recalibrate_mm():
+    global calibrated
+    calibrated = False
+
 
 if __name__ == '__main__':
     # load()
@@ -302,7 +306,8 @@ if __name__ == '__main__':
     bt.start()
 
     kb.add_hotkey('insert', toggle_enabled)
-    kb.add_hotkey('home', reset_index)
+    kb.add_hotkey('control+insert', reset_index)
+    kb.add_hotkey('home', recalibrate_mm)
     # kb.add_hotkey('alt', prompt)
     ready = True
     print('ready')
