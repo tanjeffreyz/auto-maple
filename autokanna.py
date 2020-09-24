@@ -9,8 +9,6 @@ from os.path import isfile, join
 #################################
 #       Global Variables        #
 #################################
-POSITION_TOLERANCE = 0.1
-
 enabled = False
 ready = False
 calibrated = False
@@ -21,6 +19,14 @@ mm_ratio = 1.0
 new_point = None
 sequence = []
 index = 0
+
+
+#################################
+#         Bot Settings          #
+#################################
+position_tolerance = 0.1
+buff_cooldown = 195
+tengu_on = True
 
 
 #################################
@@ -90,9 +96,6 @@ class Capture:
 
 
 class Commands:
-    tengu_on = True
-
-
     def __init__(self):
         self.tengu = threading.Thread(target=self._tengu)         # Tengu thread continuously uses Tengu Strike unless tengu_on is set to False
         self.tengu.daemon = True     # Daemon threads end when the main thread ends
@@ -100,23 +103,24 @@ class Commands:
     def _tengu(self):
         print('started tengu')
         while True:
-            if Commands.tengu_on and enabled:
+            if tengu_on and enabled:
                 key_down('q')
                 time.sleep(0.2)
                 key_up('q')
                 time.sleep(1.75)
 
     def teleport(self, direction, jump=True):
-        assert direction in ['left', 'up', 'right', 'down'], f"'{direction}' is not a recognized direction."
-
         if direction != 'up':
             key_down(direction)
             time.sleep(0.05)
+        prev_y = round(player_pos[1], 2)
         if jump:
-            press('space', 2, up_time=0.05)
+            press('space', 3, down_time=0.033, up_time=0.033)
             if direction in ['up', 'down']:
                 time.sleep(0.06)
         if direction == 'up':
+            if round(player_pos[1], 2) >= prev_y:
+                return
             key_down(direction)
             time.sleep(0.05)
         press('e', 3)
@@ -124,20 +128,18 @@ class Commands:
         time.sleep(0.15)
 
     def shikigami(self, direction, n=1):
-        assert direction in ['left', 'right'], 'Shikigami Haunting can only be used in the left and right directions.'
-
         key_down(direction)
         time.sleep(0.05)
         for _ in range(n):
-            if Commands.tengu_on:
+            if tengu_on:
                 press('q', 1, up_time=0.05)
             press('r', 4, down_time=0.1)
         key_up(direction)
         time.sleep(0.15)
 
     def kishin(self):
-        time.sleep(0.2)
-        press('lshift', 4, down_time=0.1)
+        time.sleep(0.05)
+        press('lshift', 6, down_time=0.1)
     
     def boss(self, direction=None):     # Only Yaksha Boss takes an optional directional argument
         def act():
@@ -160,6 +162,18 @@ class Commands:
         time.sleep(0.1)
         press('space', 1, up_time=0.15)
         press('w', 2)
+    
+    def charm(self, direction=None, delay=0.15):
+        def act():
+            time.sleep(0.05)
+            if direction:
+                key_down(direction)
+                time.sleep(0.1)
+            press('d', 2)
+            if direction:
+                key_up(direction)
+            time.sleep(delay)
+        return act
 
 
 class Point:
@@ -212,7 +226,6 @@ def press(key, n, down_time=0.05, up_time=0.1):
 def load():
     global sequence, new_point
     sequence = []
-
     path = './bots'
     csv_files = [f for f in listdir(path) if isfile(join(path, f)) and '.csv' in f]
     if not csv_files:
@@ -220,54 +233,59 @@ def load():
     else:
         with open(join(path, csv_files[0])) as f:
             csv_reader = csv.reader(f)
+            first_row = True
             for row in csv_reader:
-                # assert len(row) > 1, 'A Point must at least have an x and y position'
+                if first_row:
+                    for a in row:
+                        try:
+                            exec(f'global position_tolerance, buff_cooldown; {a}')
+                        except:
+                            pass
+                    first_row = False
+
                 args = ''.join([row[i] + (', ' if i != len(row) - 1 else '') for i in range(len(row))])
                 try:
                     exec(f'global new_point; new_point = Point({args})')
                 except:
                     print(f"Error while creating point 'Point({args})'")
-                    # print(row)
-                    break
+                    continue
                 sequence.append(new_point)
 
 def distance(a, b):
     return math.sqrt(sum([(a[i] - b[i]) ** 2 for i in range(2)]))
 
 def move(target):
-    prev_pos = player_pos
-    while enabled and distance(player_pos, target) > POSITION_TOLERANCE:
+    prev_pos = [tuple(round(a, 2) for a in player_pos)]
+    while enabled and distance(player_pos, target) > position_tolerance:
         d_x = abs(player_pos[0] - target[0])
-        if d_x > POSITION_TOLERANCE / math.sqrt(2):
+        if d_x > position_tolerance / math.sqrt(2):
             jump = True if player_pos[1] > target[1] + 0.03 else False   
             if player_pos[0] < target[0]:
                 commands.teleport('right', jump=jump)
             else:
                 commands.teleport('left', jump=jump)
-        # else:
-        #     time.sleep(0.1)
         
         d_y = abs(player_pos[1] - target[1])
-        if d_y > POSITION_TOLERANCE / math.sqrt(2):
+        if d_y > position_tolerance / math.sqrt(2):
             if player_pos[1] < target[1]:
                 jump = True if d_y > 0.333 else False
                 commands.teleport('down', jump=jump)
             else:
                 commands.teleport('up')
-        # else:
-        #     time.sleep(0.1)
         
-        if player_pos == prev_pos:
+        rounded_pos = tuple(round(a, 2) for a in player_pos)
+        if rounded_pos in prev_pos:
             press('w', 2)
             press('e', 3)
-
-        prev_pos = player_pos
+        prev_pos.append(rounded_pos)
+        if len(prev_pos) > 3:
+            prev_pos.pop(0)
 
 def buff(time):
     def act(new_time):
-        if time == 0 or new_time - time > 180:
+        if time == 0 or new_time - time > buff_cooldown:
             press('ctrl', 2, up_time=0.2)
-            press('end', 4, up_time=0.3)
+            press('end', 3, up_time=0.2)
             press('9', 4, up_time=0.3)
             press('0', 4, up_time=0.3)
         else:
@@ -276,10 +294,8 @@ def buff(time):
     return act
 
 def toggle_enabled():
-    global enabled, print_pos
+    global enabled
     prev = enabled
-    if not enabled:     # If bot is going to be enabled, reload the bot file
-        load()
     enabled = not enabled
     print(f"toggled: {'on' if prev else 'off'} --> {'ON' if enabled else 'OFF'}")
     time.sleep(1)
@@ -294,8 +310,6 @@ def recalibrate_mm():
 
 
 if __name__ == '__main__':
-    # load()
-
     capture = Capture()
     capture.cap.start()
 
@@ -306,9 +320,11 @@ if __name__ == '__main__':
     bt.start()
 
     kb.add_hotkey('insert', toggle_enabled)
+    kb.add_hotkey('page up', load)
     kb.add_hotkey('control+insert', reset_index)
     kb.add_hotkey('home', recalibrate_mm)
-    # kb.add_hotkey('alt', prompt)
+
+    load()
     ready = True
     print('ready')
     while True:
