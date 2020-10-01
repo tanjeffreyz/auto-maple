@@ -197,7 +197,8 @@ class Point:
                 if self.attacks:
                     commands.shikigami('left', self.attacks)()
                     commands.shikigami('right', self.attacks)()
-        self.counter = (self.counter + 1) % self.frequency
+        if enabled:
+            self.counter = (self.counter + 1) % self.frequency
 
 
 #################################
