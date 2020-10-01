@@ -1,8 +1,6 @@
-0.453,0.685,frequency=2,attacks=0,extras=["boss('left')"]
-0.27,0.685,frequency=2
-0.31,0.41,frequency=2
-0.30,0.41,frequency=2,attacks=0,extras=[]
-0.554,0.685,frequency=2
-0.8,0.685,frequency=2
-0.554,0.685
-0.57,0.315
+0.617;0.315;frequency=8;extras=['kishin']
+0.617;0.648;frequency=4;attacks=0;extras=["boss('right')"]
+0.760;0.685;frequency=8
+0.243;0.685
+0.243;0.407;attacks=0;extras=['exo']
+0.365,0.407;counter=1;frequency=8;attacks=0

@@ -1,9 +1,17 @@
-import mss, cv2, time, threading, vkeys, math, csv
+import mss, cv2, time, threading, vkeys, math, csv, winsound
 import numpy as np
 import keyboard as kb
 from vkeys import key_down, key_up
 from os import listdir
 from os.path import isfile, join
+
+
+#################################
+#           CONSTANTS           #
+#################################
+DEFAULT_POSITION_TOLERANCE = 0.1
+DEFAULT_BUFF_COOLDOWN = 200
+DEFAULT_TENGU_ON = True
 
 
 #################################
@@ -24,9 +32,9 @@ index = 0
 #################################
 #         Bot Settings          #
 #################################
-position_tolerance = 0.1
-buff_cooldown = 195
-tengu_on = True
+position_tolerance = DEFAULT_POSITION_TOLERANCE
+buff_cooldown = DEFAULT_BUFF_COOLDOWN
+tengu_on = DEFAULT_TENGU_ON
 
 
 #################################
@@ -69,9 +77,11 @@ class Capture:
                     player_pos = (raw_player_pos[0] / minimap.shape[1], raw_player_pos[1] / minimap.shape[0])       # player_pos is relative to the minimap's inner box
                     if not enabled:
                         print(player_pos)
+                        color = (0, 0, 255)
                     else:
-                        for element in sequence:
-                            cv2.circle(minimap, (round((mm_br[0] - mm_tl[0]) * element.location[0]), round((mm_br[1] - mm_tl[1]) * element.location[1])), 3, (0, 255, 0), -1)
+                        color = (0, 255, 0)
+                    for element in sequence:
+                        cv2.circle(minimap, (round((mm_br[0] - mm_tl[0]) * element.location[0]), round((mm_br[1] - mm_tl[1]) * element.location[1])), round(minimap.shape[1] * position_tolerance), color, 1)
                     if ready:
                         cv2.circle(minimap, tuple(round(a) for a in raw_player_pos), 3, (255, 0, 0), -1)
                     cv2.imshow('mm', minimap)
@@ -96,46 +106,40 @@ class Capture:
 
 
 class Commands:
-    def __init__(self):
-        self.tengu = threading.Thread(target=self._tengu)         # Tengu thread continuously uses Tengu Strike unless tengu_on is set to False
-        self.tengu.daemon = True     # Daemon threads end when the main thread ends
-       
-    def _tengu(self):
-        print('started tengu')
-        while True:
-            if tengu_on and enabled:
-                key_down('q')
-                time.sleep(0.2)
-                key_up('q')
-                time.sleep(1.75)
-
     def teleport(self, direction, jump=True):
-        if direction != 'up':
-            key_down(direction)
-            time.sleep(0.05)
-        prev_y = round(player_pos[1], 2)
-        if jump:
-            press('space', 3, down_time=0.033, up_time=0.033)
-            if direction in ['up', 'down']:
-                time.sleep(0.06)
-        if direction == 'up':
-            if round(player_pos[1], 2) >= prev_y:
-                return
-            key_down(direction)
-            time.sleep(0.05)
-        press('e', 3)
-        key_up(direction)
-        time.sleep(0.15)
+        def act():
+            if direction != 'up':
+                key_down(direction)
+                time.sleep(0.05)
+            prev_y = round(player_pos[1], 2)
+            if jump:
+                press('space', 3, down_time=0.033, up_time=0.033)
+                if direction in ['up', 'down']:
+                    time.sleep(0.06)
+            if direction == 'up':
+                if round(player_pos[1], 2) >= prev_y:
+                    self.exo()
+                key_down(direction)
+                time.sleep(0.05)
+            press('e', 3)
+            key_up(direction)
+            time.sleep(0.15)
+        return act
 
     def shikigami(self, direction, n=1):
-        key_down(direction)
-        time.sleep(0.05)
-        for _ in range(n):
-            if tengu_on:
-                press('q', 1, up_time=0.05)
-            press('r', 4, down_time=0.1)
-        key_up(direction)
-        time.sleep(0.15)
+        def act():
+            key_down(direction)
+            time.sleep(0.05)
+            for _ in range(n):
+                if tengu_on:
+                    press('q', 1, up_time=0.05)
+                press('r', 4, down_time=0.1)
+            key_up(direction)
+            time.sleep(0.15)
+        return act
+
+    def tengu(self):
+        press('q', 1)
 
     def kishin(self):
         time.sleep(0.05)
@@ -143,7 +147,7 @@ class Commands:
     
     def boss(self, direction=None):     # Only Yaksha Boss takes an optional directional argument
         def act():
-            time.sleep(0.15)
+            self.tengu()
             if direction:
                 press(direction, 1, down_time=0.1)
             else:
@@ -151,7 +155,7 @@ class Commands:
                     press('left', 1, down_time=0.1)
                 else:
                     press('right', 1, down_time=0.1)
-            press('2', 2, down_time=0.1, up_time=0.2)
+            press('2', 5, down_time=0.1, up_time=0.1)
         return act
 
     def fox(self):
@@ -159,9 +163,9 @@ class Commands:
         press('3', 3, down_time=0.1)
     
     def exo(self):
-        time.sleep(0.1)
+        time.sleep(0.05)
         press('space', 1, up_time=0.15)
-        press('w', 2)
+        press('w', 1)
     
     def charm(self, direction=None, delay=0.15):
         def act():
@@ -177,21 +181,22 @@ class Commands:
 
 
 class Point:
-    def __init__(self, x, y, frequency=1, attacks=1, extras=[]):
+    def __init__(self, x, y, counter=0, frequency=1, attacks=1, extras=[]):
         self.location = (x, y)
+        self.counter = counter
         self.frequency = frequency
-        self.counter = 0
         self.attacks = attacks
         self.extras = extras
 
     def execute(self):
         if self.counter == 0:
             move(self.location)
-            for e in self.extras:
-                exec(f'commands.{e}()')
-            if self.attacks:
-                commands.shikigami('left', self.attacks)
-                commands.shikigami('right', self.attacks)
+            if enabled:
+                for e in self.extras:
+                    exec(f'commands.{e}()')
+                if self.attacks:
+                    commands.shikigami('left', self.attacks)()
+                    commands.shikigami('right', self.attacks)()
         self.counter = (self.counter + 1) % self.frequency
 
 
@@ -210,7 +215,17 @@ def bot():
                 index = len(sequence) - 1
             point = sequence[index]
             point.execute()
-            index = (index + 1) % len(sequence)
+            if enabled:
+                index = (index + 1) % len(sequence)
+        if kb.is_pressed('insert'):
+            toggle_enabled()
+        elif kb.is_pressed('page up'):
+            load()
+            reset_index()
+            time.sleep(1)
+        elif kb.is_pressed('home'):
+            recalibrate_mm()
+            time.sleep(1)
 
 
 #################################
@@ -224,6 +239,11 @@ def press(key, n, down_time=0.05, up_time=0.1):
         time.sleep(up_time)
 
 def load():
+    global position_tolerance, buff_cooldown, tengu_on
+    position_tolerance = DEFAULT_POSITION_TOLERANCE
+    buff_cooldown = DEFAULT_BUFF_COOLDOWN
+    tengu_on = DEFAULT_TENGU_ON
+    
     global sequence, new_point
     sequence = []
     path = './bots'
@@ -232,14 +252,15 @@ def load():
         print('Unable to find .csv bot file')
     else:
         with open(join(path, csv_files[0])) as f:
-            csv_reader = csv.reader(f)
+            csv_reader = csv.reader(f, delimiter=';')
             first_row = True
             for row in csv_reader:
                 if first_row:
                     for a in row:
                         try:
-                            exec(f'global position_tolerance, buff_cooldown; {a}')
+                            exec(f'global position_tolerance, buff_cooldown, tengu_on; {a}')
                         except:
+                            print(f"'{a}' is not a valid bot setting")
                             pass
                     first_row = False
 
@@ -261,25 +282,31 @@ def move(target):
         if d_x > position_tolerance / math.sqrt(2):
             jump = True if player_pos[1] > target[1] + 0.03 else False   
             if player_pos[0] < target[0]:
-                commands.teleport('right', jump=jump)
+                commands.teleport('right', jump=jump)()
             else:
-                commands.teleport('left', jump=jump)
+                commands.teleport('left', jump=jump)()
         
         d_y = abs(player_pos[1] - target[1])
         if d_y > position_tolerance / math.sqrt(2):
             if player_pos[1] < target[1]:
                 jump = True if d_y > 0.333 else False
-                commands.teleport('down', jump=jump)
+                commands.teleport('down', jump=jump)()
             else:
-                commands.teleport('up')
+                commands.teleport('up')()
         
         rounded_pos = tuple(round(a, 2) for a in player_pos)
+        print(f'new: {rounded_pos}, prev: {prev_pos}')
         if rounded_pos in prev_pos:
-            press('w', 2)
+            print('stuck')
+            time.sleep(0.1)
             press('e', 3)
         prev_pos.append(rounded_pos)
         if len(prev_pos) > 3:
             prev_pos.pop(0)
+        
+        if kb.is_pressed('insert'):
+            toggle_enabled()
+            break
 
 def buff(time):
     def act(new_time):
@@ -296,6 +323,10 @@ def buff(time):
 def toggle_enabled():
     global enabled
     prev = enabled
+    if not enabled:
+        winsound.Beep(784, 333)     # G5
+    else:
+        winsound.Beep(523, 333)     # C5
     enabled = not enabled
     print(f"toggled: {'on' if prev else 'off'} --> {'ON' if enabled else 'OFF'}")
     time.sleep(1)
@@ -318,11 +349,6 @@ if __name__ == '__main__':
     bt = threading.Thread(target=bot)
     bt.daemon = True
     bt.start()
-
-    kb.add_hotkey('insert', toggle_enabled)
-    kb.add_hotkey('page up', load)
-    kb.add_hotkey('control+insert', reset_index)
-    kb.add_hotkey('home', recalibrate_mm)
 
     load()
     ready = True
