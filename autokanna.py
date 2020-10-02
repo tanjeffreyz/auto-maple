@@ -118,6 +118,8 @@ class Commands:
                     time.sleep(0.06)
             if direction == 'up':
                 if round(player_pos[1], 2) >= prev_y:
+                    time.sleep(0.05)
+                    press('space', 1, up_time=0.15)
                     self.exo()
                 key_down(direction)
                 time.sleep(0.05)
@@ -133,7 +135,7 @@ class Commands:
             for _ in range(n):
                 if tengu_on:
                     press('q', 1, up_time=0.05)
-                press('r', 4, down_time=0.1)
+                press('r', 5, up_time=0.075)
             key_up(direction)
             time.sleep(0.15)
         return act
@@ -147,7 +149,6 @@ class Commands:
     
     def boss(self, direction=None):     # Only Yaksha Boss takes an optional directional argument
         def act():
-            self.tengu()
             if direction:
                 press(direction, 1, down_time=0.1)
             else:
@@ -163,9 +164,7 @@ class Commands:
         press('3', 3, down_time=0.1)
     
     def exo(self):
-        time.sleep(0.05)
-        press('space', 1, up_time=0.15)
-        press('w', 1)
+        press('w', 2, up_time=0.05)
     
     def charm(self, direction=None, delay=0.15):
         def act():
@@ -176,6 +175,11 @@ class Commands:
             press('d', 2)
             if direction:
                 key_up(direction)
+            time.sleep(delay)
+        return act
+    
+    def wait(self, delay):
+        def act():
             time.sleep(delay)
         return act
 
@@ -314,8 +318,9 @@ def buff(time):
         if time == 0 or new_time - time > buff_cooldown:
             press('ctrl', 2, up_time=0.2)
             press('end', 3, up_time=0.2)
-            press('9', 4, up_time=0.3)
-            press('0', 4, up_time=0.3)
+            press('8', 3, up_time=0.3)
+            press('9', 3, up_time=0.3)
+            press('0', 3, up_time=0.3)
         else:
             new_time = time
         return buff(new_time)
