@@ -85,7 +85,7 @@ class Capture:
                     if ready:
                         cv2.circle(minimap, tuple(round(a) for a in raw_player_pos), 3, (255, 0, 0), -1)
                     cv2.imshow('mm', minimap)
-                if cv2.waitKey(1) & 0xFF == 27:     # 27 is ASCII for the Esc key on a keyboard
+                if cv2.waitKey(1) & 0xFF == 27:     # 27 is ASCII for the Esc key
                     break
 
     def _rescale_frame(frame, percent=100):
