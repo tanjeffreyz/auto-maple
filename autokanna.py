@@ -285,7 +285,7 @@ def move(target):
     while enabled and distance(player_pos, target) > position_tolerance:
         d_x = abs(player_pos[0] - target[0])
         if d_x > position_tolerance / math.sqrt(2):
-            jump = True if player_pos[1] > target[1] + 0.03 else False   
+            jump = player_pos[1] > target[1] + 0.03 and abs(player_pos[1] - target[1]) < 0.2
             if player_pos[0] < target[0]:
                 commands.teleport('right', jump=jump)()
             else:
@@ -294,7 +294,7 @@ def move(target):
         d_y = abs(player_pos[1] - target[1])
         if d_y > position_tolerance / math.sqrt(2):
             if player_pos[1] < target[1]:
-                jump = True if d_y > 0.333 else False
+                jump = d_y > 0.333
                 commands.teleport('down', jump=jump)()
             else:
                 commands.teleport('up')()
