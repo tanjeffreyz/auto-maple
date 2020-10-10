@@ -9,7 +9,8 @@ from os.path import isfile, join
 #################################
 #           CONSTANTS           #
 #################################
-DEFAULT_POSITION_TOLERANCE = 0.1
+DEFAULT_MOVE_TOLERANCE = 0.1
+DEFAULT_ADJUST_TOLERANCE = 0.015
 DEFAULT_BUFF_COOLDOWN = 200
 DEFAULT_TENGU_ON = True
 
@@ -21,18 +22,21 @@ enabled = False
 ready = False
 calibrated = False
 
-player_pos = (0, 0)
-mm_ratio = 1.0
+rune_active = False
+rune_pos = (0, 0)
+rune_index = 0
 
+player_pos = (0, 0)
 new_point = None
 sequence = []
-index = 0
+seq_index = 0
 
 
 #################################
 #         Bot Settings          #
 #################################
-position_tolerance = DEFAULT_POSITION_TOLERANCE
+move_tolerance = DEFAULT_MOVE_TOLERANCE
+adjust_tolerance = DEFAULT_ADJUST_TOLERANCE
 buff_cooldown = DEFAULT_BUFF_COOLDOWN
 tengu_on = DEFAULT_TENGU_ON
 
@@ -46,7 +50,7 @@ class Capture:
 
     minimap_template = cv2.imread('assets/minimap_template.jpg', 0)
     player_template = cv2.imread('assets/dot_template.png', 0)
-
+    rune_template = cv2.imread('assets/rune_template.png', 0)
     
     def __init__(self):
         self.cap = threading.Thread(target=self._capture)
@@ -56,14 +60,14 @@ class Capture:
         with mss.mss() as sct:
             print('started capture')
 
-            global player_pos, mm_ratio, calibrated
+            global player_pos, calibrated, rune_active, rune_pos, rune_index
             monitor = {'top': 0, 'left': 0, 'width': 1920, 'height': 1080}
             while True:
                 if not calibrated:
                     frame = np.array(sct.grab(monitor))
 
                     # Get the bottom right point of the minimap
-                    _, br = Capture._match_template(frame[:round(frame.shape[1] / 4),:round(frame.shape[0] / 4)], Capture.minimap_template)
+                    _, br = Capture._single_match(frame[:round(frame.shape[1] / 4),:round(frame.shape[0] / 4)], Capture.minimap_template)
                     mm_tl, mm_br = (Capture.MINIMAP_BOTTOM_BORDER, Capture.MINIMAP_TOP_BORDER), (tuple(a - Capture.MINIMAP_BOTTOM_BORDER for a in br))      # These are relative to the entire screenshot
                     calibrated = True
                 else:
@@ -71,38 +75,61 @@ class Capture:
 
                     # Crop the frame to only show the minimap
                     minimap = frame[mm_tl[1]:mm_br[1], mm_tl[0]:mm_br[0]]
-                    mm_ratio = minimap.shape[1] / minimap.shape[0]
-                    p_tl, p_br = Capture._match_template(minimap, Capture.player_template)           
+                    p_tl, p_br = Capture._single_match(minimap, Capture.player_template)           
                     raw_player_pos = tuple((p_br[i] + p_tl[i]) / 2 for i in range(2))
-                    player_pos = (raw_player_pos[0] / minimap.shape[1], raw_player_pos[1] / minimap.shape[0])       # player_pos is relative to the minimap's inner box
+                    player_pos = Capture._convert_relative(raw_player_pos, minimap)       # player_pos is relative to the minimap's inner box
+                    
+                    # Check for a rune
+                    if not rune_active:
+                        rune = Capture._multi_match(minimap, Capture.rune_template)
+                        if rune:
+                            raw_rune_pos = tuple(rune[0][i] + Capture.rune_template.shape[1 - i] / 2 for i in range(2))
+                            rune_pos = Capture._convert_relative(raw_rune_pos, minimap)
+                            seq_positions = [point.location for point in sequence]
+                            distances = list(map(lambda p: distance(rune_pos, p), seq_positions))
+                            rune_index = np.argmin(distances)
+                            rune_active = True
+                    print(rune_index)
+                    if rune_active:
+                        cv2.circle(minimap, tuple(int(round(a)) for a in raw_rune_pos), 3, (255, 0, 255), -1)
+
+                    # Mark the minimap with useful information
                     if not enabled:
                         print(player_pos)
                         color = (0, 0, 255)
                     else:
                         color = (0, 255, 0)
                     for element in sequence:
-                        cv2.circle(minimap, (round((mm_br[0] - mm_tl[0]) * element.location[0]), round((mm_br[1] - mm_tl[1]) * element.location[1])), round(minimap.shape[1] * position_tolerance), color, 1)
+                        cv2.circle(minimap, (round((mm_br[0] - mm_tl[0]) * element.location[0]), round((mm_br[1] - mm_tl[1]) * element.location[1])), round(minimap.shape[1] * move_tolerance), color, 1)
                     if ready:
                         cv2.circle(minimap, tuple(round(a) for a in raw_player_pos), 3, (255, 0, 0), -1)
                     cv2.imshow('mm', minimap)
                 if cv2.waitKey(1) & 0xFF == 27:     # 27 is ASCII for the Esc key
                     break
 
+    def _convert_relative(point, minimap):
+        return (point[0] / minimap.shape[1], point[1] / minimap.shape[0])
+
     def _rescale_frame(frame, percent=100):
         width = int(frame.shape[1] * percent / 100)
         height = int(frame.shape[0] * percent / 100)
         return cv2.resize(frame, (width, height), interpolation=cv2.INTER_AREA)
 
-    def _match_template(frame, template):
+    def _single_match(frame, template):
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         result = cv2.matchTemplate(gray, template, cv2.TM_CCOEFF)
-        min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
+        _, _, _, max_loc = cv2.minMaxLoc(result)
 
         top_left = max_loc
         w, h = template.shape[::-1]
         bottom_right = (top_left[0] + w, top_left[1] + h)
-
         return top_left, bottom_right
+
+    def _multi_match(frame, template, threshold=0.6):
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        result = cv2.matchTemplate(gray, template, cv2.TM_CCOEFF_NORMED)
+        locations = np.where(result >= threshold)
+        return list(zip(*locations[::-1]))
 
 
 class Commands:
@@ -193,6 +220,7 @@ class Point:
         self.extras = extras
 
     def execute(self):
+        executed = False
         if self.counter == 0:
             move(self.location)
             if enabled:
@@ -201,32 +229,44 @@ class Point:
                 if self.attacks:
                     commands.shikigami('left', self.attacks)()
                     commands.shikigami('right', self.attacks)()
+            executed = True
         if enabled:
             self.counter = (self.counter + 1) % self.frequency
+        return executed
 
 
 #################################
 #             Mains             #
 #################################
 def bot():
-    global index
+    global seq_index
     print('started bot')
     
     b = buff(0)
     while True: 
         if enabled and len(sequence) > 0:
             b = b(time.time())
-            if index >= len(sequence):      # Just in case I delete some Points from sequence while the bot is running
-                index = len(sequence) - 1
-            point = sequence[index]
-            point.execute()
+            if seq_index >= len(sequence):      # Just in case I delete some Points from sequence while the bot is running
+                seq_index = len(sequence) - 1
+            point = sequence[seq_index]
+            executed = point.execute()
             if enabled:
-                index = (index + 1) % len(sequence)
+                if rune_active and seq_index == rune_index and executed:
+                    move(rune_pos)
+                    adjust(rune_pos)
+                    # commands.exo()  # TODO: Solve the rune here!!!
+                    press('y', 1, down_time=0.1, up_time=0.05)
+                    time.sleep(5)
+                    reset_rune()
+                seq_index = (seq_index + 1) % len(sequence)
+        
+        # Check for user input after current point has finished executing
         if kb.is_pressed('insert'):
             toggle_enabled()
         elif kb.is_pressed('page up'):
             load()
             reset_index()
+            reset_rune()
             time.sleep(1)
         elif kb.is_pressed('home'):
             recalibrate_mm()
@@ -244,8 +284,8 @@ def press(key, n, down_time=0.05, up_time=0.1):
         time.sleep(up_time)
 
 def load():
-    global position_tolerance, buff_cooldown, tengu_on
-    position_tolerance = DEFAULT_POSITION_TOLERANCE
+    global move_tolerance, buff_cooldown, tengu_on
+    move_tolerance = DEFAULT_MOVE_TOLERANCE
     buff_cooldown = DEFAULT_BUFF_COOLDOWN
     tengu_on = DEFAULT_TENGU_ON
     
@@ -263,7 +303,7 @@ def load():
                 if first_row:
                     for a in row:
                         try:
-                            exec(f'global position_tolerance, buff_cooldown, tengu_on; {a}')
+                            exec(f'global move_tolerance, buff_cooldown, tengu_on; {a}')
                         except:
                             print(f"'{a}' is not a valid bot setting")
                             pass
@@ -282,9 +322,9 @@ def distance(a, b):
 
 def move(target):
     prev_pos = [tuple(round(a, 2) for a in player_pos)]
-    while enabled and distance(player_pos, target) > position_tolerance:
+    while enabled and distance(player_pos, target) > move_tolerance:
         d_x = abs(player_pos[0] - target[0])
-        if d_x > position_tolerance / math.sqrt(2):
+        if d_x > move_tolerance / math.sqrt(2):
             jump = player_pos[1] > target[1] + 0.03 and abs(player_pos[1] - target[1]) < 0.2
             if player_pos[0] < target[0]:
                 commands.teleport('right', jump=jump)()
@@ -292,7 +332,7 @@ def move(target):
                 commands.teleport('left', jump=jump)()
         
         d_y = abs(player_pos[1] - target[1])
-        if d_y > position_tolerance / math.sqrt(2):
+        if d_y > move_tolerance / math.sqrt(2):
             if player_pos[1] < target[1]:
                 jump = d_y > 0.333
                 commands.teleport('down', jump=jump)()
@@ -313,6 +353,13 @@ def move(target):
             toggle_enabled()
             break
 
+def adjust(target):
+    while enabled and abs(player_pos[0] - target[0]) > adjust_tolerance:      # and distance(player_pos, target) < move_tolerance
+        if player_pos[0] > target[0]:
+            press('left', 1, down_time=0.2, up_time=0.03)
+        else:
+            press('right', 1, down_time=0.2, up_time=0.03)
+
 def buff(time):
     def act(new_time):
         if time == 0 or new_time - time > buff_cooldown:
@@ -328,6 +375,7 @@ def buff(time):
 
 def toggle_enabled():
     global enabled
+    reset_rune()
     prev = enabled
     if not enabled:
         winsound.Beep(784, 333)     # G5
@@ -338,8 +386,12 @@ def toggle_enabled():
     time.sleep(1)
 
 def reset_index():
-    global index
-    index = 0
+    global seq_index
+    seq_index = 0
+
+def reset_rune():
+    global rune_active
+    rune_active = False
 
 def recalibrate_mm():
     global calibrated
