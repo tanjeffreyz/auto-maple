@@ -1,0 +1,19 @@
+item {
+    id: 1
+    name: 'up'
+}
+
+item {
+    id: 2
+    name: 'down'
+}
+
+item {
+    id: 3
+    name: 'left'
+}
+
+item {
+    id: 4
+    name: 'right'
+}

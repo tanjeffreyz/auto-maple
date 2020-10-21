@@ -1,3 +1,4 @@
+# import detection
 import mss, cv2, time, threading, vkeys, math, csv, winsound
 import numpy as np
 import keyboard as kb
@@ -10,7 +11,7 @@ from os.path import isfile, join
 #           CONSTANTS           #
 #################################
 DEFAULT_MOVE_TOLERANCE = 0.1
-DEFAULT_ADJUST_TOLERANCE = 0.015
+DEFAULT_ADJUST_TOLERANCE = 0.024
 DEFAULT_BUFF_COOLDOWN = 200
 DEFAULT_TENGU_ON = True
 
@@ -49,7 +50,7 @@ class Capture:
     MINIMAP_BOTTOM_BORDER = 8
 
     minimap_template = cv2.imread('assets/minimap_template.jpg', 0)
-    player_template = cv2.imread('assets/dot_template.png', 0)
+    player_template = cv2.imread('assets/player_template.png', 0)
     rune_template = cv2.imread('assets/rune_template.png', 0)
     
     def __init__(self):
@@ -62,6 +63,7 @@ class Capture:
 
             global player_pos, calibrated, rune_active, rune_pos, rune_index
             monitor = {'top': 0, 'left': 0, 'width': 1920, 'height': 1080}
+            # rune_check_counter, rune_check_frequency = 0, 15
             while True:
                 if not calibrated:
                     frame = np.array(sct.grab(monitor))
@@ -80,6 +82,7 @@ class Capture:
                     player_pos = Capture._convert_relative(raw_player_pos, minimap)       # player_pos is relative to the minimap's inner box
                     
                     # Check for a rune
+                    # if rune_check_counter == 0:
                     if not rune_active:
                         rune = Capture._multi_match(minimap, Capture.rune_template)
                         if rune:
@@ -89,11 +92,13 @@ class Capture:
                             distances = list(map(lambda p: distance(rune_pos, p), seq_positions))
                             rune_index = np.argmin(distances)
                             rune_active = True
-                    print(rune_index)
-                    if rune_active:
-                        cv2.circle(minimap, tuple(int(round(a)) for a in raw_rune_pos), 3, (255, 0, 255), -1)
+                        # else:
+                        #     rune_active = False
+                    # rune_check_counter = (rune_check_counter + 1) % rune_check_frequency
 
                     # Mark the minimap with useful information
+                    if rune_active:
+                        cv2.circle(minimap, tuple(int(round(a)) for a in raw_rune_pos), 3, (255, 0, 255), -1)
                     if not enabled:
                         print(player_pos)
                         color = (0, 0, 255)
@@ -125,7 +130,7 @@ class Capture:
         bottom_right = (top_left[0] + w, top_left[1] + h)
         return top_left, bottom_right
 
-    def _multi_match(frame, template, threshold=0.6):
+    def _multi_match(frame, template, threshold=0.63):
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         result = cv2.matchTemplate(gray, template, cv2.TM_CCOEFF_NORMED)
         locations = np.where(result >= threshold)
@@ -174,7 +179,7 @@ class Commands:
         time.sleep(0.05)
         press('lshift', 6, down_time=0.1)
     
-    def boss(self, direction=None):     # Only Yaksha Boss takes an optional directional argument
+    def boss(self, direction=None):
         def act():
             if direction:
                 press(direction, 1, down_time=0.1)
@@ -243,8 +248,10 @@ def bot():
     print('started bot')
     
     b = buff(0)
+    monitor = {'top': 0, 'left': 0, 'width': 1920, 'height': 1080}
     while True: 
         if enabled and len(sequence) > 0:
+            reset_rune()
             b = b(time.time())
             if seq_index >= len(sequence):      # Just in case I delete some Points from sequence while the bot is running
                 seq_index = len(sequence) - 1
@@ -252,12 +259,23 @@ def bot():
             executed = point.execute()
             if enabled:
                 if rune_active and seq_index == rune_index and executed:
-                    move(rune_pos)
-                    adjust(rune_pos)
-                    # commands.exo()  # TODO: Solve the rune here!!!
-                    press('y', 1, down_time=0.1, up_time=0.05)
-                    time.sleep(5)
-                    reset_rune()
+                    success = move(rune_pos, max_steps=5)
+                    if success:
+                        adjust(rune_pos)
+                        time.sleep(0.05)
+                        press('y', 1, down_time=0.1, up_time=0.05)
+                        # with mss.mss() as sct:
+                        #     for _ in range(3):
+                        #         frame = np.array(sct.grab(monitor))
+                        #         processed = detection.crop_and_canny(frame)
+                        #         arrows = detection.get_arrows(processed)
+                        #         print(arrows)
+                        #         if len(arrows) == 4:
+                        #             for arrow in arrows:
+                        #                 press(arrow, 1, up_time=0.2)
+                        #             break
+                        time.sleep(5)   # TODO: Solve the rune here!!!
+                        # reset_rune()
                 seq_index = (seq_index + 1) % len(sequence)
         
         # Check for user input after current point has finished executing
@@ -320,9 +338,9 @@ def load():
 def distance(a, b):
     return math.sqrt(sum([(a[i] - b[i]) ** 2 for i in range(2)]))
 
-def move(target):
+def move(target, max_steps=10):
     prev_pos = [tuple(round(a, 2) for a in player_pos)]
-    while enabled and distance(player_pos, target) > move_tolerance:
+    while enabled and max_steps > 0 and distance(player_pos, target) > move_tolerance:
         d_x = abs(player_pos[0] - target[0])
         if d_x > move_tolerance / math.sqrt(2):
             jump = player_pos[1] > target[1] + 0.03 and abs(player_pos[1] - target[1]) < 0.2
@@ -340,7 +358,7 @@ def move(target):
                 commands.teleport('up')()
         
         rounded_pos = tuple(round(a, 2) for a in player_pos)
-        print(f'new: {rounded_pos}, prev: {prev_pos}')
+        # print(f'new: {rounded_pos}, prev: {prev_pos}')
         if rounded_pos in prev_pos:
             print('stuck')
             time.sleep(0.1)
@@ -352,6 +370,9 @@ def move(target):
         if kb.is_pressed('insert'):
             toggle_enabled()
             break
+
+        max_steps -= 1
+    return max_steps
 
 def adjust(target):
     while enabled and abs(player_pos[0] - target[0]) > adjust_tolerance:      # and distance(player_pos, target) < move_tolerance
