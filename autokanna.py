@@ -1,15 +1,18 @@
-# import detection
+import detection
 import mss, cv2, time, threading, vkeys, math, csv, winsound
 import numpy as np
 import keyboard as kb
 from vkeys import key_down, key_up
 from os import listdir
 from os.path import isfile, join
+# from collections import Counter
 
 
 #################################
 #           CONSTANTS           #
 #################################
+MONITOR = {'top': 0, 'left': 0, 'width': 1366, 'height': 768}
+
 DEFAULT_MOVE_TOLERANCE = 0.1
 DEFAULT_ADJUST_TOLERANCE = 0.024
 DEFAULT_BUFF_COOLDOWN = 200
@@ -62,18 +65,18 @@ class Capture:
             print('started capture')
 
             global player_pos, calibrated, rune_active, rune_pos, rune_index
-            monitor = {'top': 0, 'left': 0, 'width': 1920, 'height': 1080}
+            # MONITOR = {'top': 0, 'left': 0, 'width': 1366, 'height': 768}
             # rune_check_counter, rune_check_frequency = 0, 15
             while True:
                 if not calibrated:
-                    frame = np.array(sct.grab(monitor))
+                    frame = np.array(sct.grab(MONITOR))
 
                     # Get the bottom right point of the minimap
                     _, br = Capture._single_match(frame[:round(frame.shape[1] / 4),:round(frame.shape[0] / 4)], Capture.minimap_template)
                     mm_tl, mm_br = (Capture.MINIMAP_BOTTOM_BORDER, Capture.MINIMAP_TOP_BORDER), (tuple(a - Capture.MINIMAP_BOTTOM_BORDER for a in br))      # These are relative to the entire screenshot
                     calibrated = True
                 else:
-                    frame = np.array(sct.grab(monitor))
+                    frame = np.array(sct.grab(MONITOR))
 
                     # Crop the frame to only show the minimap
                     minimap = frame[mm_tl[1]:mm_br[1], mm_tl[0]:mm_br[0]]
@@ -248,47 +251,68 @@ def bot():
     print('started bot')
     
     b = buff(0)
-    monitor = {'top': 0, 'left': 0, 'width': 1920, 'height': 1080}
-    while True: 
-        if enabled and len(sequence) > 0:
-            reset_rune()
-            b = b(time.time())
-            if seq_index >= len(sequence):      # Just in case I delete some Points from sequence while the bot is running
-                seq_index = len(sequence) - 1
-            point = sequence[seq_index]
-            executed = point.execute()
-            if enabled:
-                if rune_active and seq_index == rune_index and executed:
-                    success = move(rune_pos, max_steps=5)
-                    if success:
-                        adjust(rune_pos)
-                        time.sleep(0.05)
-                        press('y', 1, down_time=0.1, up_time=0.05)
-                        # with mss.mss() as sct:
-                        #     for _ in range(3):
-                        #         frame = np.array(sct.grab(monitor))
-                        #         processed = detection.crop_and_canny(frame)
-                        #         arrows = detection.get_arrows(processed)
-                        #         print(arrows)
-                        #         if len(arrows) == 4:
-                        #             for arrow in arrows:
-                        #                 press(arrow, 1, up_time=0.2)
-                        #             break
-                        time.sleep(5)   # TODO: Solve the rune here!!!
-                        # reset_rune()
-                seq_index = (seq_index + 1) % len(sequence)
-        
-        # Check for user input after current point has finished executing
-        if kb.is_pressed('insert'):
-            toggle_enabled()
-        elif kb.is_pressed('page up'):
-            load()
-            reset_index()
-            reset_rune()
-            time.sleep(1)
-        elif kb.is_pressed('home'):
-            recalibrate_mm()
-            time.sleep(1)
+    # MONITOR = {'top': 0, 'left': 0, 'width': 1366, 'height': 768}
+    with mss.mss() as sct:
+        while True: 
+            if enabled and len(sequence) > 0:
+                reset_rune()
+                b = b(time.time())
+                if seq_index >= len(sequence):      # Just in case I delete some Points from sequence while the bot is running
+                    seq_index = len(sequence) - 1
+                point = sequence[seq_index]
+                executed = point.execute()
+                if enabled:
+                    if rune_active and seq_index == rune_index and executed:
+                        success = move(rune_pos, max_steps=5)
+                        if success:
+                            adjust(rune_pos)
+                            time.sleep(0.05)
+                            press('y', 1, down_time=0.1, up_time=1)
+                            inferences = []
+                            for _ in range(15):
+                                frame = np.array(sct.grab(MONITOR))
+                                # frame = frame[:768,:1366]
+                                arrows = detection.merge_detection(frame)
+                                print(f'arrows: {arrows}')
+                                print(inferences, '\n')
+                                if arrows in inferences:        # TODO: Find some way to get most frequent list
+                                    for arrow in arrows:
+                                        press(arrow, 1, up_time=0.3)
+                                    # time.sleep(5)
+                                    break
+                                elif len(arrows) == 4:
+                                    inferences.append(arrows)
+                                time.sleep(0.5)
+                            # if inferences:
+                            #     occurrences = Counter(inferences)
+                            #     mode = occurrences.most_common(1)[0][0]
+                            #     for arrow in mode:
+                            #         press(arrow, 1, up_time=0.3)
+                            
+                            #     for _ in range(3):
+                            #         frame = np.array(sct.grab(MONITOR))
+                            #         processed = detection.crop_and_canny(frame)
+                            #         arrows = detection.get_arrows(processed)
+                            #         print(arrows)
+                            #         if len(arrows) == 4:
+                            #             for arrow in arrows:
+                            #                 press(arrow, 1, up_time=0.2)
+                            #             break
+                            # time.sleep(5)   # TODO: Solve the rune here!!!
+                            # reset_rune()
+                    seq_index = (seq_index + 1) % len(sequence)
+            
+            # Check for user input after current point has finished executing
+            if kb.is_pressed('insert'):
+                toggle_enabled()
+            elif kb.is_pressed('page up'):
+                load()
+                reset_index()
+                reset_rune()
+                time.sleep(1)
+            elif kb.is_pressed('home'):
+                recalibrate_mm()
+                time.sleep(1)
 
 
 #################################

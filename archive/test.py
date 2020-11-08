@@ -84,15 +84,52 @@
 # cv2.waitKey(0)
 
 
-lst1 = [1]
-lst2 = lst1
+# lst1 = [1]
+# lst2 = lst1
 
-lst1 = lst1 + lst2
-print(lst1 is lst2)
+# lst1 = lst1 + lst2
+# print(lst1 is lst2)
 
 
-lst1 = [1]
-lst2 = lst1
+# lst1 = [1]
+# lst2 = lst1
 
-lst1 += lst2
-print(lst1 is lst2)
+# lst1 += lst2
+# print(lst1 is lst2)
+
+
+# import cv2
+# import numpy as np
+# import os
+
+# ## Read
+# # img = cv2.imread('C:/Users/tanje/Desktop/Rune Detection/cropped/cropped1.jpg')
+# os.chdir('C:/Users/tanje/Desktop/Rune Detection/cropped/')
+# images = [file for file in os.listdir() if os.path.isfile(file) and '.jpg' in file]
+
+# for file_name in images:
+#     ## convert to hsv
+#     img = cv2.imread(file_name)
+#     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+
+#     ## mask of green (36,25,25) ~ (86, 255,255)
+#     # mask = cv2.inRange(hsv, (36, 25, 25), (86, 255,255))
+#     mask = cv2.inRange(hsv, (1, 100, 100), (75, 255, 255))
+
+#     ## slice the green
+#     imask = mask>0
+#     green = np.zeros_like(img, np.uint8)
+#     green[imask] = img[imask]
+
+#     # show
+#     cv2.imshow('green', green)
+#     cv2.waitKey(0)
+
+import math
+def add(x, y):
+    return x + y
+
+def mul(x, y):
+    return x * y
+
+print((add if 4 < 3 else mul)(2, 3))
