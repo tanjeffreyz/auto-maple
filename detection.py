@@ -50,33 +50,72 @@ def sort_by_confidence(model, image):
     result = pruned[:4]
     return result
 
+def get_boxes(image):
+    output_dict = run_inference_for_single_image(detection_model, image)
+    zipped = list(zip(output_dict['detection_scores'], output_dict['detection_boxes'], output_dict['detection_classes']))
+    pruned = [tuple for tuple in zipped if tuple[0] > 0.5]
+    pruned.sort(key=lambda x: x[0], reverse=True)
+    pruned = pruned[:4]
+    boxes = [tuple[1:] for tuple in pruned]
+    return boxes
+
 def merge_detection(image):
     label_map = {1: 'up', 2: 'down', 3: 'left', 4: 'right'}
     converter = {'up': 'right', 'down': 'left'}
+    classes = []
     
     # Preprocessing
     height, width, channels = image.shape
-    cropped = image[:height//2,width//4:3*width//4]
+    cropped = image[120:height//2, width//4:3*width//4]      # image[120:height//2-50, width//4:3*width//4]
+    # cv2.imshow('preprocessed', cropped)
+    # cv2.waitKey(0)
     filtered = filter_color(cropped)
     cannied = canny(filtered)
+    # cv2.imshow('preprocessed', cannied)
 
-    # Run detection on preprocessed image
-    lst = sort_by_confidence(detection_model, cannied)
-    lst.sort(key=lambda x: x[1][1])
-    classes = [label_map[item[2]] for item in lst]
+    # Isolate the rune box
+    height, width, channels = cannied.shape
+    boxes = get_boxes(cannied)
+    if len(boxes) == 4:           # Only run further inferences if arrows have been correctly detected
+        ymins = [b[0][0] for b in boxes]
+        xmins = [b[0][1] for b in boxes]
+        ymaxs = [b[0][2] for b in boxes]
+        xmaxs = [b[0][3] for b in boxes]
+        left = int(round(min(xmins)* width))
+        right = int(round(max(xmaxs) * width))
+        top = int(round(min(ymins) * height))
+        bottom = int(round(max(ymaxs) * height))
+        rune_box = cannied[top:bottom, left:right]
 
-    # Run detection rotated image
-    rotated = cv2.rotate(cannied, cv2.ROTATE_90_COUNTERCLOCKWISE)
-    lst = sort_by_confidence(detection_model, rotated)
-    lst.sort(key=lambda x: x[1][2], reverse=True)
-    rotated_classes = [converter[label_map[item[2]]]
-                       for item in lst
-                       if item[2] in [1, 2]]
-        
-    # Merge the two detection results
-    for i in range(len(classes)):
-        if rotated_classes and classes[i] in ['left', 'right']:
-            classes[i] = rotated_classes.pop(0)
+        # Pad the rune box with black borders, effectively eliminating the noise around it
+        height, width, channels = rune_box.shape
+        pad_height, pad_width = 384, 455
+        preprocessed = np.full((pad_height, pad_width, channels), (0, 0, 0), dtype=np.uint8)
+        x_offset = (pad_width - width) // 2
+        y_offset = (pad_height - height) // 2
+
+        if x_offset > 0 and y_offset > 0:
+            preprocessed[y_offset:y_offset+height, x_offset:x_offset+width] = rune_box
+        # cv2.imshow('preprocessed', preprocessed)
+        # cv2.waitKey(0)
+
+        # Run detection on preprocessed image
+        lst = sort_by_confidence(detection_model, preprocessed)
+        lst.sort(key=lambda x: x[1][1])
+        classes = [label_map[item[2]] for item in lst]
+
+        # Run detection rotated image
+        rotated = cv2.rotate(preprocessed, cv2.ROTATE_90_COUNTERCLOCKWISE)
+        lst = sort_by_confidence(detection_model, rotated)
+        lst.sort(key=lambda x: x[1][2], reverse=True)
+        rotated_classes = [converter[label_map[item[2]]]
+                           for item in lst
+                           if item[2] in [1, 2]]
+            
+        # Merge the two detection results
+        for i in range(len(classes)):
+            if rotated_classes and classes[i] in ['left', 'right']:
+                classes[i] = rotated_classes.pop(0)
 
     return classes
 
@@ -92,24 +131,37 @@ merge_detection(test_image)
 print('Loaded detection model')
 
 
+
+
+
+
 # import os
 # os.chdir('C:/Users/tanje/Desktop/')
 
 # files = [file for file in os.listdir() if os.path.isfile(file) and '.jpg' in file]
 # for file_name in files:
+#     # print(file_name)
 #     img = cv2.imread(file_name)
+#     # boxes = get_boxes(detection_model, img)
+#     # if boxes:
+#     #     print(boxes)
+#     # left = min(boxes, lambda b: b[1])
+#     # right = max(boxes, lambda b: b[3])
+#     # top = min(boxes, lambda b: b[0])
+#     # bottom = max(boxes, lambda b: b[2])
+#     # cv2.imshow('cropped', img[top:bottom,left:right])
 #     print(merge_detection(img), '\n')
 
-# import mss, time
+if __name__ == '__main__':
+    import mss, time
 
-# monitor = {'top': 0, 'left': 0, 'width': 1920, 'height': 1080}
-# while True:
-#     with mss.mss() as sct:
-#         frame = np.array(sct.grab(monitor))
-#         frame = frame[:768,:1366]
-#         cv2.imshow('frame', frame)
-#         arrows = merge_detection(frame)
-#         print(arrows)
-#         if cv2.waitKey(1) & 0xFF == 27:     # 27 is ASCII for the Esc key
-#             break
-        
+    monitor = {'top': 0, 'left': 0, 'width': 1366, 'height': 768}
+    while True:
+        with mss.mss() as sct:
+            frame = np.array(sct.grab(monitor))
+            cv2.imshow('frame', canny(filter_color(frame)))
+            arrows = merge_detection(frame)
+            print(arrows)
+            if cv2.waitKey(1) & 0xFF == 27:     # 27 is ASCII for the Esc key
+                break
+            

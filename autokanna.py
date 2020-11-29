@@ -16,7 +16,7 @@ MONITOR = {'top': 0, 'left': 0, 'width': 1366, 'height': 768}
 DEFAULT_MOVE_TOLERANCE = 0.1
 DEFAULT_ADJUST_TOLERANCE = 0.024
 DEFAULT_BUFF_COOLDOWN = 200
-DEFAULT_TENGU_ON = True
+DEFAULT_TENGU_ON = False
 
 
 #################################
@@ -72,8 +72,8 @@ class Capture:
                     frame = np.array(sct.grab(MONITOR))
 
                     # Get the bottom right point of the minimap
-                    _, br = Capture._single_match(frame[:round(frame.shape[1] / 4),:round(frame.shape[0] / 4)], Capture.minimap_template)
-                    mm_tl, mm_br = (Capture.MINIMAP_BOTTOM_BORDER, Capture.MINIMAP_TOP_BORDER), (tuple(a - Capture.MINIMAP_BOTTOM_BORDER for a in br))      # These are relative to the entire screenshot
+                    _, br = Capture._single_match(frame[:round(frame.shape[0] / 4),:round(frame.shape[1] / 4)], Capture.minimap_template)
+                    mm_tl, mm_br = (Capture.MINIMAP_BOTTOM_BORDER, Capture.MINIMAP_TOP_BORDER), (tuple(max(75, a - Capture.MINIMAP_BOTTOM_BORDER) for a in br))      # These are relative to the entire screenshot
                     calibrated = True
                 else:
                     frame = np.array(sct.grab(MONITOR))
@@ -87,9 +87,10 @@ class Capture:
                     # Check for a rune
                     # if rune_check_counter == 0:
                     if not rune_active:
-                        rune = Capture._multi_match(minimap, Capture.rune_template)
+                        rune = Capture._multi_match(minimap, Capture.rune_template, threshold=0.9)
                         if rune:
-                            raw_rune_pos = tuple(rune[0][i] + Capture.rune_template.shape[1 - i] / 2 for i in range(2))
+                            # raw_rune_pos = tuple(rune[0][i] + Capture.rune_template.shape[1 - i] / 2 for i in range(2))
+                            raw_rune_pos = (rune[0][0] + Capture.rune_template.shape[1] / 2 - 1, rune[0][1] + Capture.rune_template.shape[0] / 2)
                             rune_pos = Capture._convert_relative(raw_rune_pos, minimap)
                             seq_positions = [point.location for point in sequence]
                             distances = list(map(lambda p: distance(rune_pos, p), seq_positions))
@@ -103,7 +104,8 @@ class Capture:
                     if rune_active:
                         cv2.circle(minimap, tuple(int(round(a)) for a in raw_rune_pos), 3, (255, 0, 255), -1)
                     if not enabled:
-                        print(player_pos)
+                        displayed_pos = tuple('{:.3f}'.format(round(i, 3)) for i in player_pos)
+                        print('position: ({}, {})'.format(displayed_pos[0], displayed_pos[1]))
                         color = (0, 0, 255)
                     else:
                         color = (0, 255, 0)
@@ -158,7 +160,7 @@ class Commands:
                     self.exo()
                 key_down(direction)
                 time.sleep(0.05)
-            press('e', 3)
+            press('e', 2)
             key_up(direction)
             time.sleep(0.15)
         return act
@@ -177,6 +179,7 @@ class Commands:
 
     def tengu(self):
         press('q', 1)
+        time.sleep(0.05)
 
     def kishin(self):
         time.sleep(0.05)
@@ -191,7 +194,7 @@ class Commands:
                     press('left', 1, down_time=0.1)
                 else:
                     press('right', 1, down_time=0.1)
-            press('2', 5, down_time=0.1, up_time=0.1)
+            press('2', 3, down_time=0.15, up_time=0.2)
         return act
 
     def fox(self):
@@ -212,6 +215,12 @@ class Commands:
                 key_up(direction)
             time.sleep(delay)
         return act
+    
+    def fall(self):
+        time.sleep(0.05)
+        key_down('down')
+        press('space', 4, down_time=0.075, up_time=0.075)
+        key_up('down')
     
     def wait(self, delay):
         def act():
@@ -253,7 +262,20 @@ def bot():
     b = buff(0)
     # MONITOR = {'top': 0, 'left': 0, 'width': 1366, 'height': 768}
     with mss.mss() as sct:
-        while True: 
+        while True:
+            # Check for user input
+            if kb.is_pressed('insert'):
+                toggle_enabled()
+            elif kb.is_pressed('page up'):
+                load()
+                reset_index()
+                reset_rune()
+                time.sleep(1)
+            elif kb.is_pressed('home'):
+                recalibrate_mm()
+                time.sleep(1)
+            
+            # Run bot sequence
             if enabled and len(sequence) > 0:
                 reset_rune()
                 b = b(time.time())
@@ -282,7 +304,7 @@ def bot():
                                     break
                                 elif len(arrows) == 4:
                                     inferences.append(arrows)
-                                time.sleep(0.5)
+                                # time.sleep(0.25)
                             # if inferences:
                             #     occurrences = Counter(inferences)
                             #     mode = occurrences.most_common(1)[0][0]
@@ -301,18 +323,8 @@ def bot():
                             # time.sleep(5)   # TODO: Solve the rune here!!!
                             # reset_rune()
                     seq_index = (seq_index + 1) % len(sequence)
-            
-            # Check for user input after current point has finished executing
-            if kb.is_pressed('insert'):
-                toggle_enabled()
-            elif kb.is_pressed('page up'):
-                load()
-                reset_index()
-                reset_rune()
-                time.sleep(1)
-            elif kb.is_pressed('home'):
-                recalibrate_mm()
-                time.sleep(1)
+            else:
+                time.sleep(0.25)
 
 
 #################################
@@ -383,10 +395,12 @@ def move(target, max_steps=10):
         
         rounded_pos = tuple(round(a, 2) for a in player_pos)
         # print(f'new: {rounded_pos}, prev: {prev_pos}')
-        if rounded_pos in prev_pos:
+        if prev_pos.count(rounded_pos) > 1:
             print('stuck')
-            time.sleep(0.1)
-            press('e', 3)
+            # time.sleep(0.1)
+            # press('e', 3)
+            press('left', 1, down_time=1)
+            press('right', 1, down_time=1)
         prev_pos.append(rounded_pos)
         if len(prev_pos) > 3:
             prev_pos.pop(0)
@@ -409,7 +423,7 @@ def buff(time):
     def act(new_time):
         if time == 0 or new_time - time > buff_cooldown:
             press('ctrl', 2, up_time=0.2)
-            press('end', 3, up_time=0.2)
+            # press('end', 3, up_time=0.2)
             press('8', 3, up_time=0.3)
             press('9', 3, up_time=0.3)
             press('0', 3, up_time=0.3)
