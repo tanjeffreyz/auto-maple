@@ -1,7 +1,7 @@
 import detection
 
 print('\n\n\n###########################')
-print('#        AUTOKANNA        #')
+print('#          AUTOBT         #')
 print('###########################')
 
 import mss, cv2, time, threading, math, csv, winsound, win32api, win32con
@@ -19,7 +19,7 @@ from playsound import playsound
 #################################
 MONITOR = {'top': 0, 'left': 0, 'width': 1366, 'height': 768}
 
-DEFAULT_MOVE_TOLERANCE = 0.1
+DEFAULT_MOVE_TOLERANCE = 0.12
 DEFAULT_ADJUST_TOLERANCE = 0.01
 DEFAULT_BUFF_COOLDOWN = 200
 DEFAULT_TENGU_ON = False
@@ -103,7 +103,7 @@ class Capture:
                     minimap = frame[mm_tl[1]:mm_br[1], mm_tl[0]:mm_br[0]]
                     # p_tl, p_br = Capture.single_match(minimap, Capture.player_template)           
                     # raw_player_pos = tuple((p_br[i] + p_tl[i]) / 2 for i in range(2))
-                    player = Capture.multi_match(minimap, Capture.player_template, threshold=0.9)
+                    player = Capture.multi_match(minimap, Capture.player_template, threshold=0.8)
                     # if len(player) == 0:
                     #     #do the lost thing increment lost counter
                     #     lost_counter += 1
@@ -309,6 +309,36 @@ class Commands:
         key_up('down')
         # time.sleep(max(0.05, 0.5 - n * 0.15))
         time.sleep(0.1)
+
+    def panther(self, direction, duration):
+        def act():
+            key_down(direction)
+            counter = 0
+            while counter < duration * 5:
+                press('alt', 1, down_time=0.1)
+                counter += 1
+            key_up(direction)
+        return act
+
+    def swipe(self, n):
+        def act():
+            for _ in range(n - 1):
+                press('f', 3)
+                time.sleep(2)
+            press('f', 3)
+        return act
+    
+    def jump(self):
+        press('space', 2)
+
+    def nuke(self):
+        press('2', 3)
+        time.sleep(1.5)
+
+    def go_up(self):
+        key_down('up')
+        time.sleep(1)
+        key_up('up')
     
     def wait(self, delay):
         def act():
@@ -353,10 +383,11 @@ class Point:
 def bot():
     global seq_index, enabled, eboss_active
     print('Started bot')
-
-    haku = buff(480, buffs=['ctrl'])
-    decents = buff(200, buffs=['end','pgdown','0'])
-
+    
+    # haku = buff(480, buffs=['ctrl'])
+    decents = buff(185, buffs=['0','9','8'])
+    long_buffs = buff(900, buffs=['end', '7'])
+    # MONITOR = {'top': 0, 'left': 0, 'width': 1366, 'height': 768}
     with mss.mss() as sct:
         while True:
             # Check for Elite Boss
@@ -371,13 +402,13 @@ def bot():
             # Check for user input
             if kb.is_pressed('insert'):
                 toggle_enabled()
-            elif kb.is_pressed('F6'):
+            elif kb.is_pressed('page up'):
                 recalibrate_mm()
                 # reset_index()
                 # reset_rune()
                 load()
                 # time.sleep(1)
-            elif kb.is_pressed('F5'):
+            elif kb.is_pressed('home'):
                 recalibrate_mm()
                 # reset_index()
                 # reset_rune()
@@ -393,7 +424,8 @@ def bot():
                 curr_index = seq_index
                 curr_time = time.time()
                 # reset_rune()
-                haku = haku(curr_time)
+                # haku = haku(curr_time)
+                long_buffs = long_buffs(curr_time)
                 decents = decents(curr_time)
                 # if seq_index >= len(sequence):      # Just in case I delete some Points from sequence while the bot is running
                 #     seq_index = len(sequence) - 1
@@ -424,7 +456,6 @@ def bot():
                                             press(arrow, 1, up_time=0.15)
 
                                         # Right-click to disable the rune's special effect
-                                        time.sleep(1)
                                         for _ in range(3):
                                             time.sleep(0.3)
                                             frame = np.array(sct.grab(MONITOR))
@@ -532,39 +563,68 @@ def move(target, tolerance=move_tolerance, max_steps=15):
             toggle_enabled()
             break
 
-        if toggle:
-            d_x = abs(player_pos[0] - target[0])
-            if d_x > tolerance / math.sqrt(2):
-                jump = player_pos[1] > target[1] + 0.03 and abs(player_pos[1] - target[1]) < 0.2
-                if player_pos[0] < target[0]:
-                    commands.teleport('right', jump=jump)()
-                else:
-                    commands.teleport('left', jump=jump)()
-                max_steps -= 1
+        # if not toggle:
+        # d_x = 
+        while abs(player_pos[1] - target[1]) > tolerance:
+            if player_pos[1] < target[1]:
+                # jump = d_y > 0.333
+                # commands.teleport('down', jump=jump)()
+                key_down('down')
+                press('space', 3, down_time=0.1)
+                key_up('down')
             else:
-                continue
-        else:
-            d_y = abs(player_pos[1] - target[1])
-            if d_y > tolerance / math.sqrt(2):
-                if player_pos[1] < target[1]:
-                    jump = d_y > 0.333
-                    commands.teleport('down', jump=jump)()
-                else:
-                    commands.teleport('up', jump=True)()
-                max_steps -= 1
+                # commands.teleport('up', jump=True)()
+                press('w', 3)
+                time.sleep(0.3)
+            max_steps -= 1
+        
+        while abs(player_pos[0] - target[0]) > tolerance / math.sqrt(2):
+            jump = player_pos[1] > target[1] + 0.03 and abs(player_pos[1] - target[1]) < 0.2
+            if player_pos[0] < target[0]:
+                # commands.teleport('right', jump=jump)()
+                key_down('right')
+                press('space', 3)
+                key_up('right')
             else:
-                continue
+                # commands.teleport('left', jump=jump)()
+                key_down('left')
+                press('space', 3)
+                key_up('left')
+            # time.sleep(0.2)
+            # time.sleep(0.3)
+            max_steps -= 1
+        # else:
+        #     continue
+        # else:
+        # d_y = 
+        # while abs(player_pos[1] - target[1]) > tolerance:
+        #     if player_pos[1] < target[1]:
+        #         # jump = d_y > 0.333
+        #         # commands.teleport('down', jump=jump)()
+        #         key_down('down')
+        #         press('space', 3, down_time=0.1)
+        #         key_up('down')
+        #     else:
+        #         # commands.teleport('up', jump=True)()
+        #         press('w', 3)
+        #         time.sleep(0.3)
+        #     max_steps -= 1
+        # else:
+        #     continue
         
         rounded_pos = tuple(round(a, 2) for a in player_pos)
         # print(f'new: {rounded_pos}, prev: {prev_pos}')
         num_previous = prev_pos.count(rounded_pos)
         if num_previous > 0 and num_previous % 2 == 0:
             print('stuck')
+            key_down('right')
+            press('space', 2)
+            key_up('right')
             # time.sleep(0.1)
             # press('e', 3)
-            for _ in range(10):
-                press('left', 1, up_time=0.05)
-                press('right', 1, up_time=0.05)
+            # for _ in range(10):
+            #     press('left', 1, up_time=0.05)
+            #     press('right', 1, up_time=0.05)
         prev_pos.append(rounded_pos)
         if len(prev_pos) > 3:
             prev_pos.pop(0)

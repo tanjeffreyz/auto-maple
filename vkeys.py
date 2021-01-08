@@ -1,4 +1,4 @@
-import ctypes
+import ctypes, time
 from ctypes import wintypes
 
 
@@ -25,6 +25,8 @@ v_keys = {'tab': 0x09,  # Special Keys
         'lshift': 0xA0,
         'ctrl': 0x11,
         'end': 0x23,
+        'pgup': 0x21,
+        'pgdown': 0x22,
 
         'left': 0x25,   # Arrow Keys
         'up': 0x26,
@@ -148,3 +150,10 @@ def key_up(key):
               ki=KEYBDINPUT(wVk=v_keys[key],
                             dwFlags=KEYEVENTF_KEYUP))
     user32.SendInput(1, ctypes.byref(x), ctypes.sizeof(x))
+
+def press(key, n, down_time=0.05, up_time=0.1):
+    for _ in range(n):
+        key_down(key)
+        time.sleep(down_time)
+        key_up(key)
+        time.sleep(up_time)
