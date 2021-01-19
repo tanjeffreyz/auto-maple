@@ -209,6 +209,7 @@ class Commands:
 
     def teleport(self, direction, jump=False):
         def act():
+            num_presses = 3
             prev_y = round(player_pos[1], 2)
             if direction != 'up':
                 key_down(direction)
@@ -216,20 +217,20 @@ class Commands:
             if jump:
                 if direction == 'down':
                     press('space', 3, down_time=0.1)
+                    num_presses = 2
                 else:
-                    press('space', 3, up_time=0.05)
-                # if direction in ['up', 'down']:
-                #     time.sleep(0.06)
-            if direction == 'up':
+                    press('space', 2, up_time=0.1)
+            if direction == 'up':           # Catch special case for up-teleport
                 if round(player_pos[1], 2) >= prev_y:
                     time.sleep(0.05)
                     press('space', 1, up_time=0.15)
                     self.exo()
                 key_down(direction)
                 time.sleep(0.05)
-            press('e', 3)
+            press('e', num_presses)
             key_up(direction)
-            # time.sleep(0.15)
+            if num_presses < 3:
+                time.sleep(0.1)
         return act
 
     def shikigami(self, direction, n=1, num_attacks=3):
@@ -294,7 +295,7 @@ class Commands:
         #     press('space', 1, down_time=0.075, up_time=0.075)
         #     n += 1
         time.sleep(0.05)
-        while distance(starting_pos, player_pos) < 0.05 and n < exit_threshold:
+        while distance(starting_pos, player_pos) < 0.1 and n < exit_threshold:
             # if n == exit_threshold // 2:
             #     key_up('down')
             #     time.sleep(0.1)

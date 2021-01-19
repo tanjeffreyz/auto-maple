@@ -5,7 +5,7 @@ main
 0.873;0.727;attacks=0;extras=['fall']
 afterboss
 0.055;0.455;attacks=0;extras=["shikigami('right',num_attacks=2)",'tengu']
-0.055;0.455;attacks=0;extras=['fall','wait(0.5)',"goto('main')"]
+0.055;0.455;attacks=0;extras=['fall','wait(0.4)',"goto('main')"]
 loot
 0.750;0.727;attacks=0;extras=["teleport('left',jump=False)",'fox','tengu']
 0.300;0.727;attacks=0;extras=['tengu','kishin','wait(0.3)']

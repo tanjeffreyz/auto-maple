@@ -1,5 +1,6 @@
 import ctypes, time
 from ctypes import wintypes
+from random import random
 
 
 #################################
@@ -151,9 +152,19 @@ def key_up(key):
                             dwFlags=KEYEVENTF_KEYUP))
     user32.SendInput(1, ctypes.byref(x), ctypes.sizeof(x))
 
+# def press(key, n, down_time=0.05, up_time=0.1):
+#     total_time = down_time + up_time
+#     for _ in range(n):
+#         down_time *= 0.7 + 0.6 * random()
+#         up_time = max(total_time - down_time, 0.001)
+#         key_down(key)
+#         time.sleep(down_time)
+#         key_up(key)
+#         time.sleep(up_time)
+        
 def press(key, n, down_time=0.05, up_time=0.1):
     for _ in range(n):
         key_down(key)
-        time.sleep(down_time)
+        time.sleep(down_time * (0.8 + 0.4 * random()))
         key_up(key)
-        time.sleep(up_time)
+        time.sleep(up_time * (0.8 + 0.4 * random()))
