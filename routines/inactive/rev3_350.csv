@@ -1,0 +1,11 @@
+0.82,0.53,frequency=18
+0.82,0.16,frequency=18,attacks=0,extras=['kishin']
+0.615,0.53
+0.615,0.53,counter=6,frequency=12,attacks=0,extras=["charm('left',0.1)"]
+0.49,0.36,frequency=9,attacks=0
+0.39,0.32,frequency=9,attacks=0,extras=["boss('left')"]
+0.37,0.53,counter=9,frequency=27
+0.37,0.53,counter=18,frequency=27
+0.18,0.53,frequency=27
+0.17,0.14,frequency=27
+0.37,0.53,frequency=27

@@ -1,0 +1,13 @@
+tengu_on=False
+0.900;0.685;frequency=15;attacks=0;extras=['kishin']
+0.415;0.685;frequency=5;attacks=0;extras=["boss('right')"]
+0.150;0.685;frequency=15
+0.275;0.407;frequency=5;attacks=0;extras=['exo','wait(1.2)']
+0.275;0.407
+0.275;0.407;attacks=0;extras=['exo',"teleport('up',jump=False)","shikigami('right')","teleport('down',jump=False)",'wait(0.3)']
+#0.415;0.685;counter=1;frequency=15;attacks=0;extras=["boss('right')"]
+#0.275;0.407;counter=1;frequency=15;attacks=0;extras=["teleport('up')","shikigami('left')","teleport('right')","shikigami('right')","teleport('down')"]
+0.125;0.407;counter=1;frequency=15;attacks=0;extras=["boss('right')"]
+0.275;0.407;counter=1;frequency=15;attacks=0;extras=['exo']
+0.640;0.350;counter=1;frequency=15
+0.640;0.350;counter=1;frequency=15;attacks=0;extras=['exo','wait(0.2)']
