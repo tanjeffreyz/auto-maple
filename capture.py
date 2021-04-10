@@ -34,6 +34,7 @@ class Capture:
         :return:    None
         """
 
+        print('\nStarted video capture.')
         self.thread.start()
 
     @staticmethod
@@ -45,8 +46,6 @@ class Capture:
 
         with mss.mss() as sct:
             config.ready = True
-            print('Started capture')
-
             while True:
                 if not config.calibrated:
                     frame = np.array(sct.grab(config.MONITOR))
@@ -64,9 +63,8 @@ class Capture:
 
                     # Check for elite warning
                     elite_frame = frame[height//4:3*height//4, width//4:3*width//4]
-                    if not config.elite_active and Capture.multi_match(elite_frame,
-                                                                       Capture.ELITE_TEMPLATE,
-                                                                       threshold=0.9):
+                    elite = Capture.multi_match(elite_frame, Capture.ELITE_TEMPLATE, threshold=0.9)
+                    if config.enabled and not config.elite_active and elite:
                         config.elite_active = True
                         config.enabled = False
 

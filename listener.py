@@ -19,6 +19,7 @@ class Listener:
         :return:    None
         """
 
+        print('\nStarted keyboard listener.')
         self.thread.start()
 
     @staticmethod
@@ -44,4 +45,4 @@ class Listener:
                     utils.print_separator()
                     print(f'Current position: ({displayed_pos[0]}, {displayed_pos[1]})')
                     time.sleep(1)
-            time.sleep(0.1)
+            time.sleep(0.01)

@@ -7,6 +7,7 @@ import time
 import csv
 import mss
 import utils
+import pygame
 import keyboard as kb
 from os import listdir
 from os.path import isfile, join
@@ -14,6 +15,8 @@ from commands import Command, command_book
 
 
 class Point:
+    """Represents a location in a user-defined routine."""
+
     def __init__(self, x, y, frequency=1, counter=0, attacks=0):
         self.location = (float(x), float(y))
         self.frequency = utils.validate_nonzero_int(frequency)
@@ -31,7 +34,6 @@ class Point:
         if self.counter == 0:
             move = command_book.get('move')
             shikigami = command_book.get('shikigami')
-
             if config.enabled:
                 print()
                 print(self._heading())
@@ -73,7 +75,14 @@ class Point:
 
 
 class Bot:
+    """A class that interprets and executes user-defined routines."""
+
+    alert = None
+
     def __init__(self):
+        pygame.mixer.init()
+        Bot.alert = pygame.mixer.music
+        Bot.alert.load('./assets/alert.mp3')
         Bot.load()
         self.thread = threading.Thread(target=Bot._main)
         self.thread.daemon = True
@@ -84,6 +93,7 @@ class Bot:
         :return:    None
         """
 
+        print('\nStarted main Auto Kanna loop.')
         self.thread.start()
 
     @staticmethod
@@ -96,20 +106,31 @@ class Bot:
         with mss.mss() as sct:
             while True:
                 if config.elite_active:
-                    config.listening = False
-                    while not kb.is_pressed('insert'):
-                        time.sleep(0.1)
-                    # config.enabled = False
-                    # TODO: take care of elite here
-                    config.elite_active = False
-                    config.listening = True
+                    Bot._elite_alert()
                 if config.enabled:
                     element = config.sequence[config.seq_index]
                     if isinstance(element, Point):
                         element.execute()
                     Bot._step()
                 else:
-                    time.sleep(0.1)
+                    time.sleep(0.01)
+
+    @staticmethod
+    def _elite_alert():
+        """
+        Plays an alert to notify user of an Elite Boss spawn. Stops the alert
+        once 'insert' is pressed.
+        :return:    None
+        """
+
+        config.listening = False
+        Bot.alert.play(-1)
+        while not kb.is_pressed('insert'):
+            time.sleep(0.1)
+        Bot.alert.stop()
+        config.elite_active = False
+        time.sleep(1)
+        config.listening = True
 
     @staticmethod
     @utils.run_if_enabled
@@ -136,6 +157,7 @@ class Bot:
             utils.print_separator()
             print(f"Loading routine '{file}'...")
             config.sequence = []
+            config.seq_index = 0
             with open(join(routines_dir, file), newline='') as f:
                 csv_reader = csv.reader(f)
                 curr_point = None
@@ -153,9 +175,9 @@ class Bot:
                     line += 1
             config.prev_routine = file
             print(f"Finished loading routine '{file}'.")
-            winsound.Beep(523, 200)
-            winsound.Beep(659, 200)
-            winsound.Beep(784, 200)
+            winsound.Beep(523, 200)     # C5
+            winsound.Beep(659, 200)     # E5
+            winsound.Beep(784, 200)     # G5
 
     @staticmethod
     def _eval(expr, n):
@@ -170,7 +192,6 @@ class Bot:
             first, rest = expr[0], expr[1:]
             rest = list(map(str.strip, rest))
             line = f'Line {n}: '
-
             if first == '@':        # Check for labels
                 if len(rest) != 1:
                     print(line + f'Incorrect number of arguments for a label.')
