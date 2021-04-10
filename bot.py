@@ -7,20 +7,21 @@ import time
 import csv
 import mss
 import utils
+import keyboard as kb
 from os import listdir
 from os.path import isfile, join
 from commands import Command, command_book
 
 
 class Point:
-    def __init__(self, x, y, counter=0, frequency=1, attacks=0):
-        utils.validate_nonzero(frequency)
+    def __init__(self, x, y, frequency=1, counter=0, attacks=0):
         self.location = (float(x), float(y))
+        self.frequency = utils.validate_nonzero_int(frequency)
         self.counter = int(counter)
-        self.frequency = int(frequency)
         self.attacks = int(attacks)
         self.commands = []
 
+    @utils.run_if_enabled
     def execute(self):
         """
         Executes the set of actions associated with this Point.
@@ -28,10 +29,28 @@ class Point:
         """
 
         if self.counter == 0:
+            move = command_book.get('move')
+            shikigami = command_book.get('shikigami')
+
             if config.enabled:
-                print(f'Point at {self.location}' + (':' if self.commands else ''))
-                move = command_book.get('move')
-                move(str(self.location)).execute()
+                print()
+                print(self._heading())
+            move(*self.location).execute()
+            for _ in range(self.attacks):
+                shikigami('left').execute()
+                shikigami('right').execute()
+            for command in self.commands:
+                command.execute()
+        self._increment_counter()
+
+    @utils.run_if_enabled
+    def _increment_counter(self):
+        """
+        Increments this Point's counter, wrapping back to 0 at the upper bound.
+        :return:    None
+        """
+
+        self.counter = (self.counter + 1) % self.frequency
 
     def __str__(self):
         """
@@ -39,10 +58,18 @@ class Point:
         :return:    This Point's string representation.
         """
 
-        result = f'Point at {self.location}' + (':' if self.commands else '')
+        result = self._heading()
         for command in self.commands:
             result = result + '\n' + str(command)
         return result
+
+    def _heading(self):
+        """
+        Returns this Point's heading for display purposes.
+        :return:    This Point's heading
+        """
+
+        return f'Point at {self.location}' + (':' if self.commands else '')
 
 
 class Bot:
@@ -69,14 +96,30 @@ class Bot:
         with mss.mss() as sct:
             while True:
                 if config.elite_active:
-                    config.enabled = False
+                    config.listening = False
+                    while not kb.is_pressed('insert'):
+                        time.sleep(0.1)
+                    # config.enabled = False
                     # TODO: take care of elite here
                     config.elite_active = False
+                    config.listening = True
                 if config.enabled:
-                    pass
+                    element = config.sequence[config.seq_index]
+                    if isinstance(element, Point):
+                        element.execute()
+                    Bot._step()
                 else:
                     time.sleep(0.1)
-                    # TODO: run bot here
+
+    @staticmethod
+    @utils.run_if_enabled
+    def _step():
+        """
+        Increments config.seq_index and wraps back to 0 at the end of config.sequence.
+        :return:    None
+        """
+
+        config.seq_index = (config.seq_index + 1) % len(config.sequence)
 
     @staticmethod
     def load(file=None):

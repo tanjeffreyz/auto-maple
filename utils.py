@@ -41,7 +41,7 @@ def validate_type(string, other):
     Checks whether STRING can be converted into type OTHER.
     :param string:      The string to check
     :param other:       The type to check against.
-    :return:            Whether STRING can be of type OTHER.
+    :return:            True if STRING can be of type OTHER, False otherwise.
     """
 
     try:
@@ -55,55 +55,57 @@ def validate_arrows(key):
     """
     Checks whether string KEY is an arrow key.
     :param key:     The key to check.
-    :return:        None
+    :return:        KEY in lowercase if it is a valid arrow key.
     """
 
     if isinstance(key, str):
+        key = key.lower()
         if key in ['up', 'down', 'left', 'right']:
-            return
+            return key
     raise ValueError
 
 
-def validate_horizontal(key):
+def validate_horizontal_arrows(key):
     """
     Checks whether string KEY is either a left or right arrow key.
     :param key:     The key to check.
-    :return:        None
+    :return:        KEY in lowercase if it is a valid horizontal arrow key.
     """
 
     if isinstance(key, str):
+        key = key.lower()
         if key in ['left', 'right']:
-            return
+            return key
     raise ValueError
 
 
-def validate_nonzero(value):
+def validate_nonzero_int(value):
     """
-    Checks whether string VALUE is a valid nonzero integer.
+    Checks whether VALUE can be a valid nonzero integer.
     :param value:   The string to check.
-    :return:        None
+    :return:        STRING as an integer
     """
 
-    if isinstance(value, str):
-        if int(value) >= 1:
-            return
+    if int(value) >= 1:
+        return int(value)
     raise ValueError
 
 
-def validate_position(position):
-    """
-    Checks whether string POSITION is a valid coordinate point.
-    :param position:    The string to check.
-    :return:            POSITION as a tuple if it is valid, otherwise None.
-    """
-
-    if isinstance(position, str):
-        position.replace('(', '')
-        position.replace(')', '')
-        position = tuple(map(float, position.split(',')))
-        if len(position) == 2:
-            return position
-    raise ValueError
+# TODO: decide whether to use this
+# def validate_position(position):
+#     """
+#     Checks whether string POSITION is a valid coordinate point.
+#     :param position:    The string to check.
+#     :return:            POSITION as a tuple if it is valid, otherwise None.
+#     """
+#
+#     if isinstance(position, str):
+#         position.replace('(', '')
+#         position.replace(')', '')
+#         position = tuple(map(float, position.split(',')))
+#         if len(position) == 2:
+#             return position
+#     raise ValueError
 
 
 def validate_boolean(boolean):
@@ -114,9 +116,10 @@ def validate_boolean(boolean):
     """
 
     if isinstance(boolean, str):
-        if boolean == 'True':
+        boolean = boolean.lower()
+        if boolean == 'true':
             return True
-        elif boolean == 'False':
+        elif boolean == 'false':
             return False
     raise ValueError
 
@@ -128,7 +131,7 @@ def run_if_enabled(function):
     :return:            The decorated function.
     """
 
-    def helper(*args):
+    def helper(*args, **kwargs):
         if config.enabled:
-            function(*args)
+            function(*args, **kwargs)
     return helper

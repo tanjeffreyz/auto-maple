@@ -38,9 +38,8 @@ class Command:
 
 class Teleport(Command):
     def __init__(self, direction, jump='False'):
-        utils.validate_arrows(direction)
         self.name = 'Teleport'
-        self.direction = direction
+        self.direction = utils.validate_arrows(direction)
         self.jump = utils.validate_boolean(jump)
 
     def main(self):
@@ -48,9 +47,10 @@ class Teleport(Command):
 
 
 class Move(Command):
-    def __init__(self, position, max_steps='15'):
-        utils.validate_nonzero(max_steps)
-        self.position = utils.validate_position(position)
+    def __init__(self, x, y, max_steps=15):
+        self.name = 'Move'
+        self.position = (float(x), float(y))
+        self.max_steps = utils.validate_nonzero_int(max_steps)
 
     def main(self):
         pass        # TODO finish this
@@ -70,18 +70,19 @@ class Goto(Command):
 
 class Shikigami(Command):
     def __init__(self, direction, num_attacks=2, repetitions=1):
-        utils.validate_horizontal(direction)
         self.name = 'Shikigami'
-        self.direction = direction
+        self.direction = utils.validate_horizontal_arrows(direction)
         self.num_attacks = int(num_attacks)
         self.repetitions = int(repetitions)
 
     def main(self):
+        time.sleep(0.05)
         key_down(self.direction)
+        time.sleep(0.05)
         for _ in range(self.repetitions):
             press('r', self.num_attacks, up_time=0.05)
         key_up(self.direction)
-        time.sleep(0.1)
+        time.sleep(0.25)
 
 
 command_book = {'teleport': Teleport,

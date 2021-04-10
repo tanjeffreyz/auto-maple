@@ -13,6 +13,7 @@ player_pos = (0, 0)
 enabled = False
 ready = False
 calibrated = False
+listening = True
 
 rune_active = False
 rune_pos = (0, 0)

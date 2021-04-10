@@ -20,14 +20,5 @@ listener.start()
 bot = Bot()
 bot.start()
 
-
-# TODO: remove this thingy below
-import utils
-@utils.run_if_enabled
-def test_print(thingy):
-    print(thingy)
-
-
 while True:
-    test_print(config.player_pos)
-    time.sleep(0.1)
+    time.sleep(1)

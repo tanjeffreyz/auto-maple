@@ -68,6 +68,7 @@ class Capture:
                                                                        Capture.ELITE_TEMPLATE,
                                                                        threshold=0.9):
                         config.elite_active = True
+                        config.enabled = False
 
                     # Crop the frame to only show the minimap
                     minimap = frame[mm_tl[1]:mm_br[1], mm_tl[0]:mm_br[0]]

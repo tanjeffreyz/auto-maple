@@ -150,30 +150,47 @@ user32.SendInput.argtypes = (wintypes.UINT, LPINPUT, ctypes.c_int)
 #################################
 @utils.run_if_enabled
 def key_down(key):
-    time.sleep(0.05)
+    """
+    Simulates a key-down action. Can be cancelled by Bot.toggle_enabled.
+    :param key:     The key to press.
+    :return:        None
+    """
+
     key = key.lower()
     if key not in key_map.keys():
         print(f"Invalid keyboard input: '{key}'.")
     else:
         x = INPUT(type=INPUT_KEYBOARD, ki=KEYBDINPUT(wVk=key_map[key]))
         user32.SendInput(1, ctypes.byref(x), ctypes.sizeof(x))
-        time.sleep(0.05)
 
 
-@utils.run_if_enabled
 def key_up(key):
-    time.sleep(0.05)
+    """
+    Simulates a key-up action. Cannot be cancelled by Bot.toggle_enabled.
+    This is to ensure no keys are left in the 'down' state when the program pauses.
+    :param key:     The key to press.
+    :return:        None
+    """
+
     key = key.lower()
     if key not in key_map.keys():
         print(f"Invalid keyboard input: '{key}'.")
     else:
         x = INPUT(type=INPUT_KEYBOARD, ki=KEYBDINPUT(wVk=key_map[key], dwFlags=KEYEVENTF_KEYUP))
         user32.SendInput(1, ctypes.byref(x), ctypes.sizeof(x))
-        time.sleep(0.05)
 
 
 @utils.run_if_enabled
 def press(key, n, down_time=0.05, up_time=0.1):
+    """
+    Presses KEY N times, holding it for DOWN_TIME seconds, and releasing for UP_TIME seconds.
+    :param key:         The keyboard input to press.
+    :param n:           Number of times to press KEY.
+    :param down_time:   Duration of down-press (in seconds).
+    :param up_time:     Duration of release (in seconds).
+    :return:            None
+    """
+
     for _ in range(n):
         key_down(key)
         time.sleep(down_time * (0.8 + 0.4 * random()))
