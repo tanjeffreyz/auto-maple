@@ -27,7 +27,7 @@ class Point:
     @utils.run_if_enabled
     def execute(self):
         """
-        Executes the set of actions saved within this Point.
+        Executes the set of actions associated with this Point.
         :return:    None
         """
 
