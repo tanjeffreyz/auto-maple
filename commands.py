@@ -49,7 +49,7 @@ class Teleport(Command):
 class Move(Command):
     def __init__(self, x, y, max_steps=15):
         self.name = 'Move'
-        self.position = (float(x), float(y))
+        self.target = (float(x), float(y))
         self.max_steps = utils.validate_nonzero_int(max_steps)
 
     def main(self):
@@ -85,7 +85,45 @@ class Shikigami(Command):
         time.sleep(0.25)
 
 
+class Tengu(Command):
+    def __init__(self):
+        self.name = 'Tengu'
+
+    def main(self):
+        press('q', 1, up_time=0.15)
+
+
+class Kishin(Command):
+    def __init__(self):
+        self.name = 'Kishin'
+
+    def main(self):
+        press('lshift', 4, down_time=0.1, up_time=0.15)
+
+
+class Yaksha(Command):
+    def __init__(self, direction=None):
+        self.name = 'Yaksha'
+        if direction is None:
+            self.direction = direction
+        else:
+            self.direction = utils.validate_horizontal_arrows(direction)
+
+    def main(self):
+        if self.direction:
+            press(self.direction, 1, down_time=0.1)
+        else:
+            if config.player_pos[0] > 0.5:
+                press('left', 1, down_time=0.1)
+            else:
+                press('right', 1, down_time=0.1)
+        press('2', 3)
+
+
 command_book = {'teleport': Teleport,
                 'move': Move,
                 'goto': Goto,
-                'shikigami': Shikigami}
+                'shikigami': Shikigami,
+                'tengu': Tengu,
+                'kishin': Kishin,
+                'yaksha': Yaksha}

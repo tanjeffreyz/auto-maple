@@ -4,6 +4,7 @@ import config
 import math
 import win32con
 import win32api
+from random import random
 
 
 def distance(a, b):
@@ -13,9 +14,9 @@ def distance(a, b):
 def click(position, button='left'):
     """
     Simulate a mouse click with BUTTON at POSITION.
-    :param pos:
-    :param button:
-    :return:
+    :param position:    The (x, y) position at which to click.
+    :param button:      Either the left or right mouse button.
+    :return:            None
     """
 
     if button not in ['left', 'right']:
@@ -91,23 +92,6 @@ def validate_nonzero_int(value):
     raise ValueError
 
 
-# TODO: decide whether to use this
-# def validate_position(position):
-#     """
-#     Checks whether string POSITION is a valid coordinate point.
-#     :param position:    The string to check.
-#     :return:            POSITION as a tuple if it is valid, otherwise None.
-#     """
-#
-#     if isinstance(position, str):
-#         position.replace('(', '')
-#         position.replace(')', '')
-#         position = tuple(map(float, position.split(',')))
-#         if len(position) == 2:
-#             return position
-#     raise ValueError
-
-
 def validate_boolean(boolean):
     """
     Checks whether string BOOLEAN is a valid bool.
@@ -135,3 +119,13 @@ def run_if_enabled(function):
         if config.enabled:
             function(*args, **kwargs)
     return helper
+
+
+def bernoulli(p):
+    """
+    Returns the value of a Bernoulli random variable with probability P.
+    :param p:   The random variable's probability of being True.
+    :return:    True or False.
+    """
+
+    return random() < p

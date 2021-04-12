@@ -1,4 +1,4 @@
-"""The control center of Auto Kanna."""
+"""The center of Auto Kanna that ties all the modules together."""
 
 import config
 import time
