@@ -40,7 +40,7 @@ def print_separator():
 def validate_type(string, other):
     """
     Checks whether STRING can be converted into type OTHER.
-    :param string:      The string to check
+    :param string:      The string to check.
     :param other:       The type to check against.
     :return:            True if STRING can be of type OTHER, False otherwise.
     """
