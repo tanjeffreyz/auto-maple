@@ -2,6 +2,7 @@
 
 import config
 import time
+import math
 import utils
 import sys
 import inspect
@@ -45,13 +46,33 @@ class Move(Command):
         self.max_steps = utils.validate_nonzero_int(max_steps)
 
     def main(self):
-        pass        # TODO finish this
+        path = config.layout.shortest_path(config.player_pos, self.target)
+        for point in path:
+            self._step(point)
 
-    def _move(self, target):
+    @utils.run_if_enabled
+    def _step(self, target):
         toggle = True
         error = utils.distance(config.player_pos, target)
         while config.enabled and self.max_steps > 0 and error > config.move_tolerance:
-
+            if toggle:
+                d_x = abs(target[0] - config.player_pos[0])
+                if d_x > config.move_tolerance / math.sqrt(2):
+                    jump = str(utils.bernoulli(0.1))
+                    if config.player_pos[0] > target[0]:
+                        Teleport('left', jump=jump).main()
+                    else:
+                        Teleport('right', jump=jump).main()
+                    self.max_steps -= 1
+            else:
+                d_y = abs(target[1] - config.player_pos[1])
+                if d_y > config.move_tolerance / math.sqrt(2):
+                    jump = str(d_y > 1.5 * config.move_tolerance * config.mm_ratio)
+                    if config.player_pos[1] > target[1]:
+                        Teleport('up', jump=jump).main()
+                    else:
+                        Teleport('down', jump=jump).main()
+                    self.max_steps -= 1
 
             error = utils.distance(config.player_pos, target)
             toggle = not toggle

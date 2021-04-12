@@ -1,7 +1,10 @@
 @, main
-*, 0.547, 0.742, 2
+*, 0.800, 0.742
 shikigami, left
 shikigami, right
 *, 0.233, 0.742
+shikigami, left
+shikigami, right
+*, 0.304, 0.516
 shikigami, left
 shikigami, right

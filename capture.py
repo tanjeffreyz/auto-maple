@@ -58,6 +58,7 @@ class Capture:
                                                  Capture.MINIMAP_TEMPLATE)
                     mm_tl = (Capture.MINIMAP_BOTTOM_BORDER, Capture.MINIMAP_TOP_BORDER)
                     mm_br = tuple(max(75, a - Capture.MINIMAP_BOTTOM_BORDER) for a in br)
+                    config.mm_ratio = (mm_br[0] - mm_tl[0]) / (mm_br[1] - mm_tl[1])
                     config.calibrated = True
                 else:
                     frame = np.array(sct.grab(config.MONITOR))

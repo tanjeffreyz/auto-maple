@@ -15,6 +15,8 @@ ready = False
 calibrated = False
 listening = True
 
+mm_ratio = 1
+
 rune_active = False
 rune_pos = (0, 0)
 rune_index = 0
