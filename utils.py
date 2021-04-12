@@ -84,7 +84,7 @@ def validate_nonzero_int(value):
     """
     Checks whether VALUE can be a valid nonzero integer.
     :param value:   The string to check.
-    :return:        STRING as an integer
+    :return:        STRING as an integer.
     """
 
     if int(value) >= 1:
