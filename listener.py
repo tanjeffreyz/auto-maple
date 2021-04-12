@@ -10,6 +10,8 @@ from bot import Bot
 
 class Listener:
     def __init__(self):
+        """Initializes this Listener object's main thread."""
+
         self.thread = threading.Thread(target=Listener._main)
         self.thread.daemon = True
 
@@ -36,7 +38,7 @@ class Listener:
                     time.sleep(0.667)
                 elif kb.is_pressed('F6'):
                     config.calibrated = False
-                    Bot.load(config.prev_routine)
+                    Bot.load(config.routine)
                 elif kb.is_pressed('F7'):
                     config.calibrated = False
                     Bot.load()

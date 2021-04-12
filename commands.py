@@ -3,6 +3,8 @@
 import config
 import time
 import utils
+import sys
+import inspect
 from vkeys import press, key_down, key_up
 
 
@@ -36,16 +38,6 @@ class Command:
         return result
 
 
-class Teleport(Command):
-    def __init__(self, direction, jump='False'):
-        self.name = 'Teleport'
-        self.direction = utils.validate_arrows(direction)
-        self.jump = utils.validate_boolean(jump)
-
-    def main(self):
-        pass        # TODO: finish this
-
-
 class Move(Command):
     def __init__(self, x, y, max_steps=15):
         self.name = 'Move'
@@ -54,6 +46,15 @@ class Move(Command):
 
     def main(self):
         pass        # TODO finish this
+
+    def _move(self, target):
+        toggle = True
+        error = utils.distance(config.player_pos, target)
+        while config.enabled and self.max_steps > 0 and error > config.move_tolerance:
+
+
+            error = utils.distance(config.player_pos, target)
+            toggle = not toggle
 
 
 class Goto(Command):
@@ -66,6 +67,42 @@ class Goto(Command):
             config.seq_index = config.sequence.index(self.label)
         except ValueError:
             print(f"Label '{self.label}' does not exist.")
+
+
+class Wait(Command):
+    def __init__(self, duration):
+        self.name = 'Wait'
+        self.duration = duration
+
+    def main(self):
+        time.sleep(self.duration)
+
+
+class Teleport(Command):
+    def __init__(self, direction, jump='False'):
+        self.name = 'Teleport'
+        self.direction = utils.validate_arrows(direction)
+        self.jump = utils.validate_boolean(jump)
+
+    def main(self):
+        num_presses = 3
+        time.sleep(0.05)
+        if self.direction != 'up':
+            key_down(self.direction)
+            time.sleep(0.05)
+        if self.jump:
+            if self.direction == 'down':
+                press('space', 3, down_time=0.1)
+                num_presses = 2
+            else:
+                press('space', 2)
+        if self.direction == 'up':
+            key_down(self.direction)
+            time.sleep(0.05)
+        press('e', num_presses)
+        key_up(self.direction)
+        if num_presses < 3:
+            time.sleep(0.1)
 
 
 class Shikigami(Command):
@@ -120,10 +157,9 @@ class Yaksha(Command):
         press('2', 3)
 
 
-command_book = {'teleport': Teleport,
-                'move': Move,
-                'goto': Goto,
-                'shikigami': Shikigami,
-                'tengu': Tengu,
-                'kishin': Kishin,
-                'yaksha': Yaksha}
+# Generate the command book to be used in other modules
+command_book = {}
+for name, command in inspect.getmembers(sys.modules[__name__]):
+    name = name.lower()
+    if inspect.isclass(command) and name != 'command':
+        command_book[name] = command

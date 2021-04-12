@@ -24,7 +24,8 @@ elite_active = False
 sequence = []
 seq_index = 0
 
-prev_routine = None
+routine = None
+layout = None
 
 
 #################################

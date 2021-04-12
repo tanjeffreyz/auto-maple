@@ -25,6 +25,8 @@ class Capture:
     ELITE_TEMPLATE = cv2.imread('assets/elite_template.jpg', 0)
 
     def __init__(self):
+        """Initializes this Capture object's main thread."""
+
         self.thread = threading.Thread(target=Capture._main)
         self.thread.daemon = True
 
@@ -97,14 +99,14 @@ class Capture:
                         color = (0, 255, 0)     # Green
                     for p in config.sequence:
                         Capture._draw_point(minimap, p, color)
-                    if config.ready:
-                        cv2.circle(minimap,
-                                   Capture._convert_to_absolute(config.player_pos, minimap),
-                                   3,
-                                   (255, 0, 0),
-                                   -1)
+                    if config.layout:
+                        config.layout.draw(minimap)
+                    cv2.circle(minimap,
+                               Capture._convert_to_absolute(config.player_pos, minimap),
+                               3,
+                               (255, 0, 0),
+                               -1)
                     cv2.imshow('minimap', minimap)
-
                 if cv2.waitKey(1) & 0xFF == 27:     # 27 is ASCII for the Esc key
                     break
 

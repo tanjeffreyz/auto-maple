@@ -121,6 +121,19 @@ def run_if_enabled(function):
     return helper
 
 
+def closest_point(points, target):
+    """
+    Returns the point in POINTS that is closest to TARGET.
+    :param points:      A list of points to check.
+    :param target:      The point to check against.
+    :return:            The point closest to TARGET, otherwise None if POINTS is empty.
+    """
+
+    if points:
+        points.sort(key=lambda p: distance(p, target))
+        return points[0]
+
+
 def bernoulli(p):
     """
     Returns the value of a Bernoulli random variable with probability P.

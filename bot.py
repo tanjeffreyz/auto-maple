@@ -12,6 +12,7 @@ import keyboard as kb
 from os import listdir
 from os.path import isfile, join
 from commands import Command, command_book
+from layout import Layout
 
 
 class Point:
@@ -80,6 +81,8 @@ class Bot:
     alert = None
 
     def __init__(self):
+        """Loads a user-defined routine on start up and initializes this Bot's main thread."""
+
         pygame.mixer.init()
         Bot.alert = pygame.mixer.music
         Bot.alert.load('./assets/alert.mp3')
@@ -173,7 +176,8 @@ class Bot:
                             if isinstance(result, Point):
                                 curr_point = result
                     line += 1
-            config.prev_routine = file
+            config.routine = file
+            config.layout = Layout.load(file)
             print(f"Finished loading routine '{file}'.")
             winsound.Beep(523, 200)     # C5
             winsound.Beep(659, 200)     # E5

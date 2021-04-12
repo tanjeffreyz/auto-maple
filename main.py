@@ -21,4 +21,5 @@ bot = Bot()
 bot.start()
 
 while True:
+    config.layout.add(*config.player_pos)
     time.sleep(1)
