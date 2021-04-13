@@ -38,3 +38,4 @@ layout = None
 move_tolerance = 0.075
 adjust_tolerance = 0.01
 use_haku = True
+buff_cooldown = 220

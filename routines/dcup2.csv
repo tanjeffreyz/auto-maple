@@ -8,7 +8,7 @@
     goto, loot
 *, 0.873, 0.727
     fall
-    walk, right, 0.2
+    walk, right, 0.1
 
 @, afterboss
 *, 0.055,0.455
@@ -59,7 +59,7 @@
     goto, boss2
 *, 0.873, 0.727
     fall
-    walk, right, 0.2
+    walk, right, 0.1
 
 @, afterboss2
 *, 0.055, 0.455

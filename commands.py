@@ -32,7 +32,9 @@ class Command:
         """
 
         variables = self.__dict__
-        result = '    ' + self.name + (':' if variables else '')
+        result = '    ' + self.name
+        if len(variables) - 1 > 0:
+            result += ':'
         for key, value in variables.items():
             if key != 'name':
                 result += f'\n        {key}={value}'

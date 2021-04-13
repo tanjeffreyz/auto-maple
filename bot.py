@@ -11,6 +11,7 @@ import pygame
 import keyboard as kb
 from os import listdir
 from os.path import isfile, join
+from vkeys import press
 from commands import Command, command_book
 from layout import Layout
 
@@ -91,7 +92,7 @@ class Bot:
         :return:    None
         """
 
-        print('\nStarted main Auto Kanna loop.')
+        print('\nStarted main bot loop.')
         self.thread.start()
 
     @staticmethod
@@ -102,10 +103,12 @@ class Bot:
         """
 
         with mss.mss() as sct:
+            buff = Bot._buff(['f1', 'f2', 'f4'])
             while True:
                 if config.elite_active:
                     Bot._elite_alert()
                 if config.enabled:
+                    buff = buff()
                     element = config.sequence[config.seq_index]
                     if isinstance(element, Point):
                         element.execute()
@@ -139,6 +142,21 @@ class Bot:
         """
 
         config.seq_index = (config.seq_index + 1) % len(config.sequence)
+
+    @staticmethod
+    def _buff(skills, haku_time=0, buff_time=0):
+        def act():
+            nonlocal haku_time, buff_time
+            now = time()
+            if buff_time == 0 or now - buff_time > config.buff_cooldown:
+                for s in skills:
+                    press(s, 3, up_time=0.3)
+                    buff_time = now
+            if haku_time == 0 or now - haku_time > 490:
+                press('ctrl', 1)
+                haku_time = now
+            return Bot._buff(skills, haku_time, buff_time)
+        return act
 
     @staticmethod
     def load(file=None):
