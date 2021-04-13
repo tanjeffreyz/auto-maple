@@ -44,8 +44,6 @@
     tengu
     walk, left, 0.5
 *, 0.394, 0.364
-    teleport, left
-    teleport, left
     walk, left, 0.2
     goto, afterboss2
 
