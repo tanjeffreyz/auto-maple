@@ -144,7 +144,7 @@ class Layout:
         This method uses a variant of the A* search algorithm.
         :param source:  The position to start at.
         :param target:  The destination.
-        :return:        A list of all Nodes on the shortest path (in order).
+        :return:        A list of all Nodes on the shortest path in order.
         """
 
         fringe = []
@@ -179,13 +179,15 @@ class Layout:
                     heuristic = distance + utils.distance(closest, target)
                     heappush(fringe, (heuristic, len(vertices)))
 
-                    # Update indexes
+                    # Update vertex and edge lists to include the new node
                     vertices.append(closest)
                     distances.append(distance)
                     edge_to.append(index)
 
             x_error = (target[0] - point[0])
             y_error = (target[1] - point[1])
+
+            # Push best possible node using horizontal teleport
             if abs(x_error) > config.move_tolerance:
                 if x_error > 0:
                     x_min = point[0] + config.move_tolerance / 4
@@ -198,6 +200,8 @@ class Layout:
                                          point[1] - config.move_tolerance,
                                          point[1] + config.move_tolerance)
                 push_best(candidates)
+
+            # Push best possible node using vertical teleport
             if abs(y_error) > config.move_tolerance:
                 if y_error > 0:
                     y_min = point[1] + config.move_tolerance / 4
@@ -215,7 +219,7 @@ class Layout:
         i = 0
         while utils.distance(vertices[i], target) > config.move_tolerance:
             push_neighbors(i)
-            fringe.sort()
+            # fringe.sort()
             if len(fringe) == 0:
                 break
             i = heappop(fringe)[1]

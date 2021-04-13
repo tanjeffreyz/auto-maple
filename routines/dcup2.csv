@@ -1,81 +1,81 @@
 @, main
 *, 0.873, 0.303
-shikigami, left
-tengu
+    shikigami, left
+    tengu
 *, 0.873, 0.727
-shikigami, left
+    shikigami, left
 *, 0.873, 0.727, 4
-goto, loot
+    goto, loot
 *, 0.873, 0.727
-fall
-walk, right, 0.1
+    fall
+    walk, right, 0.2
 
 @, afterboss
 *, 0.055,0.455
-shikigami, right
+    shikigami, right
 *, 0.055,0.455
-fall
-walk, left, 0.55
-goto, main
+    fall
+    walk, left, 0.55
+    goto, main
 
 @, loot
 *, 0.873, 0.727
-teleport, left
-yaksha, left
+    teleport, left
+    yaksha, left
 *, 0.750, 0.727
-teleport, left
-ninetails
-tengu
+    teleport, left
+    ninetails
+    tengu
 *, 0.300, 0.727
-tengu
-kishin
-wait, 0.3
+    tengu
+    kishin
+    wait, 0.3
 *, 0.200, 0.727
-walk, left, 0.2
-tengu
+    walk, left, 0.2
+    tengu
 *, 0.200, 0.727
-fall
-walk, left, 0.2
+    fall
+    walk, left, 0.2
 *, 0.660, 0.303
-shikigami, left
-tengu
+    shikigami, left
+    tengu
 *, 0.394, 0.364
-shikigami, left
-tengu
-walk, left, 0.5
+    shikigami, left
+    tengu
+    walk, left, 0.5
 *, 0.394, 0.364
-teleport, left
-teleport, left
-walk, left, 0.6
-goto, afterboss2
+    teleport, left
+    teleport, left
+    walk, left, 0.2
+    goto, afterboss2
 
 @, main2
 *, 0.873, 0.303
-shikigami, left
-tengu
+    shikigami, left
+    tengu
 *, 0.873, 0.727
-shikigami, left
+    shikigami, left
 *, 0.873, 0.727, 5, 1
-goto, boss2
+    goto, boss2
 *, 0.873, 0.727
-fall
-walk, right, 0.1
+    fall
+    walk, right, 0.2
 
 @, afterboss2
 *, 0.055, 0.455
-shikigami, right
+    shikigami, right
 *, 0.055, 0.455
-fall
-walk, left, 0.55
-goto, main2
+    fall
+    walk, left, 0.55
+    goto, main2
 
 @, boss2
 *, 0.873, 0.727
-teleport, left
-yaksha, left
+    teleport, left
+    yaksha, left
 *, 0.750, 0.727, 3, 1
-fall
-goto, afterboss
+    fall
+    goto, afterboss
 *, 0.750, 0.727
-fall
-goto, afterboss2
+    fall
+    goto, afterboss2

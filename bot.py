@@ -64,7 +64,7 @@ class Point:
     def _heading(self):
         """
         Returns this Point's heading for display purposes.
-        :return:    This Point's heading
+        :return:    This Point's heading.
         """
 
         return f'Point at {self.location}' + (':' if self.commands else '')
@@ -157,7 +157,7 @@ class Bot:
             config.sequence = []
             config.seq_index = 0
             with open(join(routines_dir, file), newline='') as f:
-                csv_reader = csv.reader(f)
+                csv_reader = csv.reader(f, skipinitialspace=True)
                 curr_point = None
                 line = 1
                 for row in csv_reader:
@@ -189,7 +189,7 @@ class Bot:
 
         if expr and isinstance(expr, list):
             first, rest = expr[0], expr[1:]
-            rest = list(map(str.strip, rest))
+            rest = [s.strip() for s in rest]
             line = f'Line {n}: '
             if first == '@':        # Check for labels
                 if len(rest) != 1:

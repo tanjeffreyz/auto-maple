@@ -91,8 +91,8 @@ class Capture:
                     if config.rune_active:
                         cv2.circle(minimap,
                                    Capture._convert_to_absolute(config.rune_pos, minimap),
-                                   3,
-                                   (219, 112, 147),
+                                   2,
+                                   (128, 0, 128),
                                    -1)
 
                     # Draw the current path that the program is taking

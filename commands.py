@@ -57,8 +57,12 @@ class Move(Command):
     @utils.run_if_enabled
     def _step(self, target):
         toggle = True
-        error = utils.distance(config.player_pos, target)
-        while config.enabled and self.max_steps > 0 and error > config.move_tolerance:
+        local_error = utils.distance(config.player_pos, target)
+        global_error = utils.distance(config.player_pos, self.target)
+        while config.enabled and \
+                self.max_steps > 0 and \
+                local_error > config.move_tolerance and \
+                global_error > config.move_tolerance:
             if toggle:
                 d_x = abs(target[0] - config.player_pos[0])
                 if d_x > config.move_tolerance / math.sqrt(2):
@@ -78,7 +82,8 @@ class Move(Command):
                         Teleport('down', jump=jump).main()
                     self.max_steps -= 1
 
-            error = utils.distance(config.player_pos, target)
+            local_error = utils.distance(config.player_pos, target)
+            global_error = utils.distance(config.player_pos, self.target)
             toggle = not toggle
 
 
@@ -88,7 +93,7 @@ class Fall(Command):
     from their starting position.
     """
 
-    def __init__(self, distance=config.move_tolerance/3):
+    def __init__(self, distance=config.move_tolerance/2):
         self.name = 'Fall'
         self.distance = float(distance)
 
@@ -165,7 +170,7 @@ class Teleport(Command):
                 press('space', 3, down_time=0.1)
                 num_presses = 2
             else:
-                press('space', 2)
+                press('space', 1, up_time=0.1)
         if self.direction == 'up':
             key_down(self.direction)
             time.sleep(0.05)
@@ -192,7 +197,7 @@ class Shikigami(Command):
         for _ in range(self.repetitions):
             press('r', self.num_attacks, up_time=0.05)
         key_up(self.direction)
-        time.sleep(0.25)
+        time.sleep(0.15)
 
 
 class Tengu(Command):
