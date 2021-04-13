@@ -87,21 +87,32 @@ class Capture:
                             config.rune_index = np.argmin(distances)
                             config.rune_active = True
 
-                    # Mark the minimap with useful information
+                    # Mark the position of a rune
                     if config.rune_active:
                         cv2.circle(minimap,
                                    Capture._convert_to_absolute(config.rune_pos, minimap),
                                    3,
-                                   (255, 0, 255),
+                                   (219, 112, 147),
                                    -1)
-                    if not config.enabled:
-                        color = (0, 0, 255)     # Red
-                    else:
-                        color = (0, 255, 0)     # Green
+
+                    # Draw the current path that the program is taking
+                    if config.enabled and config.path:
+                        for i in range(len(config.path) - 1):
+                            start = Capture._convert_to_absolute(config.path[i], minimap)
+                            end = Capture._convert_to_absolute(config.path[i + 1], minimap)
+                            cv2.line(minimap, start, end, (255, 255, 0), 1)
+
+                    # Draw each Point in the routine as a circle
                     for p in config.sequence:
-                        Capture._draw_point(minimap, p, color)
+                        Capture._draw_point(minimap,
+                                            p,
+                                            (0, 255, 0) if config.enabled else (0, 0, 255))
+
+                    # Display the current Layout
                     if config.layout:
                         config.layout.draw(minimap)
+
+                    # Draw the player's position on top of everything
                     cv2.circle(minimap,
                                Capture._convert_to_absolute(config.player_pos, minimap),
                                3,

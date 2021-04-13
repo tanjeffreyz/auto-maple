@@ -40,6 +40,8 @@ class Command:
 
 
 class Move(Command):
+    """Moves to a given position using the shortest path based on the current Layout."""
+
     def __init__(self, x, y, max_steps=15):
         self.name = 'Move'
         self.target = (float(x), float(y))
@@ -47,6 +49,8 @@ class Move(Command):
 
     def main(self):
         path = config.layout.shortest_path(config.player_pos, self.target)
+        config.path = path.copy()
+        config.path.insert(0, config.player_pos)
         for point in path:
             self._step(point)
 
@@ -67,7 +71,7 @@ class Move(Command):
             else:
                 d_y = abs(target[1] - config.player_pos[1])
                 if d_y > config.move_tolerance / math.sqrt(2):
-                    jump = str(d_y > 1.5 * config.move_tolerance * config.mm_ratio)
+                    jump = str(d_y > config.move_tolerance * config.mm_ratio)
                     if config.player_pos[1] > target[1]:
                         Teleport('up', jump=jump).main()
                     else:
@@ -78,10 +82,51 @@ class Move(Command):
             toggle = not toggle
 
 
+class Fall(Command):
+    """
+    Performs a down-jump and free-falls until the player exceeds a given distance
+    from their starting position.
+    """
+
+    def __init__(self, distance=config.move_tolerance/3):
+        self.name = 'Fall'
+        self.distance = float(distance)
+
+    def main(self):
+        start = config.player_pos
+        key_down('down')
+        time.sleep(0.05)
+        counter = 6
+        while config.enabled and \
+                counter > 0 and \
+                utils.distance(start, config.player_pos) < self.distance:
+            press('space', 1, down_time=0.1)
+            counter -= 1
+        key_up('down')
+        time.sleep(0.1)
+
+
+class Walk(Command):
+    """Walks in the given direction for a set amount of time."""
+
+    def __init__(self, direction, duration):
+        self.name = 'Walk'
+        self.direction = utils.validate_horizontal_arrows(direction)
+        self.duration = float(duration)
+
+    def main(self):
+        key_down(self.direction)
+        time.sleep(self.duration)
+        key_up(self.direction)
+        time.sleep(0.05)
+
+
 class Goto(Command):
+    """Moves config.seq_index to the index of the specified label."""
+
     def __init__(self, label):
         self.name = 'Goto'
-        self.label = label
+        self.label = str(label)
 
     def main(self):
         try:
@@ -91,15 +136,19 @@ class Goto(Command):
 
 
 class Wait(Command):
+    """Waits for a set amount of time."""
+
     def __init__(self, duration):
         self.name = 'Wait'
-        self.duration = duration
+        self.duration = float(duration)
 
     def main(self):
         time.sleep(self.duration)
 
 
 class Teleport(Command):
+    """Teleports in a given direction, jumping if specified."""
+
     def __init__(self, direction, jump='False'):
         self.name = 'Teleport'
         self.direction = utils.validate_arrows(direction)
@@ -124,9 +173,12 @@ class Teleport(Command):
         key_up(self.direction)
         if num_presses < 3:
             time.sleep(0.1)
+        config.layout.add(*config.player_pos)
 
 
 class Shikigami(Command):
+    """Attacks using 'Shikigami Haunting' in a given direction."""
+
     def __init__(self, direction, num_attacks=2, repetitions=1):
         self.name = 'Shikigami'
         self.direction = utils.validate_horizontal_arrows(direction)
@@ -144,22 +196,21 @@ class Shikigami(Command):
 
 
 class Tengu(Command):
+    """Uses 'Tengu Strike' once."""
+
     def __init__(self):
         self.name = 'Tengu'
 
     def main(self):
-        press('q', 1, up_time=0.15)
-
-
-class Kishin(Command):
-    def __init__(self):
-        self.name = 'Kishin'
-
-    def main(self):
-        press('lshift', 4, down_time=0.1, up_time=0.15)
+        press('q', 1)
 
 
 class Yaksha(Command):
+    """
+    Places 'Ghost Yaksha Boss' in a given direction, or towards the center of the map if
+    no direction is specified.
+    """
+
     def __init__(self, direction=None):
         self.name = 'Yaksha'
         if direction is None:
@@ -172,10 +223,60 @@ class Yaksha(Command):
             press(self.direction, 1, down_time=0.1)
         else:
             if config.player_pos[0] > 0.5:
-                press('left', 1, down_time=0.1)
+                press('left', 1)
             else:
-                press('right', 1, down_time=0.1)
+                press('right', 1)
         press('2', 3)
+
+
+class Kishin(Command):
+    """Uses 'Kishin Shoukan' once."""
+
+    def __init__(self):
+        self.name = 'Kishin'
+
+    def main(self):
+        press('lshift', 4, down_time=0.1, up_time=0.15)
+
+
+class NineTails(Command):
+    """Uses 'Nine-Tailed Fury' once."""
+
+    def __init__(self):
+        self.name = 'NineTails'
+
+    def main(self):
+        press('3', 3)
+
+
+class Exorcist(Command):
+    """Uses 'Exorcist's Charm' once."""
+
+    def __init__(self):
+        self.name = 'Exorcist'
+
+    def main(self):
+        press('w', 1, down_time=0.15)
+
+
+class Domain(Command):
+    """Uses 'Spirit's Domain' once."""
+
+    def __init__(self):
+        self.name = 'Domain'
+
+    def main(self):
+        press('v', 3)
+
+
+class Legion(Command):
+    """Uses 'Ghost Yaksha: Great Oni Lord's Legion' once."""
+
+    def __init__(self):
+        self.name = 'Legion'
+
+    def main(self):
+        press('z', 2, down_time=0.1)
 
 
 # Generate the command book to be used in other modules

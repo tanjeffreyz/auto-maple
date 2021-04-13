@@ -12,7 +12,7 @@ cap.start()
 
 # Wait for the video capture to initialize
 while not config.ready:
-    pass
+    time.sleep(0.01)
 
 listener = Listener()
 listener.start()
@@ -20,6 +20,8 @@ listener.start()
 bot = Bot()
 bot.start()
 
+# Periodically save changes to the active Layout if it exists.
 while True:
-    config.layout.add(*config.player_pos)
-    time.sleep(1)
+    if config.layout:
+        config.layout.save()
+    time.sleep(5)

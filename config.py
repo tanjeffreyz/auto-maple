@@ -26,6 +26,8 @@ elite_active = False
 sequence = []
 seq_index = 0
 
+path = []
+
 routine = None
 layout = None
 
@@ -33,6 +35,6 @@ layout = None
 #################################
 #       Routine Settings        #
 #################################
-move_tolerance = 0.1
+move_tolerance = 0.075
 adjust_tolerance = 0.01
 use_haku = True

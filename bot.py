@@ -18,11 +18,10 @@ from layout import Layout
 class Point:
     """Represents a location in a user-defined routine."""
 
-    def __init__(self, x, y, frequency=1, counter=0, attacks=0):
+    def __init__(self, x, y, frequency=1, counter=0):
         self.location = (float(x), float(y))
         self.frequency = utils.validate_nonzero_int(frequency)
         self.counter = int(counter)
-        self.attacks = int(attacks)
         self.commands = []
 
     @utils.run_if_enabled
@@ -34,14 +33,10 @@ class Point:
 
         if self.counter == 0:
             move = command_book.get('move')
-            shikigami = command_book.get('shikigami')
             if config.enabled:
                 print()
                 print(self._heading())
             move(*self.location).execute()
-            for _ in range(self.attacks):
-                shikigami('left').execute()
-                shikigami('right').execute()
             for command in self.commands:
                 command.execute()
         self._increment_counter()
@@ -239,6 +234,8 @@ class Bot:
             for i in range(num_files):
                 print(f'{i:02} -- {csv_files[i]}')
             print()
+
+            selection = 0
             while index not in range(num_files):
                 try:
                     selection = input('>>> ')

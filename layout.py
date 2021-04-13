@@ -185,24 +185,30 @@ class Layout:
                     edge_to.append(index)
 
             x_error = (target[0] - point[0])
-            if x_error == 0:
-                x_error = 1
             y_error = (target[1] - point[1])
-            if y_error == 0:
-                y_error = 1
-            x_sign = x_error / abs(x_error)
-            y_sign = y_error / abs(y_error)
             if abs(x_error) > config.move_tolerance:
-                candidates = self.search(point[0] + x_sign * config.move_tolerance / 4,
-                                         point[0] + x_sign * config.move_tolerance * 2,
+                if x_error > 0:
+                    x_min = point[0] + config.move_tolerance / 4
+                    x_max = point[0] + config.move_tolerance * 2
+                else:
+                    x_min = point[0] - config.move_tolerance * 2
+                    x_max = point[0] - config.move_tolerance / 4
+                candidates = self.search(x_min,
+                                         x_max,
                                          point[1] - config.move_tolerance,
                                          point[1] + config.move_tolerance)
                 push_best(candidates)
             if abs(y_error) > config.move_tolerance:
+                if y_error > 0:
+                    y_min = point[1] + config.move_tolerance / 4
+                    y_max = 1
+                else:
+                    y_min = 0
+                    y_max = point[1] - config.move_tolerance / 4
                 candidates = self.search(point[0] - config.move_tolerance,
                                          point[0] + config.move_tolerance,
-                                         point[1] + y_sign * config.move_tolerance / 2,
-                                         max(0, y_sign))
+                                         y_min,
+                                         y_max)
                 push_best(candidates)
 
         # Perform the A* search algorithm
@@ -219,7 +225,7 @@ class Layout:
         while i != 0:
             path.append(vertices[i])
             i = edge_to[i]
-        return reversed(path)
+        return list(reversed(path))
 
     def draw(self, image):
         """
@@ -236,7 +242,7 @@ class Layout:
                 draw_helper(node.down_left)
 
                 center = (int(round(node.x * width)), int(round(node.y * height)))
-                cv2.circle(image, center, 1, (0, 165, 255) , -1)
+                cv2.circle(image, center, 1, (0, 165, 255), -1)
 
                 draw_helper(node.up_right)
                 draw_helper(node.down_right)
@@ -262,6 +268,7 @@ class Layout:
             new_layout.save()
             return new_layout
 
+    @utils.run_if_enabled
     def save(self):
         """
         Pickles this Layout instance to a file that is named after the routine in which

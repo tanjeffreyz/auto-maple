@@ -8,6 +8,13 @@ from random import random
 
 
 def distance(a, b):
+    """
+    Applies the distance formula to two points.
+    :param a:   The first point.
+    :param b:   The second point.
+    :return:    The distance between the two points.
+    """
+
     return math.sqrt((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2)
 
 
@@ -34,6 +41,11 @@ def click(position, button='left'):
 
 
 def print_separator():
+    """
+    Prints a 3 blank lines for visual clarity.
+    :return:    None
+    """
+
     print('\n\n')
 
 
