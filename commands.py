@@ -76,7 +76,7 @@ class Move(Command):
                     self.max_steps -= 1
             else:
                 d_y = abs(target[1] - config.player_pos[1])
-                if d_y > config.move_tolerance / math.sqrt(2):
+                if d_y > config.move_tolerance * config.mm_ratio / math.sqrt(2):
                     jump = str(d_y > config.move_tolerance * config.mm_ratio)
                     if config.player_pos[1] > target[1]:
                         Teleport('up', jump=jump).main()

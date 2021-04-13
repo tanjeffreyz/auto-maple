@@ -61,6 +61,9 @@ class Capture:
                     config.mm_ratio = (mm_br[0] - mm_tl[0]) / (mm_br[1] - mm_tl[1])
                     config.calibrated = True
                 else:
+                    #####################################
+                    #       Monitor in-game events      #
+                    #####################################
                     frame = np.array(sct.grab(config.MONITOR))
                     height, width, _ = frame.shape
 
@@ -87,11 +90,16 @@ class Capture:
                             config.rune_index = np.argmin(distances)
                             config.rune_active = True
 
-                    # Mark the position of a rune
+                    #########################################
+                    #       Display useful information      #
+                    #########################################
+                    minimap = Capture._rescale_frame(minimap, 2.0)
+
+                    # Mark the position of the active rune
                     if config.rune_active:
                         cv2.circle(minimap,
                                    Capture._convert_to_absolute(config.rune_pos, minimap),
-                                   2,
+                                   5,
                                    (128, 0, 128),
                                    -1)
 
@@ -179,7 +187,7 @@ class Capture:
         return x, y
 
     @staticmethod
-    def rescale_frame(frame, percent=100):
+    def _rescale_frame(frame, percent=1.0):
         """
         Proportionally rescales the width and height of FRAME by PERCENT.
         :param frame:       The image to rescale.
@@ -187,8 +195,8 @@ class Capture:
         :return:            The resized image.
         """
 
-        width = int(frame.shape[1] * percent / 100)
-        height = int(frame.shape[0] * percent / 100)
+        width = int(frame.shape[1] * percent)
+        height = int(frame.shape[0] * percent)
         return cv2.resize(frame, (width, height), interpolation=cv2.INTER_AREA)
 
     @staticmethod

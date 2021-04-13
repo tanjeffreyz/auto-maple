@@ -144,17 +144,17 @@ class Bot:
         config.seq_index = (config.seq_index + 1) % len(config.sequence)
 
     @staticmethod
-    def _buff(skills, haku_time=0, buff_time=0):
+    def _buff(skills, haku_time=0.0, buff_time=0.0):
         def act():
             nonlocal haku_time, buff_time
-            now = time()
+            now = time.time()
+            if haku_time == 0 or now - haku_time > 490:
+                press('ctrl', 2)
+                haku_time = now
             if buff_time == 0 or now - buff_time > config.buff_cooldown:
                 for s in skills:
                     press(s, 3, up_time=0.3)
                     buff_time = now
-            if haku_time == 0 or now - haku_time > 490:
-                press('ctrl', 1)
-                haku_time = now
             return Bot._buff(skills, haku_time, buff_time)
         return act
 
