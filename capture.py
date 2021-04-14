@@ -5,7 +5,7 @@ import mss
 import cv2
 import threading
 import numpy as np
-from utils import distance
+import utils
 from bot import Point
 
 
@@ -78,14 +78,14 @@ class Capture:
                     minimap = frame[mm_tl[1]:mm_br[1], mm_tl[0]:mm_br[0]]
                     player = Capture.multi_match(minimap, Capture.PLAYER_TEMPLATE, threshold=0.8)
                     if player:
-                        config.player_pos = Capture._convert_to_relative(player[0], minimap)
+                        config.player_pos = utils.convert_to_relative(player[0], minimap)
 
                     # Check for a rune
                     if not config.rune_active:
                         rune = Capture.multi_match(minimap, Capture.RUNE_TEMPLATE, threshold=0.9)
                         if rune and config.sequence:
                             abs_rune_pos = (rune[0][0] - 1, rune[0][1])
-                            config.rune_pos = Capture._convert_to_relative(abs_rune_pos, minimap)
+                            config.rune_pos = utils.convert_to_relative(abs_rune_pos, minimap)
                             distances = list(map(Capture._distance_to_rune, config.sequence))
                             config.rune_index = np.argmin(distances)
                             config.rune_active = True
@@ -98,7 +98,7 @@ class Capture:
                     # Mark the position of the active rune
                     if config.rune_active:
                         cv2.circle(minimap,
-                                   Capture._convert_to_absolute(config.rune_pos, minimap),
+                                   utils.convert_to_absolute(config.rune_pos, minimap),
                                    5,
                                    (128, 0, 128),
                                    -1)
@@ -106,8 +106,8 @@ class Capture:
                     # Draw the current path that the program is taking
                     if config.enabled and config.path:
                         for i in range(len(config.path) - 1):
-                            start = Capture._convert_to_absolute(config.path[i], minimap)
-                            end = Capture._convert_to_absolute(config.path[i + 1], minimap)
+                            start = utils.convert_to_absolute(config.path[i], minimap)
+                            end = utils.convert_to_absolute(config.path[i + 1], minimap)
                             cv2.line(minimap, start, end, (255, 255, 0), 1)
 
                     # Draw each Point in the routine as a circle
@@ -122,7 +122,7 @@ class Capture:
 
                     # Draw the player's position on top of everything
                     cv2.circle(minimap,
-                               Capture._convert_to_absolute(config.player_pos, minimap),
+                               utils.convert_to_absolute(config.player_pos, minimap),
                                3,
                                (255, 0, 0),
                                -1)
@@ -139,7 +139,7 @@ class Capture:
         """
 
         if isinstance(point, Point):
-            return distance(config.rune_pos, point.location)
+            return utils.distance(config.rune_pos, point.location)
         return float('inf')
 
     @staticmethod
@@ -154,37 +154,12 @@ class Capture:
         """
 
         if isinstance(point, Point):
-            height, width, _ = minimap.shape
-            loc = (round(width * point.location[0]), round(height * point.location[1]))
+            center = utils.convert_to_absolute(point.location, minimap)
             cv2.circle(minimap,
-                       loc,
+                       center,
                        round(minimap.shape[1] * config.move_tolerance),
                        color,
                        1)
-
-    @staticmethod
-    def _convert_to_relative(point, frame):
-        """
-        Converts POINT into relative coordinates in the range [0, 1] based on FRAME.
-        :param point:   The point in absolute coordinates.
-        :param frame:   The image to use as a reference.
-        :return:        The given point in relative coordinates.
-        """
-
-        return point[0] / frame.shape[1], point[1] / frame.shape[0]
-
-    @staticmethod
-    def _convert_to_absolute(point, frame):
-        """
-        Converts POINT into absolute coordinates (in pixels) based on FRAME.
-        :param point:   The point in relative coordinates.
-        :param frame:   The image to use as a reference.
-        :return:        The given point in absolute coordinates.
-        """
-
-        x = int(round(point[0] * frame.shape[1]))
-        y = int(round(point[1] * frame.shape[0]))
-        return x, y
 
     @staticmethod
     def _rescale_frame(frame, percent=1.0):

@@ -3,6 +3,8 @@
 import ctypes
 import time
 import utils
+import win32con
+import win32api
 from ctypes import wintypes
 from random import random
 
@@ -196,3 +198,26 @@ def press(key, n, down_time=0.05, up_time=0.1):
         time.sleep(down_time * (0.8 + 0.4 * random()))
         key_up(key)
         time.sleep(up_time * (0.8 + 0.4 * random()))
+
+
+@utils.run_if_enabled
+def click(position, button='left'):
+    """
+    Simulate a mouse click with BUTTON at POSITION.
+    :param position:    The (x, y) position at which to click.
+    :param button:      Either the left or right mouse button.
+    :return:            None
+    """
+
+    if button not in ['left', 'right']:
+        print(f"'{button}' is not a valid mouse button.")
+    else:
+        if button == 'left':
+            down_event = win32con.MOUSEEVENTF_LEFTDOWN
+            up_event = win32con.MOUSEEVENTF_LEFTUP
+        else:
+            down_event = win32con.MOUSEEVENTF_RIGHTDOWN
+            up_event = win32con.MOUSEEVENTF_RIGHTUP
+        win32api.SetCursorPos(position)
+        win32api.mouse_event(down_event, position[0], position[1], 0, 0)
+        win32api.mouse_event(up_event, position[0], position[1], 0, 0)

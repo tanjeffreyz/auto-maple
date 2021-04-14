@@ -3,6 +3,7 @@
 import config
 import utils
 import cv2
+import math
 import pickle
 from os.path import join, isfile, splitext
 from heapq import heappush, heappop
@@ -186,6 +187,7 @@ class Layout:
 
             x_error = (target[0] - point[0])
             y_error = (target[1] - point[1])
+            delta = config.move_tolerance / math.sqrt(2)
 
             # Push best possible node using horizontal teleport
             if abs(x_error) > config.move_tolerance:
@@ -197,8 +199,8 @@ class Layout:
                     x_max = point[0] - config.move_tolerance / 4
                 candidates = self.search(x_min,
                                          x_max,
-                                         point[1] - config.move_tolerance,
-                                         point[1] + config.move_tolerance)
+                                         point[1] - delta,
+                                         point[1] + delta)
                 push_best(candidates)
 
             # Push best possible node using vertical teleport
@@ -209,8 +211,8 @@ class Layout:
                 else:
                     y_min = 0
                     y_max = point[1] - config.move_tolerance / 4
-                candidates = self.search(point[0] - config.move_tolerance,
-                                         point[0] + config.move_tolerance,
+                candidates = self.search(point[0] - delta,
+                                         point[0] + delta,
                                          y_min,
                                          y_max)
                 push_best(candidates)
@@ -238,14 +240,12 @@ class Layout:
         :return:        None
         """
 
-        height, width, _ = image.shape
-
         def draw_helper(node):
             if node:
                 draw_helper(node.up_left)
                 draw_helper(node.down_left)
 
-                center = (int(round(node.x * width)), int(round(node.y * height)))
+                center = utils.convert_to_absolute(tuple(node), image)
                 cv2.circle(image, center, 1, (0, 165, 255), -1)
 
                 draw_helper(node.up_right)

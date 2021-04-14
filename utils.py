@@ -2,8 +2,6 @@
 
 import config
 import math
-import win32con
-import win32api
 from random import random
 
 
@@ -18,26 +16,34 @@ def distance(a, b):
     return math.sqrt((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2)
 
 
-def click(position, button='left'):
+def convert_to_relative(point, frame):
     """
-    Simulate a mouse click with BUTTON at POSITION.
-    :param position:    The (x, y) position at which to click.
-    :param button:      Either the left or right mouse button.
-    :return:            None
+    Converts POINT into relative coordinates in the range [0, 1] based on FRAME.
+    Normalizes the units of the vertical axis to equal those of the horizontal
+    axis by using config.mm_ratio.
+    :param point:   The point in absolute coordinates.
+    :param frame:   The image to use as a reference.
+    :return:        The given point in relative coordinates.
     """
 
-    if button not in ['left', 'right']:
-        print(f"'{button}' is not a valid mouse button.")
-    else:
-        if button == 'left':
-            down_event = win32con.MOUSEEVENTF_LEFTDOWN
-            up_event = win32con.MOUSEEVENTF_LEFTUP
-        else:
-            down_event = win32con.MOUSEEVENTF_RIGHTDOWN
-            up_event = win32con.MOUSEEVENTF_RIGHTUP
-        win32api.SetCursorPos(position)
-        win32api.mouse_event(down_event, position[0], position[1], 0, 0)
-        win32api.mouse_event(up_event, position[0], position[1], 0, 0)
+    x = point[0] / frame.shape[1]
+    y = point[1] / config.mm_ratio / frame.shape[0]
+    return x, y
+
+
+def convert_to_absolute(point, frame):
+    """
+    Converts POINT into absolute coordinates (in pixels) based on FRAME.
+    Normalizes the units of the vertical axis to equal those of the horizontal
+    axis by using config.mm_ratio.
+    :param point:   The point in relative coordinates.
+    :param frame:   The image to use as a reference.
+    :return:        The given point in absolute coordinates.
+    """
+
+    x = int(round(point[0] * frame.shape[1]))
+    y = int(round(point[1] * config.mm_ratio * frame.shape[0]))
+    return x, y
 
 
 def print_separator():

@@ -77,7 +77,7 @@ class Move(Command):
             else:
                 d_y = abs(target[1] - config.player_pos[1])
                 if d_y > config.move_tolerance / math.sqrt(2):
-                    jump = str(d_y > config.move_tolerance * config.mm_ratio)
+                    jump = str(d_y > config.move_tolerance)
                     if config.player_pos[1] > target[1]:
                         Teleport('up', jump=jump).main()
                     else:
@@ -164,15 +164,16 @@ class Teleport(Command):
     def main(self):
         num_presses = 3
         time.sleep(0.05)
+        if self.direction in ['up', 'down']:
+            num_presses = 2
         if self.direction != 'up':
             key_down(self.direction)
             time.sleep(0.05)
         if self.jump:
             if self.direction == 'down':
                 press('space', 3, down_time=0.1)
-                num_presses = 2
             else:
-                press('space', 1, up_time=0.1)
+                press('space', 1)
         if self.direction == 'up':
             key_down(self.direction)
             time.sleep(0.05)
