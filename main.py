@@ -3,8 +3,8 @@
 import config
 import time
 from capture import Capture
-from bot import Bot
 from listener import Listener
+from bot import Bot
 
 
 cap = Capture()
