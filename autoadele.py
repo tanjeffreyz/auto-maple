@@ -18,7 +18,7 @@ from playsound import playsound
 #################################
 MONITOR = {'top': 0, 'left': 0, 'width': 1366, 'height': 768}
 
-DEFAULT_MOVE_TOLERANCE = 0.1
+DEFAULT_MOVE_TOLERANCE = 0.20
 DEFAULT_ADJUST_TOLERANCE = 0.01
 
 
@@ -48,7 +48,7 @@ file_index = 0
 #################################
 move_tolerance = DEFAULT_MOVE_TOLERANCE
 adjust_tolerance = DEFAULT_ADJUST_TOLERANCE
-use_haku = True
+use_haku = False
 
 
 #################################
@@ -162,92 +162,50 @@ class Commands:
                 print(f"Label '{label}' does not exist")
         return act
 
-    def teleport(self, direction, jump=False):
+    def jump(self, direction):
         def act():
-            num_presses = 3
-            prev_y = round(player_pos[1], 2)
-            if direction != 'up':
-                key_down(direction)
-                time.sleep(0.05)
-            if jump:
-                if direction == 'down':
-                    press('space', 3, down_time=0.1)
-                    num_presses = 2
-                else:
-                    press('space', 2, up_time=0.1)
-            if direction == 'up':           # Catch special case for up-teleport
-                if round(player_pos[1], 2) >= prev_y:
-                    time.sleep(0.05)
-                    press('space', 1, up_time=0.15)
-                    self.exo()
-                key_down(direction)
-                time.sleep(0.05)
-            press('e', num_presses)
-            key_up(direction)
-            if num_presses < 3:
-                time.sleep(0.1)
-        return act
-
-    def shikigami(self, direction, n=1, num_attacks=3):
-        def act():
-            time.sleep(0.05)
             key_down(direction)
-            time.sleep(0.05)
-            for _ in range(n):
-                press('r', num_attacks, up_time=0.05)
+            press('space', 1, down_time=0.1, up_time=0.1)
+            press('space', 1, down_time=0.1, up_time=0.01)
+            self.divide()()
             key_up(direction)
-            time.sleep(0.1)
+            time.sleep(0.45)
         return act
 
-    def tengu(self):
-        press('q', 1)
-        time.sleep(0.05)
-
-    def kishin(self):
-        time.sleep(0.05)
-        press('lshift', 6, down_time=0.1)
-    
-    def boss(self, direction=None):
+    def divide(self, direction=None):
         def act():
-            if direction:
-                press(direction, 1, down_time=0.1)
-            else:
-                if player_pos[0] > 0.5:     # Cast Yaksha Boss facing the center of the map
-                    press('left', 1, down_time=0.1)
-                else:
-                    press('right', 1, down_time=0.1)
-            press('2', 3)
-        return act
-
-    def fox(self):
-        time.sleep(0.1)
-        press('3', 3, down_time=0.1)
-    
-    def exo(self):
-        press('w', 2, up_time=0.05)
-    
-    def charm(self, direction=None, delay=0.15):
-        def act():
-            time.sleep(0.05)
-            if direction:
+            if direction in ['left', 'right']:
                 key_down(direction)
                 time.sleep(0.1)
-            press('d', 2)
-            if direction:
+            press('r', 1)
+            if direction in ['left', 'right']:
                 key_up(direction)
-            time.sleep(delay)
+        return act
+
+    def impale(self, direction1, direction2=None):
+        def act():
+            press('space', 1)
+            key_down(direction1)
+            if direction2:
+                key_down(direction2)
+            press('w', 1)
+            press('e', 2)
+            key_up(direction1)
+            if direction2:
+                key_up(direction2)
+            time.sleep(0.3)
+        return act
+    
+    def blossom(self):
+        def act():
+            press('f', 2)
         return act
     
     def fall(self):
-        starting_pos = player_pos
-        n, exit_threshold = 0, 6
         key_down('down')
-        time.sleep(0.05)
-        while distance(starting_pos, player_pos) < 0.1 and n < exit_threshold:
-            press('space', 1, down_time=0.1, up_time=0.1)
-            n += 1
+        press('space', 2)
         key_up('down')
-        time.sleep(0.1)
+        press('t', 2)
     
     def wait(self, delay):
         def act():
@@ -282,9 +240,6 @@ class Point:
             if enabled:
                 for e in self.extras:
                     exec(f'commands.{e}()')
-                if self.attacks:
-                    commands.shikigami('left', self.attacks)()
-                    commands.shikigami('right', self.attacks)()
             executed = True
         if enabled:
             self.counter = (self.counter + 1) % self.frequency
@@ -300,6 +255,8 @@ def bot():
 
     haku = buff(480, buffs=['ctrl'])
     decents = buff(200, buffs=['f1','f2','f4'])
+    infinite = buff(180, buffs=['z'])
+    h = hunt()
 
     with mss.mss() as sct:
         while True:
@@ -335,6 +292,8 @@ def bot():
                 if use_haku:
                     haku = haku(curr_time)
                 decents = decents(curr_time)
+                infinite = infinite(curr_time)
+                h = h(curr_time)
                 
                 element = sequence[curr_index]
                 if isinstance(element, Point):
@@ -444,45 +403,41 @@ def distance(a, b):
     return math.sqrt(sum([(a[i] - b[i]) ** 2 for i in range(2)]))
 
 def move(target, tolerance=move_tolerance, max_steps=15):
-    toggle = False
     prev_pos = [tuple(round(a, 2) for a in player_pos)]
     while enabled and max_steps > 0 and distance(player_pos, target) > tolerance:
-        toggle = not toggle
-
         if kb.is_pressed('insert'):
             toggle_enabled()
             break
 
-        if toggle:
-            d_x = abs(player_pos[0] - target[0])
-            if d_x > tolerance / math.sqrt(2):
-                jump = player_pos[1] > target[1] + 0.03 and abs(player_pos[1] - target[1]) < 0.2
-                if player_pos[0] < target[0]:
-                    commands.teleport('right', jump=jump)()
-                else:
-                    commands.teleport('left', jump=jump)()
-                max_steps -= 1
+        while abs(player_pos[0] - target[0]) > tolerance / math.sqrt(2):
+            if kb.is_pressed('insert'):
+                toggle_enabled()
+                break
+
+            if player_pos[0] < target[0]:
+                commands.jump('right')()
             else:
-                continue
-        else:
-            d_y = abs(player_pos[1] - target[1])
-            if d_y > tolerance / math.sqrt(2):
-                if player_pos[1] < target[1]:
-                    jump = d_y > 0.333
-                    commands.teleport('down', jump=jump)()
-                else:
-                    commands.teleport('up', jump=True)()
-                max_steps -= 1
+                commands.jump('left')()
+            max_steps -= 1
+        
+        while abs(player_pos[1] - target[1]) > tolerance / math.sqrt(2):
+            if kb.is_pressed('insert'):
+                toggle_enabled()
+                break
+            
+            if player_pos[1] < target[1]:
+                commands.jump('down')()
             else:
-                continue
+                commands.jump('up')()
+            max_steps -= 1
         
         rounded_pos = tuple(round(a, 2) for a in player_pos)
         num_previous = prev_pos.count(rounded_pos)
-        if num_previous > 0 and num_previous % 2 == 0:
-            print('stuck')
-            for _ in range(10):
-                press('left', 1, up_time=0.05)
-                press('right', 1, up_time=0.05)
+        # if num_previous > 0 and num_previous % 2 == 0:
+        #     print('stuck')
+        #     for _ in range(10):
+        #         press('left', 1, up_time=0.05)
+        #         press('right', 1, up_time=0.05)
         prev_pos.append(rounded_pos)
         if len(prev_pos) > 3:
             prev_pos.pop(0)
@@ -510,11 +465,19 @@ def buff(period, buffs=['0'], t=0, mode=0):
             if t == 0 or new_t - t > period / len(buffs):
                 press(buffs[0], 3, up_time=0.05)
                 time.sleep(0.05)
-                commands.tengu()
                 buffs = buffs[1:] + buffs[:1]
             else:
                 new_t = t
         return buff(period, buffs=buffs, t=new_t, mode=mode)
+    return act
+
+def hunt(time=0):
+    def act(new_t):
+        if time == 0 or new_t - time > 10:
+            press('q', 1, down_time=0.01, up_time=0.01)
+        else:
+            new_t = time
+        return hunt(new_t)
     return act
 
 def click(pos, button='left'):

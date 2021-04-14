@@ -29,7 +29,7 @@ v_keys = {'tab': 0x09,  # Special Keys
         'pgup': 0x21,
         'pgdown': 0x22,
 
-        'left': 0x25,   # Arrow Keys
+        'left': 0x25,   # Arrow keys
         'up': 0x26,
         'right': 0x27,
         'down': 0x28,
@@ -44,6 +44,19 @@ v_keys = {'tab': 0x09,  # Special Keys
         '7': 0x37,
         '8': 0x38,
         '9': 0x39,
+
+        'f1': 0x70,     # Function keys
+        'f2': 0x71,
+        'f3': 0x72,
+        'f4': 0x73,
+        'f5': 0x74,
+        'f6': 0x75,
+        'f7': 0x76,
+        'f8': 0x77,
+        'f9': 0x78,
+        'f10': 0x79,
+        'f11': 0x7A,
+        'f12': 0x7B,
 
         'a': 0x41,      # Letters
         'b': 0x42,

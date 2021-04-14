@@ -9,11 +9,11 @@ afterboss
 loot
 0.750;0.727;attacks=0;extras=["teleport('left',jump=False)",'fox','tengu']
 0.300;0.727;attacks=0;extras=['tengu','kishin','wait(0.3)']
-0.200;0.727;attacks=0;extras=['wait(0.2)','tengu']
+0.200;0.727;attacks=0;extras=["walk('left',0.2)",'tengu']
 0.200;0.727;attacks=0;extras=['fall','wait(0.3)']
 0.660;0.303;attacks=0;extras=["shikigami('left')",'tengu']
-0.394;0.364;attacks=0;extras=["shikigami('left')",'tengu','wait(0.5)']
-0.394;0.364;attacks=0;extras=["teleport('left',jump=False)","teleport('left',jump=False)",'wait(0.75)',"goto('afterboss')"]
+0.394;0.364;attacks=0;extras=["shikigami('left')",'tengu',"walk('left',0.5)"]
+0.394;0.364;attacks=0;extras=["teleport('left',jump=False)","teleport('left',jump=False)","walk('left',0.75)","goto('afterboss')"]
 boss
 0.873;0.727;attacks=0;extras=["teleport('left',jump=False)","boss('left')"]
 0.750;0.727;frequency=4;attacks=0;extras=["goto('loot')"]
