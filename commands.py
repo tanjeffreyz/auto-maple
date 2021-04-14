@@ -91,7 +91,7 @@ class Move(Command):
 
 class Fall(Command):
     """
-    Performs a down-jump and free-falls until the player exceeds a given distance
+    Performs a down-jump and then free-falls until the player exceeds a given distance
     from their starting position.
     """
 
