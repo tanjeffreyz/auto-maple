@@ -179,8 +179,6 @@ class Teleport(Command):
             time.sleep(0.05)
         press('e', num_presses)
         key_up(self.direction)
-        if num_presses < 3:
-            time.sleep(0.1)
         config.layout.add(*config.player_pos)
 
 
@@ -228,13 +226,13 @@ class Yaksha(Command):
 
     def main(self):
         if self.direction:
-            press(self.direction, 1, down_time=0.1)
+            press(self.direction, 1, down_time=0.1, up_time=0.05)
         else:
             if config.player_pos[0] > 0.5:
-                press('left', 1)
+                press('left', 1, down_time=0.1, up_time=0.05)
             else:
-                press('right', 1)
-        press('2', 3)
+                press('right', 1, down_time=0.1, up_time=0.05)
+        press('2', 3, down_time=0.1)
 
 
 class Kishin(Command):

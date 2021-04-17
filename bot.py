@@ -170,6 +170,7 @@ class Bot:
         if not file:
             file = Bot._select_file(routines_dir)
         if file:
+            config.calibrated = False
             utils.print_separator()
             print(f"Loading routine '{file}'...")
             config.sequence = []

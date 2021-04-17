@@ -25,14 +25,13 @@
     teleport, left
     ninetails
     tengu
-*, 0.300, 0.200
-    tengu
+*, 0.350, 0.200
     kishin
-    wait, 0.3
-*, 0.200, 0.200
+    wait, 0.15
+*, 0.225, 0.200
     walk, left, 0.2
     tengu
-*, 0.200, 0.200
+*, 0.225, 0.200
     fall
     walk, left, 0.2
 *, 0.660, 0.083

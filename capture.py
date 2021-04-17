@@ -67,6 +67,11 @@ class Capture:
                     frame = np.array(sct.grab(config.MONITOR))
                     height, width, _ = frame.shape
 
+                    # Check for unexpected black screen
+                    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                    if np.count_nonzero(gray < 15) / height / width > 0.95:
+                        config.enabled = False
+
                     # Check for elite warning
                     elite_frame = frame[height//4:3*height//4, width//4:3*width//4]
                     elite = Capture.multi_match(elite_frame, Capture.ELITE_TEMPLATE, threshold=0.9)
@@ -129,6 +134,28 @@ class Capture:
                     cv2.imshow('minimap', minimap)
                 if cv2.waitKey(1) & 0xFF == 27:     # 27 is ASCII for the Esc key
                     break
+
+    @staticmethod
+    def _count(frame, threshold):
+        """
+        Counts the number of pixels in FRAME that are less than or equal to THRESHOLD.
+        Two pixels are compared by their corresponding tuple elements in order.
+        :param frame:       The image in which to search.
+        :param threshold:   The pixel value to compare to.
+        :return:            The number of pixels in FRAME that are below THRESHOLD.
+        """
+
+        count = 0
+        for row in frame:
+            for col in row:
+                pixel = frame[row][col]
+                if len(pixel) == len(threshold):
+                    valid = True
+                    for i in range(len(pixel)):
+                        valid = valid and frame[i] <= threshold[i]
+                    if valid:
+                        count += 1
+        return count
 
     @staticmethod
     def _distance_to_rune(point):
