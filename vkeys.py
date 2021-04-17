@@ -28,6 +28,7 @@ key_map = {'tab': 0x09,  # Special Keys
            'space': 0x20,
            'lshift': 0xA0,
            'ctrl': 0x11,
+           'del': 0x2E,
            'end': 0x23,
            'pgup': 0x21,
            'pgdown': 0x22,
