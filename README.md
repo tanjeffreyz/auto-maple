@@ -1,2 +1,2 @@
-# Auto-Kanna
-kanna farm for me pls
+# Auto-Maple
+Python farm for me pls
