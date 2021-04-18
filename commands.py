@@ -129,7 +129,7 @@ class Walk(Command):
 
 
 class Goto(Command):
-    """Moves config.seq_index to the index of the specified label."""
+    """Moves config.seq_index to the index of the specified label in the routine."""
 
     def __init__(self, label):
         self.name = 'Goto'
