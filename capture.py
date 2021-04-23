@@ -109,7 +109,7 @@ class Capture:
                                    -1)
 
                     # Draw the current path that the program is taking
-                    if config.enabled and config.path:
+                    if config.enabled and len(config.path) > 1:
                         for i in range(len(config.path) - 1):
                             start = utils.convert_to_absolute(config.path[i], minimap)
                             end = utils.convert_to_absolute(config.path[i + 1], minimap)

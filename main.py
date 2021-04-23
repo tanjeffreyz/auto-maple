@@ -20,7 +20,7 @@ listener.start()
 bot = Bot()
 bot.start()
 
-# Periodically save changes to the active Layout if it exists.
+# Periodically save changes to the active Layout if it exists
 while True:
     if config.layout:
         config.layout.save()
