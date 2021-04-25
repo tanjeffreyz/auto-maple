@@ -232,7 +232,7 @@ class Yaksha(Command):
                 press('left', 1, down_time=0.1, up_time=0.05)
             else:
                 press('right', 1, down_time=0.1, up_time=0.05)
-        press('2', 3, down_time=0.1)
+        press('2', 3)
 
 
 class Kishin(Command):
