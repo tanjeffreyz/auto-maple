@@ -1,8 +1,53 @@
-"""A collection of functions used across multiple modules."""
+"""A collection of functions and classes used across multiple modules."""
 
 import config
 import math
 from random import random
+
+
+def run_if_enabled(function):
+    """
+    Decorator for functions that should only run if the bot is enabled.
+    :param function:    The function to decorate.
+    :return:            The decorated function.
+    """
+
+    def helper(*args, **kwargs):
+        if config.enabled:
+            function(*args, **kwargs)
+    return helper
+
+
+class Command:
+    name = 'Command Superclass'
+
+    @run_if_enabled
+    def execute(self):
+        """
+        Prints this Command's string representation and executes its main function.
+        :return:    None
+        """
+
+        print(self)
+        self.main()
+
+    def main(self):
+        pass
+
+    def __str__(self):
+        """
+        Returns a string representing this Command instance.
+        :return:    This Command's string representation.
+        """
+
+        variables = self.__dict__
+        result = '    ' + self.name
+        if len(variables) - 1 > 0:
+            result += ':'
+        for key, value in variables.items():
+            if key != 'name':
+                result += f'\n        {key}={value}'
+        return result
 
 
 def distance(a, b):
@@ -124,19 +169,6 @@ def validate_boolean(boolean):
         elif boolean == 'false':
             return False
     raise ValueError
-
-
-def run_if_enabled(function):
-    """
-    Decorator for functions that should only run if the bot is enabled.
-    :param function:    The function to decorate.
-    :return:            The decorated function.
-    """
-
-    def helper(*args, **kwargs):
-        if config.enabled:
-            function(*args, **kwargs)
-    return helper
 
 
 def closest_point(points, target):

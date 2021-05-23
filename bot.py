@@ -12,7 +12,7 @@ import keyboard as kb
 from os import listdir
 from os.path import isfile, join
 from vkeys import press
-from commands import Command, Move, command_book
+from commands import command_book
 from layout import Layout
 
 
@@ -82,7 +82,7 @@ class Bot:
         pygame.mixer.init()
         Bot.alert = pygame.mixer.music
         Bot.alert.load('./assets/alert.mp3')
-        Bot.load()
+        Bot.load()      # TODO: select command book too!
         self.thread = threading.Thread(target=Bot._main)
         self.thread.daemon = True
 
@@ -121,7 +121,8 @@ class Bot:
     @staticmethod
     @utils.run_if_enabled
     def _solve_rune():
-        move = Move(*config.rune_pos)
+        move = command_book.get('move')
+        move = move(*config.rune_pos)
         move.execute()
         print("\n\n\n\n\n\nWENT TO THE RUNE!!!\n\n\n\n\n\n")            # TODO: finish solving rune here
 
@@ -191,7 +192,7 @@ class Bot:
                 for row in csv_reader:
                     result = Bot._eval(row, line)
                     if result:
-                        if isinstance(result, Command):
+                        if isinstance(result, utils.Command):
                             if curr_point:
                                 curr_point.commands.append(result)
                         else:

@@ -9,39 +9,7 @@ import inspect
 from vkeys import press, key_down, key_up
 
 
-class Command:
-    name = 'Command Superclass'
-
-    @utils.run_if_enabled
-    def execute(self):
-        """
-        Prints this Command's string representation and executes its main function.
-        :return:    None
-        """
-
-        print(self)
-        self.main()
-
-    def main(self):
-        pass
-
-    def __str__(self):
-        """
-        Returns a string representing this Command instance.
-        :return:    This Command's string representation.
-        """
-
-        variables = self.__dict__
-        result = '    ' + self.name
-        if len(variables) - 1 > 0:
-            result += ':'
-        for key, value in variables.items():
-            if key != 'name':
-                result += f'\n        {key}={value}'
-        return result
-
-
-class Move(Command):
+class Move(utils.Command):
     """Moves to a given position using the shortest path based on the current Layout."""
 
     def __init__(self, x, y, max_steps=15):
@@ -83,13 +51,16 @@ class Move(Command):
                     else:
                         Teleport('down', jump=jump).main()
                     self.max_steps -= 1
-
             local_error = utils.distance(config.player_pos, target)
             global_error = utils.distance(config.player_pos, self.target)
             toggle = not toggle
 
 
-class Fall(Command):
+class Adjust(utils.Command):
+    """Fine-tunes player position using small movements."""
+
+
+class Fall(utils.Command):
     """
     Performs a down-jump and then free-falls until the player exceeds a given distance
     from their starting position.
@@ -113,7 +84,7 @@ class Fall(Command):
         time.sleep(0.1)
 
 
-class Walk(Command):
+class Walk(utils.Command):
     """Walks in the given direction for a set amount of time."""
 
     def __init__(self, direction, duration):
@@ -128,7 +99,7 @@ class Walk(Command):
         time.sleep(0.05)
 
 
-class Goto(Command):
+class Goto(utils.Command):
     """Moves config.seq_index to the index of the specified label."""
 
     def __init__(self, label):
@@ -142,7 +113,7 @@ class Goto(Command):
             print(f"Label '{self.label}' does not exist.")
 
 
-class Wait(Command):
+class Wait(utils.Command):
     """Waits for a set amount of time."""
 
     def __init__(self, duration):
@@ -153,7 +124,7 @@ class Wait(Command):
         time.sleep(self.duration)
 
 
-class Teleport(Command):
+class Teleport(utils.Command):
     """Teleports in a given direction, jumping if specified."""
 
     def __init__(self, direction, jump='False'):
@@ -182,7 +153,7 @@ class Teleport(Command):
         config.layout.add(*config.player_pos)
 
 
-class Shikigami(Command):
+class Shikigami(utils.Command):
     """Attacks using 'Shikigami Haunting' in a given direction."""
 
     def __init__(self, direction, num_attacks=2, repetitions=1):
@@ -201,7 +172,7 @@ class Shikigami(Command):
         time.sleep(0.15)
 
 
-class Tengu(Command):
+class Tengu(utils.Command):
     """Uses 'Tengu Strike' once."""
 
     def __init__(self):
@@ -211,7 +182,7 @@ class Tengu(Command):
         press('q', 1)
 
 
-class Yaksha(Command):
+class Yaksha(utils.Command):
     """
     Places 'Ghost Yaksha Boss' in a given direction, or towards the center of the map if
     no direction is specified.
@@ -235,7 +206,7 @@ class Yaksha(Command):
         press('2', 3)
 
 
-class Kishin(Command):
+class Kishin(utils.Command):
     """Uses 'Kishin Shoukan' once."""
 
     def __init__(self):
@@ -245,7 +216,7 @@ class Kishin(Command):
         press('lshift', 4, down_time=0.1, up_time=0.15)
 
 
-class NineTails(Command):
+class NineTails(utils.Command):
     """Uses 'Nine-Tailed Fury' once."""
 
     def __init__(self):
@@ -255,7 +226,7 @@ class NineTails(Command):
         press('3', 3)
 
 
-class Exorcist(Command):
+class Exorcist(utils.Command):
     """Uses 'Exorcist's Charm' once."""
 
     def __init__(self):
@@ -265,7 +236,7 @@ class Exorcist(Command):
         press('w', 1, down_time=0.15)
 
 
-class Domain(Command):
+class Domain(utils.Command):
     """Uses 'Spirit's Domain' once."""
 
     def __init__(self):
@@ -275,7 +246,7 @@ class Domain(Command):
         press('v', 3)
 
 
-class Legion(Command):
+class Legion(utils.Command):
     """Uses 'Ghost Yaksha: Great Oni Lord's Legion' once."""
 
     def __init__(self):
@@ -289,5 +260,5 @@ class Legion(Command):
 command_book = {}
 for name, command in inspect.getmembers(sys.modules[__name__]):
     name = name.lower()
-    if inspect.isclass(command) and name != 'command':
+    if inspect.isclass(command):
         command_book[name] = command
