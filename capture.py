@@ -92,7 +92,8 @@ class Capture:
                             abs_rune_pos = (rune[0][0] - 1, rune[0][1])
                             config.rune_pos = utils.convert_to_relative(abs_rune_pos, minimap)
                             distances = list(map(Capture._distance_to_rune, config.sequence))
-                            config.rune_index = np.argmin(distances)            # TODO: change to Point's position
+                            index = np.argmin(distances)
+                            config.rune_index = config.sequence[index].location
                             config.rune_active = True
 
                     #########################################

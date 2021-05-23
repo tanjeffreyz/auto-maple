@@ -12,7 +12,7 @@ import keyboard as kb
 from os import listdir
 from os.path import isfile, join
 from vkeys import press
-from commands import Command, command_book
+from commands import Command, Move, command_book
 from layout import Layout
 
 
@@ -112,9 +112,18 @@ class Bot:
                     element = config.sequence[config.seq_index]
                     if isinstance(element, Point):
                         element.execute()
+                        if config.rune_active and element.location == config.rune_index:
+                            Bot._solve_rune()
                     Bot._step()
                 else:
                     time.sleep(0.01)
+
+    @staticmethod
+    @utils.run_if_enabled
+    def _solve_rune():
+        move = Move(*config.rune_pos)
+        move.execute()
+        print("\n\n\n\n\n\nWENT TO THE RUNE!!!\n\n\n\n\n\n")            # TODO: finish solving rune here
 
     @staticmethod
     def _elite_alert():
@@ -266,8 +275,7 @@ class Bot:
                 else:
                     index = int(selection)
                     if index not in range(num_files):
-                        print('Invalid selection. Please enter an integer between ' +
-                              f'0 and {max(0, num_files - 1)}.')
+                        print(f'Please enter an integer between 0 and {max(0, num_files - 1)}.')
             return csv_files[index]
 
     @staticmethod
