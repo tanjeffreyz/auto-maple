@@ -37,9 +37,9 @@ class Listener:
                     Bot.toggle_enabled()
                     time.sleep(0.667)
                 elif kb.is_pressed('delete'):
-                    Bot.load(config.routine)
+                    Bot.load_routine(config.routine)
                 elif kb.is_pressed('pagedown'):
-                    Bot.load()
+                    Bot.load_routine()
                 elif kb.is_pressed('F6'):
                     displayed_pos = tuple('{:.3f}'.format(round(i, 3)) for i in config.player_pos)
                     utils.print_separator()

@@ -8,11 +8,11 @@ import csv
 import mss
 import utils
 import pygame
+import inspect
 import keyboard as kb
 from os import listdir
-from os.path import isfile, join
+from os.path import isfile, join, splitext
 from vkeys import press
-from commands import command_book
 from layout import Layout
 
 
@@ -33,7 +33,7 @@ class Point:
         """
 
         if self.counter == 0:
-            move = command_book.get('move')
+            move = config.command_book.get('move')      # TODO: catch move does not exist, don't move, just disable bot
             if config.enabled:
                 print()
                 print(self._heading())
@@ -82,7 +82,8 @@ class Bot:
         pygame.mixer.init()
         Bot.alert = pygame.mixer.music
         Bot.alert.load('./assets/alert.mp3')
-        Bot.load()      # TODO: select command book too!
+        Bot.load_commands()
+        Bot.load_routine()
         self.thread = threading.Thread(target=Bot._main)
         self.thread.daemon = True
 
@@ -121,9 +122,13 @@ class Bot:
     @staticmethod
     @utils.run_if_enabled
     def _solve_rune():
-        move = command_book.get('move')
-        move = move(*config.rune_pos)
-        move.execute()
+        """
+        Moves to the position of the rune and solves the arrow-key puzzle.
+        :return:    None
+        """
+
+        move = config.command_book.get('move')
+        move(*config.rune_pos).execute()
         print("\n\n\n\n\n\nWENT TO THE RUNE!!!\n\n\n\n\n\n")            # TODO: finish solving rune here
 
     @staticmethod
@@ -169,7 +174,24 @@ class Bot:
         return act
 
     @staticmethod
-    def load(file=None):
+    def load_commands():
+        """
+        Prompts the user to select a command module to import. Updates config's command book.
+        :return:    None
+        """
+
+        utils.print_separator()
+        print('~~~ Loading Command Book ~~~')
+        module_name = Bot._select_file('./commands', '.py')
+        module_name = splitext(module_name)[0]
+        module = __import__(f'commands.{module_name}', fromlist=[''])
+        config.command_book = {}
+        for name, command in inspect.getmembers(module, inspect.isclass):
+            name = name.lower()
+            config.command_book[name] = command
+
+    @staticmethod
+    def load_routine(file=None):
         """
         Attempts to load FILE into a sequence of Points. Prompts user input if no file is given.
         :param file:    The file's path.
@@ -178,7 +200,9 @@ class Bot:
 
         routines_dir = './routines'
         if not file:
-            file = Bot._select_file(routines_dir)
+            utils.print_separator()
+            print('~~~ Loading Routine ~~~')
+            file = Bot._select_file(routines_dir, '.csv')
         if file:
             config.calibrated = False
             utils.print_separator()
@@ -233,35 +257,34 @@ class Bot:
                 except TypeError:
                     print(line + f'Incorrect number of arguments for a Point.')
             else:                   # Otherwise might be a Command
-                if first not in command_book.keys():
+                if first not in config.command_book.keys():
                     print(line + f"Command '{first}' does not exist.")
                 else:
                     try:
-                        return command_book.get(first)(*rest)
+                        return config.command_book.get(first)(*rest)
                     except ValueError:
                         print(line + f"Invalid arguments for command '{first}': {rest}")
                     except TypeError:
                         print(line + f"Incorrect number of arguments for command '{first}'.")
 
     @staticmethod
-    def _select_file(directory):
+    def _select_file(directory, extension):
         """
         Prompts the user to select a file from the .csv files within DIRECTORY.
         :param directory:   The directory in which to search.
+        :param extension:   The file extension for which to filter by.
         :return:            The path of the selected file.
         """
 
         index = float('inf')
-        csv_files = [f for f in listdir(directory) if isfile(join(directory, f)) and '.csv' in f]
-        num_files = len(csv_files)
-        if not csv_files:
-            print(f"Unable to find any routines in '{directory}'.")
+        valid_files = [f for f in listdir(directory) if isfile(join(directory, f)) and extension in f]
+        num_files = len(valid_files)
+        if not valid_files:
+            print(f"Unable to find any '{extension}' files in '{directory}'.")
         else:
-            utils.print_separator()
-            print('~~~ Loading Routine ~~~')
-            print('Please select from the following routines:\n')
+            print('Please select from the following files:\n')
             for i in range(num_files):
-                print(f'{i:02} -- {csv_files[i]}')
+                print(f'{i:02} -- {valid_files[i]}')
             print()
 
             selection = 0
@@ -277,7 +300,7 @@ class Bot:
                     index = int(selection)
                     if index not in range(num_files):
                         print(f'Please enter an integer between 0 and {max(0, num_files - 1)}.')
-            return csv_files[index]
+            return valid_files[index]
 
     @staticmethod
     def toggle_enabled():

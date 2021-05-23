@@ -49,6 +49,9 @@ seq_index = 0
 # Represents the current shortest path that the bot is taking
 path = []
 
+# Stores a map of all available commands that can be used by routines
+command_book = {}
+
 # Stores the name of the current routine file
 routine = None
 

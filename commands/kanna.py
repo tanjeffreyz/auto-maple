@@ -4,8 +4,6 @@ import config
 import time
 import math
 import utils
-import sys
-import inspect
 from vkeys import press, key_down, key_up
 
 
@@ -254,11 +252,3 @@ class Legion(utils.Command):
 
     def main(self):
         press('z', 2, down_time=0.1)
-
-
-# Generate the command book to be used in other modules
-command_book = {}
-for name, command in inspect.getmembers(sys.modules[__name__]):
-    name = name.lower()
-    if inspect.isclass(command):
-        command_book[name] = command
