@@ -19,10 +19,11 @@ from layout import Layout
 class Point:
     """Represents a location in a user-defined routine."""
 
-    def __init__(self, x, y, frequency=1, counter=0):
+    def __init__(self, x, y, frequency=1, counter=0, adjust='False'):
         self.location = (float(x), float(y))
         self.frequency = utils.validate_nonzero_int(frequency)
         self.counter = int(counter)
+        self.adjust = utils.validate_boolean(adjust)
         self.commands = []
 
     @utils.run_if_enabled
@@ -33,11 +34,11 @@ class Point:
         """
 
         if self.counter == 0:
-            move = config.command_book.get('move')      # TODO: catch move does not exist, don't move, just disable bot
             if config.enabled:
                 print()
                 print(self._heading())
-            move(*self.location).execute()
+            move = config.command_book.get('move')      # TODO: catch move does not exist, don't move, just disable bot
+            move(*self.location, adjust=str(self.adjust)).execute()
             for command in self.commands:
                 command.execute()
         self._increment_counter()
@@ -128,8 +129,9 @@ class Bot:
         """
 
         move = config.command_book.get('move')
-        move(*config.rune_pos).execute()
-        print("\n\n\n\n\n\nWENT TO THE RUNE!!!\n\n\n\n\n\n")            # TODO: finish solving rune here
+        move(*config.rune_pos, adjust='True').execute()
+        press('y', 1, down_time=0.2)
+        time.sleep(5)       # TODO: Solve rune here! This wait will NOT end if you disable the bot!
 
     @staticmethod
     def _elite_alert():
@@ -241,7 +243,7 @@ class Bot:
         """
 
         if expr and isinstance(expr, list):
-            first, rest = expr[0], expr[1:]
+            first, rest = expr[0].lower(), expr[1:]
             rest = [s.strip() for s in rest]
             line = f'Line {n}: '
             if first == '@':        # Check for labels

@@ -1,4 +1,4 @@
-"""A collection of all commands used to interact with the game."""
+"""A collection of all commands that a Kanna can use to interact with the game."""
 
 import config
 import time
@@ -24,6 +24,8 @@ class Move(utils.Command):
         config.path.insert(0, config.player_pos)
         for point in path:
             self._step(point)
+        if self.adjust:
+            Adjust(*self.target).main()
 
     @utils.run_if_enabled
     def _step(self, target):
@@ -35,19 +37,19 @@ class Move(utils.Command):
                 local_error > config.move_tolerance and \
                 global_error > config.move_tolerance:
             if toggle:
-                d_x = abs(target[0] - config.player_pos[0])
-                if d_x > config.move_tolerance / math.sqrt(2):
+                d_x = target[0] - config.player_pos[0]
+                if abs(d_x) > config.move_tolerance / math.sqrt(2):
                     jump = str(utils.bernoulli(0.1))
-                    if config.player_pos[0] > target[0]:
+                    if d_x < 0:
                         Teleport('left', jump=jump).main()
                     else:
                         Teleport('right', jump=jump).main()
                     self.counter -= 1
             else:
-                d_y = abs(target[1] - config.player_pos[1])
-                if d_y > config.move_tolerance / math.sqrt(2):
-                    jump = str(d_y > config.move_tolerance)
-                    if config.player_pos[1] > target[1]:
+                d_y = target[1] - config.player_pos[1]
+                if abs(d_y) > config.move_tolerance / math.sqrt(2):
+                    jump = str(abs(d_y) > config.move_tolerance)
+                    if d_y < 0:
                         Teleport('up', jump=jump).main()
                     else:
                         Teleport('down', jump=jump).main()
@@ -64,11 +66,44 @@ class Adjust(utils.Command):
         self.name = 'Adjust'
         self.target = (float(x), float(y))
         self.max_steps = utils.validate_nonzero_int(max_steps)
+        self.counter = 0
 
     def main(self):
+        self.counter = self.max_steps
         toggle = True
-        while True:
-            pass
+        error = utils.distance(config.player_pos, self.target)
+        while config.enabled and self.counter > 0 and error > config.adjust_tolerance:
+            if toggle:
+                d_x = self.target[0] - config.player_pos[0]
+                threshold = config.adjust_tolerance / math.sqrt(2)
+                if abs(d_x) > threshold:
+                    if d_x < 0:
+                        key_down('left')
+                        while d_x < -1 * threshold:
+                            time.sleep(0.01)
+                            d_x = self.target[0] - config.player_pos[0]
+                        key_up('left')
+                    else:
+                        key_down('right')
+                        while d_x > threshold:
+                            time.sleep(0.01)
+                            d_x = self.target[0] - config.player_pos[0]
+                        key_up('right')
+                    self.counter -= 1
+            else:
+                d_y = self.target[1] - config.player_pos[1]
+                if abs(d_y) > config.adjust_tolerance / math.sqrt(2):
+                    if d_y < 0:
+                        Teleport('up').main()
+                    else:
+                        key_down('down')
+                        time.sleep(0.05)
+                        press('space', 3, down_time=0.1)
+                        key_up('down')
+                        time.sleep(0.05)
+                    self.counter -= 1
+            error = utils.distance(config.player_pos, self.target)
+            toggle = not toggle
 
 
 class Fall(utils.Command):
