@@ -10,12 +10,15 @@ from vkeys import press, key_down, key_up
 class Move(utils.Command):
     """Moves to a given position using the shortest path based on the current Layout."""
 
-    def __init__(self, x, y, max_steps=15):
+    def __init__(self, x, y, adjust='False', max_steps=15):
         self.name = 'Move'
         self.target = (float(x), float(y))
+        self.adjust = utils.validate_boolean(adjust)
         self.max_steps = utils.validate_nonzero_int(max_steps)
+        self.counter = 0
 
     def main(self):
+        self.counter = self.max_steps
         path = config.layout.shortest_path(config.player_pos, self.target)
         config.path = path.copy()
         config.path.insert(0, config.player_pos)
@@ -28,7 +31,7 @@ class Move(utils.Command):
         local_error = utils.distance(config.player_pos, target)
         global_error = utils.distance(config.player_pos, self.target)
         while config.enabled and \
-                self.max_steps > 0 and \
+                self.counter > 0 and \
                 local_error > config.move_tolerance and \
                 global_error > config.move_tolerance:
             if toggle:
@@ -39,7 +42,7 @@ class Move(utils.Command):
                         Teleport('left', jump=jump).main()
                     else:
                         Teleport('right', jump=jump).main()
-                    self.max_steps -= 1
+                    self.counter -= 1
             else:
                 d_y = abs(target[1] - config.player_pos[1])
                 if d_y > config.move_tolerance / math.sqrt(2):
@@ -48,7 +51,7 @@ class Move(utils.Command):
                         Teleport('up', jump=jump).main()
                     else:
                         Teleport('down', jump=jump).main()
-                    self.max_steps -= 1
+                    self.counter -= 1
             local_error = utils.distance(config.player_pos, target)
             global_error = utils.distance(config.player_pos, self.target)
             toggle = not toggle
@@ -56,6 +59,16 @@ class Move(utils.Command):
 
 class Adjust(utils.Command):
     """Fine-tunes player position using small movements."""
+
+    def __init__(self, x, y, max_steps=5):
+        self.name = 'Adjust'
+        self.target = (float(x), float(y))
+        self.max_steps = utils.validate_nonzero_int(max_steps)
+
+    def main(self):
+        toggle = True
+        while True:
+            pass
 
 
 class Fall(utils.Command):

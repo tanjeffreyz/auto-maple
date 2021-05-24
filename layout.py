@@ -221,7 +221,6 @@ class Layout:
         i = 0
         while utils.distance(vertices[i], target) > config.move_tolerance:
             push_neighbors(i)
-            # fringe.sort()
             if len(fringe) == 0:
                 break
             i = heappop(fringe)[1]
