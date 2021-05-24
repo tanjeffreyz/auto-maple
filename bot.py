@@ -132,6 +132,7 @@ class Bot:
         move(*config.rune_pos, adjust='True').execute()
         press('y', 1, down_time=0.2)
         time.sleep(5)       # TODO: Solve rune here! This wait will NOT end if you disable the bot!
+        config.rune_active = False
 
     @staticmethod
     def _elite_alert():
