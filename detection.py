@@ -1,6 +1,9 @@
+"""A module for classifying directional arrows using TensorFlow."""
+
+import utils
+import cv2
 import tensorflow as tf
 import numpy as np
-import cv2
 
 
 #########################
@@ -23,9 +26,9 @@ def filter_color(image):
     mask = cv2.inRange(hsv, (1, 100, 100), (75, 255, 255))
 
     # Mask the image
-    imask = mask > 0
+    color_mask = mask > 0
     arrows = np.zeros_like(image, np.uint8)
-    arrows[imask] = image[imask]
+    arrows[color_mask] = image[color_mask]
     return arrows
 
 
@@ -80,14 +83,14 @@ def merge_detection(image):
     height, width, channels = cannied.shape
     boxes = get_boxes(cannied)
     if len(boxes) == 4:           # Only run further inferences if arrows have been correctly detected
-        ymins = [b[0][0] for b in boxes]
-        xmins = [b[0][1] for b in boxes]
-        ymaxs = [b[0][2] for b in boxes]
-        xmaxs = [b[0][3] for b in boxes]
-        left = int(round(min(xmins)* width))
-        right = int(round(max(xmaxs) * width))
-        top = int(round(min(ymins) * height))
-        bottom = int(round(max(ymaxs) * height))
+        y_mins = [b[0][0] for b in boxes]
+        x_mins = [b[0][1] for b in boxes]
+        y_maxes = [b[0][2] for b in boxes]
+        x_maxes = [b[0][3] for b in boxes]
+        left = int(round(min(x_mins) * width))
+        right = int(round(max(x_maxes) * width))
+        top = int(round(min(y_mins) * height))
+        bottom = int(round(max(y_maxes) * height))
         rune_box = cannied[top:bottom, left:right]
 
         # Pad the rune box with black borders, effectively eliminating the noise around it
@@ -105,7 +108,7 @@ def merge_detection(image):
         lst.sort(key=lambda x: x[1][1])
         classes = [label_map[item[2]] for item in lst]
 
-        # Run detection rotated image
+        # Run detection on rotated image
         rotated = cv2.rotate(preprocessed, cv2.ROTATE_90_COUNTERCLOCKWISE)
         lst = sort_by_confidence(detection_model, rotated)
         lst.sort(key=lambda x: x[1][2], reverse=True)
@@ -129,12 +132,12 @@ detection_model = load_model()
 # Run the inference once to 'warm up' tensorflow (the first detection triggers a long setup process)
 test_image = cv2.imread('assets/inference_test_image.jpg')
 merge_detection(test_image)
-print('Loaded detection model')
+utils.print_separator()
+print('Initialized detection algorithm.')
 
-
+# Script for testing only the detection module
 if __name__ == '__main__':
     import mss
-
     monitor = {'top': 0, 'left': 0, 'width': 1366, 'height': 768}
     while True:
         with mss.mss() as sct:

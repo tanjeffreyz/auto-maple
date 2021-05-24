@@ -50,6 +50,36 @@ class Command:
         return result
 
 
+class DefaultMove(Command):
+    """Undefined 'move' command for the default command book."""
+
+    def __init__(self, x, y, adjust='False', max_steps=15):
+        self.name = 'Undefined Move Command'
+
+    def main(self):
+        config.enabled = False
+
+
+class DefaultAdjust(Command):
+    """Undefined 'adjust' command for the default command book."""
+
+    def __init__(self, x, y, max_steps=5):
+        self.name = 'Undefined Adjust Command'
+
+    def main(self):
+        config.enabled = False
+
+
+class DefaultBuff(Command):
+    """Undefined 'buff' command for the default command book."""
+
+    def __init__(self):
+        self.name = 'Undefined Buff Command'
+
+    def main(self):
+        config.enabled = False
+
+
 def distance(a, b):
     """
     Applies the distance formula to two points.

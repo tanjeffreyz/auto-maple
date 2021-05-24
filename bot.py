@@ -37,7 +37,7 @@ class Point:
             if config.enabled:
                 print()
                 print(self._heading())
-            move = config.command_book.get('move')      # TODO: catch move does not exist, don't move, just disable bot
+            move = config.command_book.get('move')
             move(*self.location, adjust=str(self.adjust)).execute()
             for command in self.commands:
                 command.execute()
@@ -105,12 +105,12 @@ class Bot:
         """
 
         with mss.mss() as sct:
-            buff = Bot._buff(['f1', 'f2', 'f4'])
+            buff = config.command_book['buff']()
             while True:
                 if config.elite_active:
                     Bot._elite_alert()
                 if config.enabled:
-                    buff = buff()
+                    buff.execute()
                     element = config.sequence[config.seq_index]
                     if isinstance(element, Point):
                         element.execute()
@@ -122,10 +122,11 @@ class Bot:
 
     @staticmethod
     @utils.run_if_enabled
-    def _solve_rune():
+    def _solve_rune(sct):
         """
         Moves to the position of the rune and solves the arrow-key puzzle.
-        :return:    None
+        :param sct:     The mss instance object with which to take screenshots.
+        :return:        None
         """
 
         move = config.command_book.get('move')
@@ -162,21 +163,6 @@ class Bot:
         config.seq_index = (config.seq_index + 1) % len(config.sequence)
 
     @staticmethod
-    def _buff(skills, haku_time=0.0, buff_time=0.0):
-        def act():
-            nonlocal haku_time, buff_time
-            now = time.time()
-            if haku_time == 0 or now - haku_time > 490:
-                press('ctrl', 2)
-                haku_time = now
-            if buff_time == 0 or now - buff_time > config.buff_cooldown:
-                for s in skills:
-                    press(s, 3, up_time=0.3)
-                    buff_time = now
-            return Bot._buff(skills, haku_time, buff_time)
-        return act
-
-    @staticmethod
     def load_commands():
         """
         Prompts the user to select a command module to import. Updates config's command book.
@@ -184,14 +170,26 @@ class Bot:
         """
 
         utils.print_separator()
-        print('~~~ Loading Command Book ~~~')
-        module_name = Bot._select_file('./commands', '.py')
-        module_name = splitext(module_name)[0]
+        print('~~~ Import Command Book ~~~')
+        module_file = Bot._select_file('./commands', '.py')
+        module_name = splitext(module_file)[0]
         module = __import__(f'commands.{module_name}', fromlist=[''])
         config.command_book = {}
         for name, command in inspect.getmembers(module, inspect.isclass):
             name = name.lower()
             config.command_book[name] = command
+        utils.print_separator()
+        print(f"Loading command book '{module_name}'...")
+        success = True
+        for command in ['move', 'adjust', 'buff']:
+            if command not in config.command_book:
+                success = False
+                print(f"Error: Must implement '{command}' command.")
+        if success:
+            print(f"Successfully loaded command book '{module_name}'.")
+        else:
+            config.command_book = {'move': utils.DefaultMove, 'adjust': utils.DefaultAdjust}
+            print(f"Command book '{module_name}' was not loaded.")
 
     @staticmethod
     def load_routine(file=None):
@@ -204,7 +202,7 @@ class Bot:
         routines_dir = './routines'
         if not file:
             utils.print_separator()
-            print('~~~ Loading Routine ~~~')
+            print('~~~ Import Routine ~~~')
             file = Bot._select_file(routines_dir, '.csv')
         if file:
             config.calibrated = False
@@ -316,7 +314,9 @@ class Bot:
         config.rune_active = False
         config.elite_active = False
         utils.print_separator()
-        print(f"Toggled: {'OFF' if config.enabled else 'ON'}")
+        print('#' * 18)
+        print(f"#    {'DISABLED' if config.enabled else 'ENABLED '}    #")
+        print('#' * 18)
         config.enabled = not config.enabled
         if config.enabled:
             winsound.Beep(784, 333)     # G5

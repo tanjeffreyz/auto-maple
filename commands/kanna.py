@@ -79,13 +79,13 @@ class Adjust(utils.Command):
                 if abs(d_x) > threshold:
                     if d_x < 0:
                         key_down('left')
-                        while d_x < -1 * threshold:
+                        while config.enabled and d_x < -1 * threshold:
                             time.sleep(0.01)
                             d_x = self.target[0] - config.player_pos[0]
                         key_up('left')
                     else:
                         key_down('right')
-                        while d_x > threshold:
+                        while config.enabled and d_x > threshold:
                             time.sleep(0.01)
                             d_x = self.target[0] - config.player_pos[0]
                         key_up('right')
@@ -104,6 +104,26 @@ class Adjust(utils.Command):
                     self.counter -= 1
             error = utils.distance(config.player_pos, self.target)
             toggle = not toggle
+
+
+class Buff(utils.Command):
+    """Uses each of Kanna's buffs once. Uses 'Haku Reborn' whenever it is available."""
+
+    def __init__(self):
+        self.name = 'Buff'
+        self.haku_time = 0
+        self.buff_time = 0
+
+    def main(self):
+        buffs = ['f1', 'f2', 'f4']
+        now = time.time()
+        if self.haku_time == 0 or now - self.haku_time > 490:
+            press('ctrl', 2)
+            self.haku_time = now
+        if self.buff_time == 0 or now - self.buff_time > config.buff_cooldown:
+            for key in buffs:
+                press(key, 3, up_time=0.3)
+            self.buff_time = now
 
 
 class Fall(utils.Command):
