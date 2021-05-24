@@ -1,6 +1,7 @@
 """An interpreter that reads and executes user-created routines."""
 
 import config
+import detection
 import threading
 import winsound
 import time
@@ -10,9 +11,10 @@ import utils
 import pygame
 import inspect
 import keyboard as kb
+import numpy as np
 from os import listdir
 from os.path import isfile, join, splitext
-from vkeys import press
+from vkeys import press, click
 from layout import Layout
 
 
@@ -115,7 +117,7 @@ class Bot:
                     if isinstance(element, Point):
                         element.execute()
                         if config.rune_active and element.location == config.rune_index:
-                            Bot._solve_rune()
+                            Bot._solve_rune(sct)
                     Bot._step()
                 else:
                     time.sleep(0.01)
@@ -131,8 +133,29 @@ class Bot:
 
         move = config.command_book.get('move')
         move(*config.rune_pos, adjust='True').execute()
-        press('y', 1, down_time=0.2)
-        time.sleep(5)       # TODO: Solve rune here! This wait will NOT end if you disable the bot!
+        press('y', 1, down_time=0.2)        # Press 'y' to interact with rune in-game
+        print('\nSolving rune:')
+        inferences = []
+        for _ in range(15):
+            frame = np.array(sct.grab(config.MONITOR))
+            solution = detection.merge_detection(frame)
+            if solution:
+                if solution in inferences:
+                    for arrow in solution:
+                        press(arrow, 1, down_time=0.1)
+                    time.sleep(1)
+                    for _ in range(3):
+                        time.sleep(0.3)
+                        frame = np.array(sct.grab(config.MONITOR))
+                        rune_buff = utils.multi_match(frame[:frame.shape[0]//8, :],
+                                                      config.RUNE_BUFF_TEMPLATE,
+                                                      threshold=0.9)
+                        if rune_buff:
+                            rune_buff_pos = min(rune_buff, key=lambda p: p[0])
+                            click(rune_buff_pos, button='right')
+                    break
+                elif len(solution) == 4:
+                    inferences.append(solution)
         config.rune_active = False
 
     @staticmethod

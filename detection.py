@@ -68,6 +68,7 @@ def get_boxes(image):
     return boxes
 
 
+@utils.run_if_enabled
 def merge_detection(image):
     label_map = {1: 'up', 2: 'down', 3: 'left', 4: 'right'}
     converter = {'up': 'right', 'down': 'left'}
@@ -133,7 +134,7 @@ detection_model = load_model()
 test_image = cv2.imread('assets/inference_test_image.jpg')
 merge_detection(test_image)
 utils.print_separator()
-print('Initialized detection algorithm.')
+print('Initialized detection algorithm.\n')
 
 # Script for testing only the detection module
 if __name__ == '__main__':

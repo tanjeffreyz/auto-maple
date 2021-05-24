@@ -16,14 +16,6 @@ class Capture:
     displays the minimap in a pop-up window.
     """
 
-    MINIMAP_TOP_BORDER = 21
-    MINIMAP_BOTTOM_BORDER = 8
-    MINIMAP_TEMPLATE = cv2.imread('assets/minimap_template.jpg', 0)
-    PLAYER_TEMPLATE = cv2.imread('assets/player_template.png', 0)
-    RUNE_TEMPLATE = cv2.imread('assets/rune_template.png', 0)
-    RUNE_BUFF_TEMPLATE = cv2.imread('assets/rune_buff_template.jpg', 0)
-    ELITE_TEMPLATE = cv2.imread('assets/elite_template.jpg', 0)
-
     def __init__(self):
         """Initializes this Capture object's main thread."""
 
@@ -53,11 +45,11 @@ class Capture:
                     frame = np.array(sct.grab(config.MONITOR))
 
                     # Get the bottom right point of the minimap
-                    _, br = Capture.single_match(frame[:round(frame.shape[0] / 4),
+                    _, br = utils.single_match(frame[:round(frame.shape[0] / 4),
                                                        :round(frame.shape[1] / 3)],
-                                                 Capture.MINIMAP_TEMPLATE)
-                    mm_tl = (Capture.MINIMAP_BOTTOM_BORDER, Capture.MINIMAP_TOP_BORDER)
-                    mm_br = tuple(max(75, a - Capture.MINIMAP_BOTTOM_BORDER) for a in br)
+                                                 config.MINIMAP_TEMPLATE)
+                    mm_tl = (config.MINIMAP_BOTTOM_BORDER, config.MINIMAP_TOP_BORDER)
+                    mm_br = tuple(max(75, a - config.MINIMAP_BOTTOM_BORDER) for a in br)
                     config.mm_ratio = (mm_br[0] - mm_tl[0]) / (mm_br[1] - mm_tl[1])
                     config.calibrated = True
                 else:
@@ -74,20 +66,20 @@ class Capture:
 
                     # Check for elite warning
                     elite_frame = frame[height//4:3*height//4, width//4:3*width//4]
-                    elite = Capture.multi_match(elite_frame, Capture.ELITE_TEMPLATE, threshold=0.9)
+                    elite = utils.multi_match(elite_frame, config.ELITE_TEMPLATE, threshold=0.9)
                     if config.enabled and not config.elite_active and elite:
                         config.elite_active = True
                         config.enabled = False
 
                     # Crop the frame to only show the minimap
                     minimap = frame[mm_tl[1]:mm_br[1], mm_tl[0]:mm_br[0]]
-                    player = Capture.multi_match(minimap, Capture.PLAYER_TEMPLATE, threshold=0.8)
+                    player = utils.multi_match(minimap, config.PLAYER_TEMPLATE, threshold=0.8)
                     if player:
                         config.player_pos = utils.convert_to_relative(player[0], minimap)
 
                     # Check for a rune
                     if not config.rune_active:
-                        rune = Capture.multi_match(minimap, Capture.RUNE_TEMPLATE, threshold=0.9)
+                        rune = utils.multi_match(minimap, config.RUNE_TEMPLATE, threshold=0.9)
                         if rune and config.sequence:
                             abs_rune_pos = (rune[0][0] - 1, rune[0][1])
                             config.rune_pos = utils.convert_to_relative(abs_rune_pos, minimap)
@@ -201,40 +193,3 @@ class Capture:
         width = int(frame.shape[1] * percent)
         height = int(frame.shape[0] * percent)
         return cv2.resize(frame, (width, height), interpolation=cv2.INTER_AREA)
-
-    @staticmethod
-    def single_match(frame, template):
-        """
-        Finds the best match within FRAME.
-        :param frame:       The image in which to search for TEMPLATE.
-        :param template:    The template to match with.
-        :return:            The top-left and bottom-right positions of the best match.
-        """
-
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        result = cv2.matchTemplate(gray, template, cv2.TM_CCOEFF)
-        _, _, _, top_left = cv2.minMaxLoc(result)
-        w, h = template.shape[::-1]
-        bottom_right = (top_left[0] + w, top_left[1] + h)
-        return top_left, bottom_right
-
-    @staticmethod
-    def multi_match(frame, template, threshold=0.95):
-        """
-        Finds all matches in FRAME that are similar to TEMPLATE by at least THRESHOLD.
-        :param frame:       The image in which to search.
-        :param template:    The template to match with.
-        :param threshold:   The minimum percentage of TEMPLATE that each result must match.
-        :return:            An array of matches that exceed THRESHOLD.
-        """
-
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        result = cv2.matchTemplate(gray, template, cv2.TM_CCOEFF_NORMED)
-        locations = np.where(result >= threshold)
-        locations = list(zip(*locations[::-1]))
-        results = []
-        for p in locations:
-            x = int(round(p[0] + template.shape[1] / 2))
-            y = int(round(p[1] + template.shape[0] / 2))
-            results.append((x, y))
-        return results

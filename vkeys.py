@@ -1,4 +1,4 @@
-"""A module for simulating low-level keyboard key presses."""
+"""A module for simulating low-level keyboard and mouse key presses."""
 
 import ctypes
 import time

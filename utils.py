@@ -2,9 +2,14 @@
 
 import config
 import math
+import cv2
+import numpy as np
 from random import random
 
 
+###########################
+#   Decorator Functions   #
+###########################
 def run_if_enabled(function):
     """
     Decorator for functions that should only run if the bot is enabled.
@@ -18,6 +23,9 @@ def run_if_enabled(function):
     return helper
 
 
+#########################
+#        Classes        #
+#########################
 class Command:
     name = 'Command Superclass'
 
@@ -80,6 +88,9 @@ class DefaultBuff(Command):
         config.enabled = False
 
 
+#########################
+#       Functions       #
+#########################
 def distance(a, b):
     """
     Applies the distance formula to two points.
@@ -89,6 +100,43 @@ def distance(a, b):
     """
 
     return math.sqrt((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2)
+
+
+def single_match(frame, template):
+    """
+    Finds the best match within FRAME.
+    :param frame:       The image in which to search for TEMPLATE.
+    :param template:    The template to match with.
+    :return:            The top-left and bottom-right positions of the best match.
+    """
+
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    result = cv2.matchTemplate(gray, template, cv2.TM_CCOEFF)
+    _, _, _, top_left = cv2.minMaxLoc(result)
+    w, h = template.shape[::-1]
+    bottom_right = (top_left[0] + w, top_left[1] + h)
+    return top_left, bottom_right
+
+
+def multi_match(frame, template, threshold=0.95):
+    """
+    Finds all matches in FRAME that are similar to TEMPLATE by at least THRESHOLD.
+    :param frame:       The image in which to search.
+    :param template:    The template to match with.
+    :param threshold:   The minimum percentage of TEMPLATE that each result must match.
+    :return:            An array of matches that exceed THRESHOLD.
+    """
+
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    result = cv2.matchTemplate(gray, template, cv2.TM_CCOEFF_NORMED)
+    locations = np.where(result >= threshold)
+    locations = list(zip(*locations[::-1]))
+    results = []
+    for p in locations:
+        x = int(round(p[0] + template.shape[1] / 2))
+        y = int(round(p[1] + template.shape[0] / 2))
+        results.append((x, y))
+    return results
 
 
 def convert_to_relative(point, frame):

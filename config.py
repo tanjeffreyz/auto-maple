@@ -1,10 +1,19 @@
 """A collection of variables shared across multiple modules."""
 
+import cv2
+
+
 #################################
 #           CONSTANTS           #
 #################################
-# Represents the dimensions of the monitor to screenshot
 MONITOR = {'top': 0, 'left': 0, 'width': 1366, 'height': 768}
+MINIMAP_TOP_BORDER = 21
+MINIMAP_BOTTOM_BORDER = 8
+MINIMAP_TEMPLATE = cv2.imread('assets/minimap_template.jpg', 0)
+PLAYER_TEMPLATE = cv2.imread('assets/player_template.png', 0)
+RUNE_TEMPLATE = cv2.imread('assets/rune_template.png', 0)
+RUNE_BUFF_TEMPLATE = cv2.imread('assets/rune_buff_template.jpg', 0)
+ELITE_TEMPLATE = cv2.imread('assets/elite_template.jpg', 0)
 
 
 #################################
