@@ -19,7 +19,7 @@ def run_if_enabled(function):
 
     def helper(*args, **kwargs):
         if config.enabled:
-            function(*args, **kwargs)
+            return function(*args, **kwargs)
     return helper
 
 

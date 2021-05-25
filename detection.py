@@ -58,8 +58,8 @@ def sort_by_confidence(model, image):
     return result
 
 
-def get_boxes(image):
-    output_dict = run_inference_for_single_image(detection_model, image)
+def get_boxes(model, image):
+    output_dict = run_inference_for_single_image(model, image)
     zipped = list(zip(output_dict['detection_scores'], output_dict['detection_boxes'], output_dict['detection_classes']))
     pruned = [tuple for tuple in zipped if tuple[0] > 0.5]
     pruned.sort(key=lambda x: x[0], reverse=True)
@@ -69,7 +69,7 @@ def get_boxes(image):
 
 
 @utils.run_if_enabled
-def merge_detection(image):
+def merge_detection(model, image):
     label_map = {1: 'up', 2: 'down', 3: 'left', 4: 'right'}
     converter = {'up': 'right', 'down': 'left'}
     classes = []
@@ -82,7 +82,7 @@ def merge_detection(image):
 
     # Isolate the rune box
     height, width, channels = cannied.shape
-    boxes = get_boxes(cannied)
+    boxes = get_boxes(model, cannied)
     if len(boxes) == 4:           # Only run further inferences if arrows have been correctly detected
         y_mins = [b[0][0] for b in boxes]
         x_mins = [b[0][1] for b in boxes]
@@ -105,13 +105,13 @@ def merge_detection(image):
             preprocessed[y_offset:y_offset+height, x_offset:x_offset+width] = rune_box
 
         # Run detection on preprocessed image
-        lst = sort_by_confidence(detection_model, preprocessed)
+        lst = sort_by_confidence(model, preprocessed)
         lst.sort(key=lambda x: x[1][1])
         classes = [label_map[item[2]] for item in lst]
 
         # Run detection on rotated image
         rotated = cv2.rotate(preprocessed, cv2.ROTATE_90_COUNTERCLOCKWISE)
-        lst = sort_by_confidence(detection_model, rotated)
+        lst = sort_by_confidence(model, rotated)
         lst.sort(key=lambda x: x[1][2], reverse=True)
         rotated_classes = [converter[label_map[item[2]]]
                            for item in lst
@@ -125,20 +125,11 @@ def merge_detection(image):
     return classes
 
 
-#############################
-#       Initialization      #
-#############################
-detection_model = load_model()
-
-# Run the inference once to 'warm up' tensorflow (the first detection triggers a long setup process)
-test_image = cv2.imread('assets/inference_test_image.jpg')
-merge_detection(test_image)
-utils.print_separator()
-print('Initialized detection algorithm.\n')
-
-# Script for testing only the detection module
+# Script for testing the detection module by itself
 if __name__ == '__main__':
+    import config
     import mss
+    config.enabled = True
     monitor = {'top': 0, 'left': 0, 'width': 1366, 'height': 768}
     while True:
         with mss.mss() as sct:

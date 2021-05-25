@@ -9,6 +9,7 @@ import cv2
 MONITOR = {'top': 0, 'left': 0, 'width': 1366, 'height': 768}
 MINIMAP_TOP_BORDER = 21
 MINIMAP_BOTTOM_BORDER = 8
+TEST_IMAGE = cv2.imread('assets/inference_test_image.jpg')
 MINIMAP_TEMPLATE = cv2.imread('assets/minimap_template.jpg', 0)
 PLAYER_TEMPLATE = cv2.imread('assets/player_template.png', 0)
 RUNE_TEMPLATE = cv2.imread('assets/rune_template.png', 0)
@@ -73,4 +74,5 @@ layout = None
 #################################
 move_tolerance = 0.075
 adjust_tolerance = 0.01
+record_layout = False
 buff_cooldown = 220
