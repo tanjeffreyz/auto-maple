@@ -18,6 +18,13 @@ from vkeys import press, click
 from layout import Layout
 
 
+# A dictionary that maps each setting to its validator function
+SETTING_VALIDATORS = {'move_tolerance': float,
+                      'adjust_tolerance': float,
+                      'record_layout': utils.validate_boolean,
+                      'buff_cooldown': int}
+
+
 class Point:
     """Represents a location in a user-defined routine."""
 
@@ -274,7 +281,7 @@ class Bot:
             line = f'Line {n}: '
             if first == '@':        # Check for labels
                 if len(rest) != 1:
-                    print(line + f'Incorrect number of arguments for a label.')
+                    print(line + 'Incorrect number of arguments for a label.')
                 else:
                     return rest[0]
             elif first == '*':      # Check for Points
@@ -283,7 +290,21 @@ class Bot:
                 except ValueError:
                     print(line + f'Invalid arguments for a Point: {rest}')
                 except TypeError:
-                    print(line + f'Incorrect number of arguments for a Point.')
+                    print(line + 'Incorrect number of arguments for a Point.')
+            elif first == 's':      # Check for settings
+                if len(rest) != 2:
+                    print(line + 'Incorrect number of arguments for a setting.')
+                else:
+                    variable = rest[0].lower()
+                    value = rest[1].lower()
+                    if variable not in SETTING_VALIDATORS:
+                        print(line + f"'{variable}' is not a valid setting.")
+                    else:
+                        try:
+                            value = SETTING_VALIDATORS[variable](value)
+                            setattr(config, variable, value)
+                        except ValueError:
+                            print(line + f"'{value}' is not a valid value for '{variable}'.")
             else:                   # Otherwise might be a Command
                 if first not in config.command_book.keys():
                     print(line + f"Command '{first}' does not exist.")

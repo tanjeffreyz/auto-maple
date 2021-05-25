@@ -178,6 +178,32 @@ def print_separator():
     print('\n\n')
 
 
+def closest_point(points, target):
+    """
+    Returns the point in POINTS that is closest to TARGET.
+    :param points:      A list of points to check.
+    :param target:      The point to check against.
+    :return:            The point closest to TARGET, otherwise None if POINTS is empty.
+    """
+
+    if points:
+        points.sort(key=lambda p: distance(p, target))
+        return points[0]
+
+
+def bernoulli(p):
+    """
+    Returns the value of a Bernoulli random variable with probability P.
+    :param p:   The random variable's probability of being True.
+    :return:    True or False.
+    """
+
+    return random() < p
+
+
+#################################
+#      Validator Functions      #
+#################################
 def validate_type(string, other):
     """
     Checks whether STRING can be converted into type OTHER.
@@ -247,26 +273,3 @@ def validate_boolean(boolean):
         elif boolean == 'false':
             return False
     raise ValueError
-
-
-def closest_point(points, target):
-    """
-    Returns the point in POINTS that is closest to TARGET.
-    :param points:      A list of points to check.
-    :param target:      The point to check against.
-    :return:            The point closest to TARGET, otherwise None if POINTS is empty.
-    """
-
-    if points:
-        points.sort(key=lambda p: distance(p, target))
-        return points[0]
-
-
-def bernoulli(p):
-    """
-    Returns the value of a Bernoulli random variable with probability P.
-    :param p:   The random variable's probability of being True.
-    :return:    True or False.
-    """
-
-    return random() < p

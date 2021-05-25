@@ -3,3 +3,17 @@
 
 *, 0.708, 0.199, 1, 0, True
     !Move, 0.708, 0.199, True
+
+s, move_tolerance, 0.1
+s, adjust_tolerance, 0.1
+s, record_layout, True
+s, buff_cooldown, 240
+
+s, move_tolerance, False
+s, mve_tolerance, 0.1
+
+s, adjust_tolerance, False
+s, adj_tolerance, True
+
+s, record_layout, 1
+s, buff_cooldown, False

@@ -191,7 +191,10 @@ class Wait(utils.Command):
 
 
 class Teleport(utils.Command):
-    """Teleports in a given direction, jumping if specified."""
+    """
+    Teleports in a given direction, jumping if specified. Adds the player's position
+    to the current Layout if necessary.
+    """
 
     def __init__(self, direction, jump='False'):
         self.name = 'Teleport'
@@ -216,7 +219,8 @@ class Teleport(utils.Command):
             time.sleep(0.05)
         press('e', num_presses)
         key_up(self.direction)
-        config.layout.add(*config.player_pos)
+        if config.record_layout:
+            config.layout.add(*config.player_pos)
 
 
 class Shikigami(utils.Command):
