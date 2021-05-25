@@ -108,12 +108,6 @@ class Bot:
         :return:    None
         """
 
-        # Run the inference once to 'warm up' TensorFlow
-        print('\nInitializing detection algorithm...\n')
-        model = detection.load_model()
-        print('\nInitialized detection algorithm.')
-
-        # Start the main bot loop
         with mss.mss() as sct:
             buff = config.command_book['buff']()
             while True:
@@ -125,14 +119,14 @@ class Bot:
                     if isinstance(element, Point):
                         element.execute()
                         if config.rune_active and element.location == config.rune_index:
-                            Bot._solve_rune(model, sct)
+                            Bot._solve_rune(sct)
                     Bot._step()
                 else:
                     time.sleep(0.01)
 
     @staticmethod
     @utils.run_if_enabled
-    def _solve_rune(model, sct):
+    def _solve_rune(sct):
         """
         Moves to the position of the rune and solves the arrow-key puzzle.
         :param sct:     The mss instance object with which to take screenshots.
@@ -146,7 +140,7 @@ class Bot:
         inferences = []
         for _ in range(15):
             frame = np.array(sct.grab(config.MONITOR))
-            solution = detection.merge_detection(model, frame)
+            solution = detection.merge_detection(frame)
             if solution:
                 print(', '.join(solution))
                 if solution in inferences:

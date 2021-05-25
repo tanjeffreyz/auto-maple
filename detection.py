@@ -69,7 +69,7 @@ def get_boxes(model, image):
 
 
 @utils.run_if_enabled
-def merge_detection(model, image):
+def merge_detection(image):
     label_map = {1: 'up', 2: 'down', 3: 'left', 4: 'right'}
     converter = {'up': 'right', 'down': 'left'}
     classes = []
@@ -82,7 +82,7 @@ def merge_detection(model, image):
 
     # Isolate the rune box
     height, width, channels = cannied.shape
-    boxes = get_boxes(model, cannied)
+    boxes = get_boxes(detection_model, cannied)
     if len(boxes) == 4:           # Only run further inferences if arrows have been correctly detected
         y_mins = [b[0][0] for b in boxes]
         x_mins = [b[0][1] for b in boxes]
@@ -105,13 +105,13 @@ def merge_detection(model, image):
             preprocessed[y_offset:y_offset+height, x_offset:x_offset+width] = rune_box
 
         # Run detection on preprocessed image
-        lst = sort_by_confidence(model, preprocessed)
+        lst = sort_by_confidence(detection_model, preprocessed)
         lst.sort(key=lambda x: x[1][1])
         classes = [label_map[item[2]] for item in lst]
 
         # Run detection on rotated image
         rotated = cv2.rotate(preprocessed, cv2.ROTATE_90_COUNTERCLOCKWISE)
-        lst = sort_by_confidence(model, rotated)
+        lst = sort_by_confidence(detection_model, rotated)
         lst.sort(key=lambda x: x[1][2], reverse=True)
         rotated_classes = [converter[label_map[item[2]]]
                            for item in lst
@@ -124,6 +124,14 @@ def merge_detection(model, image):
 
     return classes
 
+
+#############################
+#       Initialization      #
+#############################
+# Run the inference once to 'warm up' TensorFlow
+print('\nInitializing detection algorithm...\n')
+detection_model = load_model()
+print('\nInitialized detection algorithm.')
 
 # Script for testing the detection module by itself
 if __name__ == '__main__':
