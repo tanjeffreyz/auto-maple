@@ -240,10 +240,11 @@ class Bot:
             file = Bot._select_file(routines_dir, '.csv')
         if file:
             config.calibrated = False
-            utils.print_separator()
-            print(f"Loading routine '{file}'...")
             config.sequence = []
             config.seq_index = 0
+            utils.reset_settings()
+            utils.print_separator()
+            print(f"Loading routine '{file}'...")
             with open(join(routines_dir, file), newline='') as f:
                 csv_reader = csv.reader(f, skipinitialspace=True)
                 curr_point = None

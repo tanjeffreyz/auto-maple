@@ -91,6 +91,18 @@ class DefaultBuff(Command):
 #########################
 #       Functions       #
 #########################
+def reset_settings():
+    """
+    Resets all settings to their default values.
+    :return:    None
+    """
+
+    config.move_tolerance = 0.075
+    config.adjust_tolerance = 0.01
+    config.record_layout = False
+    config.buff_cooldown = 220
+
+
 def distance(a, b):
     """
     Applies the distance formula to two points.
