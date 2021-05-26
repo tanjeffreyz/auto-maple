@@ -11,8 +11,7 @@ import numpy as np
 #########################
 def load_model():
     model_dir = f'assets/models/rune_model_rnn_filtered_cannied/saved_model'
-    model = tf.saved_model.load(model_dir)
-    return model
+    return tf.saved_model.load(model_dir)
 
 
 def canny(image):
@@ -40,7 +39,7 @@ def run_inference_for_single_image(model, image):
 
     model_fn = model.signatures['serving_default']
     output_dict = model_fn(input_tensor)
-    
+
     num_detections = int(output_dict.pop('num_detections'))
     output_dict = {key: value[0,:num_detections].numpy() 
                    for key, value in output_dict.items()}
@@ -51,8 +50,10 @@ def run_inference_for_single_image(model, image):
 
 def sort_by_confidence(model, image):
     output_dict = run_inference_for_single_image(model, image)
-    zipped = list(zip(output_dict['detection_scores'], output_dict['detection_boxes'], output_dict['detection_classes']))
-    pruned = [tuple for tuple in zipped if tuple[0] > 0.5]
+    zipped = list(zip(output_dict['detection_scores'],
+                      output_dict['detection_boxes'],
+                      output_dict['detection_classes']))
+    pruned = [t for t in zipped if t[0] > 0.5]
     pruned.sort(key=lambda x: x[0], reverse=True)
     result = pruned[:4]
     return result
@@ -60,16 +61,18 @@ def sort_by_confidence(model, image):
 
 def get_boxes(model, image):
     output_dict = run_inference_for_single_image(model, image)
-    zipped = list(zip(output_dict['detection_scores'], output_dict['detection_boxes'], output_dict['detection_classes']))
-    pruned = [tuple for tuple in zipped if tuple[0] > 0.5]
+    zipped = list(zip(output_dict['detection_scores'],
+                      output_dict['detection_boxes'],
+                      output_dict['detection_classes']))
+    pruned = [t for t in zipped if t[0] > 0.5]
     pruned.sort(key=lambda x: x[0], reverse=True)
     pruned = pruned[:4]
-    boxes = [tuple[1:] for tuple in pruned]
+    boxes = [t[1:] for t in pruned]
     return boxes
 
 
 @utils.run_if_enabled
-def merge_detection(image):
+def merge_detection(model, image):
     label_map = {1: 'up', 2: 'down', 3: 'left', 4: 'right'}
     converter = {'up': 'right', 'down': 'left'}
     classes = []
@@ -82,8 +85,8 @@ def merge_detection(image):
 
     # Isolate the rune box
     height, width, channels = cannied.shape
-    boxes = get_boxes(detection_model, cannied)
-    if len(boxes) == 4:           # Only run further inferences if arrows have been correctly detected
+    boxes = get_boxes(model, cannied)
+    if len(boxes) == 4:      # Only run further inferences if arrows have been correctly detected
         y_mins = [b[0][0] for b in boxes]
         x_mins = [b[0][1] for b in boxes]
         y_maxes = [b[0][2] for b in boxes]
@@ -105,13 +108,13 @@ def merge_detection(image):
             preprocessed[y_offset:y_offset+height, x_offset:x_offset+width] = rune_box
 
         # Run detection on preprocessed image
-        lst = sort_by_confidence(detection_model, preprocessed)
+        lst = sort_by_confidence(model, preprocessed)
         lst.sort(key=lambda x: x[1][1])
         classes = [label_map[item[2]] for item in lst]
 
         # Run detection on rotated image
         rotated = cv2.rotate(preprocessed, cv2.ROTATE_90_COUNTERCLOCKWISE)
-        lst = sort_by_confidence(detection_model, rotated)
+        lst = sort_by_confidence(model, rotated)
         lst.sort(key=lambda x: x[1][2], reverse=True)
         rotated_classes = [converter[label_map[item[2]]]
                            for item in lst
@@ -124,14 +127,6 @@ def merge_detection(image):
 
     return classes
 
-
-#############################
-#       Initialization      #
-#############################
-# Run the inference once to 'warm up' TensorFlow
-print('\nInitializing detection algorithm...\n')
-detection_model = load_model()
-print('\nInitialized detection algorithm.')
 
 # Script for testing the detection module by itself
 if __name__ == '__main__':

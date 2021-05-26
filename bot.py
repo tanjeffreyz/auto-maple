@@ -115,7 +115,12 @@ class Bot:
         :return:    None
         """
 
+        print('\nInitializing detection algorithm...\n')
+        model = detection.load_model()
+        print('\nInitialized detection algorithm.')
+
         with mss.mss() as sct:
+            config.listening = True
             buff = config.command_book['buff']()
             while True:
                 if config.elite_active:
@@ -126,16 +131,17 @@ class Bot:
                     if isinstance(element, Point):
                         element.execute()
                         if config.rune_active and element.location == config.rune_index:
-                            Bot._solve_rune(sct)
+                            Bot._solve_rune(model, sct)
                     Bot._step()
                 else:
                     time.sleep(0.01)
 
     @staticmethod
     @utils.run_if_enabled
-    def _solve_rune(sct):
+    def _solve_rune(model, sct):
         """
         Moves to the position of the rune and solves the arrow-key puzzle.
+        :param model:   The TensorFlow model to classify with.
         :param sct:     The mss instance object with which to take screenshots.
         :return:        None
         """
@@ -147,7 +153,7 @@ class Bot:
         inferences = []
         for _ in range(15):
             frame = np.array(sct.grab(config.MONITOR))
-            solution = detection.merge_detection(frame)
+            solution = detection.merge_detection(model, frame)
             if solution:
                 print(', '.join(solution))
                 if solution in inferences:

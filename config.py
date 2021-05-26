@@ -47,7 +47,7 @@ ready = False
 calibrated = False
 
 # Describes whether the keyboard listener is currently running
-listening = True
+listening = False
 
 # The ratio of the minimap's width divided by its height (used for conversions)
 mm_ratio = 1
