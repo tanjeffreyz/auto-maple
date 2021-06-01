@@ -47,7 +47,10 @@ class Point:
                 print()
                 print(self._heading())
             move = config.command_book.get('move')
-            move(*self.location, adjust=str(self.adjust)).execute()
+            move(*self.location).execute()
+            if self.adjust:
+                adjust = config.command_book.get('adjust')
+                adjust(*self.location).execute()
             for command in self.commands:
                 command.execute()
         self._increment_counter()
@@ -147,7 +150,9 @@ class Bot:
         """
 
         move = config.command_book.get('move')
-        move(*config.rune_pos, adjust='True').execute()
+        move(*config.rune_pos).execute()
+        adjust = config.command_book.get('adjust')
+        adjust(*config.rune_pos).execute()
         press('y', 1, down_time=0.2)        # Press 'y' to interact with rune in-game
         print('\nSolving rune:')
         inferences = []

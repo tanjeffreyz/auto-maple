@@ -10,10 +10,9 @@ from vkeys import press, key_down, key_up
 class Move(utils.Command):
     """Moves to a given position using the shortest path based on the current Layout."""
 
-    def __init__(self, x, y, adjust='False', max_steps=15):
+    def __init__(self, x, y, max_steps=15):
         self.name = 'Move'
         self.target = (float(x), float(y))
-        self.adjust = utils.validate_boolean(adjust)
         self.max_steps = utils.validate_nonzero_int(max_steps)
         self.counter = 0
 
@@ -24,8 +23,6 @@ class Move(utils.Command):
         config.path.insert(0, config.player_pos)
         for point in path:
             self._step(point)
-        if self.adjust:
-            Adjust(*self.target).main()
 
     @utils.run_if_enabled
     def _step(self, target):
@@ -283,7 +280,7 @@ class Kishin(utils.Command):
         self.name = 'Kishin'
 
     def main(self):
-        press('lshift', 4, down_time=0.1, up_time=0.15)
+        press('del', 4, down_time=0.1, up_time=0.15)
 
 
 class NineTails(utils.Command):
