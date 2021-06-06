@@ -123,6 +123,7 @@ class Bot:
         print('\nInitialized detection algorithm.')
 
         with mss.mss() as sct:
+            config.ready = True
             config.listening = True
             buff = config.command_book['buff']()
             while True:
@@ -153,6 +154,7 @@ class Bot:
         move(*config.rune_pos).execute()
         adjust = config.command_book.get('adjust')
         adjust(*config.rune_pos).execute()
+        time.sleep(0.2)
         press('y', 1, down_time=0.2)        # Press 'y' to interact with rune in-game
         print('\nSolving rune:')
         inferences = []

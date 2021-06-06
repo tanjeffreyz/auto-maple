@@ -44,7 +44,7 @@ class Capture:
                 if not config.calibrated:
                     frame = np.array(sct.grab(config.MONITOR))
 
-                    # Get the bottom right point of the minimap
+                    # Get the bottom right corner of the minimap
                     _, br = utils.single_match(frame[:round(frame.shape[0] / 4),
                                                        :round(frame.shape[1] / 3)],
                                                  config.MINIMAP_TEMPLATE)
@@ -102,10 +102,11 @@ class Capture:
                                    -1)
 
                     # Draw the current path that the program is taking
-                    if config.enabled and len(config.path) > 1:
-                        for i in range(len(config.path) - 1):
-                            start = utils.convert_to_absolute(config.path[i], minimap)
-                            end = utils.convert_to_absolute(config.path[i + 1], minimap)
+                    path = config.path
+                    if config.enabled and len(path) > 1:
+                        for i in range(len(path) - 1):
+                            start = utils.convert_to_absolute(path[i], minimap)
+                            end = utils.convert_to_absolute(path[i + 1], minimap)
                             cv2.line(minimap, start, end, (255, 255, 0), 1)
 
                     # Draw each Point in the routine as a circle
