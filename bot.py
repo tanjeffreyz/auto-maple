@@ -10,6 +10,7 @@ import mss
 import utils
 import pygame
 import inspect
+import commands
 import keyboard as kb
 import numpy as np
 from os import listdir
@@ -218,15 +219,25 @@ class Bot:
 
         utils.print_separator()
         print('~~~ Import Command Book ~~~')
-        module_file = Bot._select_file('./commands', '.py')
+        module_file = Bot._select_file('./command_books', '.py')
         module_name = splitext(module_file)[0]
-        module = __import__(f'commands.{module_name}', fromlist=[''])
+
+        # Generate a command book using the selected module
+        utils.print_separator()
+        print(f"Loading command book '{module_name}'...")
+        module = __import__(f'command_books.{module_name}', fromlist=[''])
         config.command_book = {}
         for name, command in inspect.getmembers(module, inspect.isclass):
             name = name.lower()
             config.command_book[name] = command
-        utils.print_separator()
-        print(f"Loading command book '{module_name}'...")
+
+        # Import common commands
+        config.command_book['goto'] = commands.Goto
+        config.command_book['wait'] = commands.Wait
+        config.command_book['walk'] = commands.Walk
+        config.command_book['fall'] = commands.Fall
+
+        # Check if required commands have been implemented
         success = True
         for command in ['move', 'adjust', 'buff']:
             if command not in config.command_book:
@@ -235,7 +246,9 @@ class Bot:
         if success:
             print(f"Successfully loaded command book '{module_name}'.")
         else:
-            config.command_book = {'move': utils.DefaultMove, 'adjust': utils.DefaultAdjust}
+            config.command_book = {'move': commands.DefaultMove,
+                                   'adjust': commands.DefaultAdjust,
+                                   'buff': commands.DefaultBuff}
             print(f"Command book '{module_name}' was not loaded.")
 
     @staticmethod
@@ -265,7 +278,7 @@ class Bot:
                 for row in csv_reader:
                     result = Bot._eval(row, line)
                     if result:
-                        if isinstance(result, utils.Command):
+                        if isinstance(result, commands.Command):
                             if curr_point:
                                 curr_point.commands.append(result)
                         else:
@@ -291,26 +304,19 @@ class Bot:
 
         if expr and isinstance(expr, list):
             first, rest = expr[0].lower(), expr[1:]
-            rest = [s.strip() for s in rest]
+            args, kwargs = utils.separate_args(rest)
             line = f'Line {n}: '
             if first == '@':        # Check for labels
-                if len(rest) != 1:
+                if len(args) != 1 or len(kwargs) != 0:
                     print(line + 'Incorrect number of arguments for a label.')
                 else:
-                    return rest[0]
-            elif first == '*':      # Check for Points
-                try:
-                    return Point(*rest)
-                except ValueError:
-                    print(line + f'Invalid arguments for a Point: {rest}')
-                except TypeError:
-                    print(line + 'Incorrect number of arguments for a Point.')
+                    return args[0]
             elif first == 's':      # Check for settings
-                if len(rest) != 2:
+                if len(args) != 2 or len(kwargs) != 0:
                     print(line + 'Incorrect number of arguments for a setting.')
                 else:
-                    variable = rest[0].lower()
-                    value = rest[1].lower()
+                    variable = args[0].lower()
+                    value = args[1].lower()
                     if variable not in SETTING_VALIDATORS:
                         print(line + f"'{variable}' is not a valid setting.")
                     else:
@@ -319,14 +325,21 @@ class Bot:
                             setattr(config, variable, value)
                         except ValueError:
                             print(line + f"'{value}' is not a valid value for '{variable}'.")
+            elif first == '*':      # Check for Points
+                try:
+                    return Point(*args, **kwargs)
+                except ValueError:
+                    print(line + f'Invalid arguments for a Point: {args}, {kwargs}')
+                except TypeError:
+                    print(line + 'Incorrect number of arguments for a Point.')
             else:                   # Otherwise might be a Command
                 if first not in config.command_book.keys():
                     print(line + f"Command '{first}' does not exist.")
                 else:
                     try:
-                        return config.command_book.get(first)(*rest)
+                        return config.command_book.get(first)(*args, **kwargs)
                     except ValueError:
-                        print(line + f"Invalid arguments for command '{first}': {rest}")
+                        print(line + f"Invalid arguments for command '{first}': {args}, {kwargs}")
                     except TypeError:
                         print(line + f"Incorrect number of arguments for command '{first}'.")
 

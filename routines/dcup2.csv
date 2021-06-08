@@ -1,18 +1,18 @@
 @, main
 *, 0.873, 0.083
-    shikigami, left
+    shikigami, direction=left
     tengu
 *, 0.873, 0.200
-    shikigami, left
-*, 0.873, 0.200, 4
+    shikigami, direction=left
+*, 0.873, 0.200, frequency=4
     goto, loot
 *, 0.873, 0.200
     fall
 
 @, afterboss
-*, 0.055,0.125
+*, 0.055, 0.125
     shikigami, right
-*, 0.055,0.125
+*, 0.055, 0.125
     fall
     walk, left, 0.5
     goto, main

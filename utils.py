@@ -7,9 +7,6 @@ import numpy as np
 from random import random
 
 
-###########################
-#   Decorator Functions   #
-###########################
 def run_if_enabled(function):
     """
     Decorator for functions that should only run if the bot is enabled.
@@ -23,74 +20,6 @@ def run_if_enabled(function):
     return helper
 
 
-#########################
-#        Classes        #
-#########################
-class Command:
-    name = 'Command Superclass'
-
-    @run_if_enabled
-    def execute(self):
-        """
-        Prints this Command's string representation and executes its main function.
-        :return:    None
-        """
-
-        print(self)
-        self.main()
-
-    def main(self):
-        pass
-
-    def __str__(self):
-        """
-        Returns a string representing this Command instance.
-        :return:    This Command's string representation.
-        """
-
-        variables = self.__dict__
-        result = '    ' + self.name
-        if len(variables) - 1 > 0:
-            result += ':'
-        for key, value in variables.items():
-            if key != 'name':
-                result += f'\n        {key}={value}'
-        return result
-
-
-class DefaultMove(Command):
-    """Undefined 'move' command for the default command book."""
-
-    def __init__(self, x, y, adjust='False', max_steps=15):
-        self.name = 'Undefined Move Command'
-
-    def main(self):
-        config.enabled = False
-
-
-class DefaultAdjust(Command):
-    """Undefined 'adjust' command for the default command book."""
-
-    def __init__(self, x, y, max_steps=5):
-        self.name = 'Undefined Adjust Command'
-
-    def main(self):
-        config.enabled = False
-
-
-class DefaultBuff(Command):
-    """Undefined 'buff' command for the default command book."""
-
-    def __init__(self):
-        self.name = 'Undefined Buff Command'
-
-    def main(self):
-        config.enabled = False
-
-
-#########################
-#       Functions       #
-#########################
 def reset_settings():
     """
     Resets all settings to their default values.
@@ -112,6 +41,28 @@ def distance(a, b):
     """
 
     return math.sqrt((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2)
+
+
+def separate_args(arguments):
+    """
+    Separates a given array ARGUMENTS into an array of normal arguments and a
+    dictionary of keyword arguments.
+    :param arguments:    The array of arguments to separate.
+    :return:             An array of normal arguments and a dictionary of keyword arguments.
+    """
+
+    arguments = [s.strip() for s in arguments]
+    args = []
+    kwargs = {}
+    for a in arguments:
+        index = a.find('=')
+        if index > -1:
+            key = a[:index].strip()
+            value = a[index+1:].strip()
+            kwargs[key] = value
+        else:
+            args.append(a)
+    return args, kwargs
 
 
 def single_match(frame, template):

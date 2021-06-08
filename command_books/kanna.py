@@ -4,10 +4,11 @@ import config
 import time
 import math
 import utils
+from commands import Command
 from vkeys import press, key_down, key_up
 
 
-class Move(utils.Command):
+class Move(Command):
     """Moves to a given position using the shortest path based on the current Layout."""
 
     def __init__(self, x, y, max_steps=15):
@@ -56,7 +57,7 @@ class Move(utils.Command):
             toggle = not toggle
 
 
-class Adjust(utils.Command):
+class Adjust(Command):
     """Fine-tunes player position using small movements."""
 
     def __init__(self, x, y, max_steps=5):
@@ -103,7 +104,7 @@ class Adjust(utils.Command):
             toggle = not toggle
 
 
-class Buff(utils.Command):
+class Buff(Command):
     """Uses each of Kanna's buffs once. Uses 'Haku Reborn' whenever it is available."""
 
     def __init__(self):
@@ -123,71 +124,7 @@ class Buff(utils.Command):
             self.buff_time = now
 
 
-class Fall(utils.Command):
-    """
-    Performs a down-jump and then free-falls until the player exceeds a given distance
-    from their starting position.
-    """
-
-    def __init__(self, distance=config.move_tolerance/2):
-        self.name = 'Fall'
-        self.distance = float(distance)
-
-    def main(self):
-        start = config.player_pos
-        key_down('down')
-        time.sleep(0.05)
-        counter = 6
-        while config.enabled and \
-                counter > 0 and \
-                utils.distance(start, config.player_pos) < self.distance:
-            press('space', 1, down_time=0.1)
-            counter -= 1
-        key_up('down')
-        time.sleep(0.1)
-
-
-class Walk(utils.Command):
-    """Walks in the given direction for a set amount of time."""
-
-    def __init__(self, direction, duration):
-        self.name = 'Walk'
-        self.direction = utils.validate_horizontal_arrows(direction)
-        self.duration = float(duration)
-
-    def main(self):
-        key_down(self.direction)
-        time.sleep(self.duration)
-        key_up(self.direction)
-        time.sleep(0.05)
-
-
-class Goto(utils.Command):
-    """Moves config.seq_index to the index of the specified label."""
-
-    def __init__(self, label):
-        self.name = 'Goto'
-        self.label = str(label)
-
-    def main(self):
-        try:
-            config.seq_index = config.sequence.index(self.label)
-        except ValueError:
-            print(f"Label '{self.label}' does not exist.")
-
-
-class Wait(utils.Command):
-    """Waits for a set amount of time."""
-
-    def __init__(self, duration):
-        self.name = 'Wait'
-        self.duration = float(duration)
-
-    def main(self):
-        time.sleep(self.duration)
-
-
-class Teleport(utils.Command):
+class Teleport(Command):
     """
     Teleports in a given direction, jumping if specified. Adds the player's position
     to the current Layout if necessary.
@@ -220,7 +157,7 @@ class Teleport(utils.Command):
             config.layout.add(*config.player_pos)
 
 
-class Shikigami(utils.Command):
+class Shikigami(Command):
     """Attacks using 'Shikigami Haunting' in a given direction."""
 
     def __init__(self, direction, num_attacks=2, repetitions=1):
@@ -239,7 +176,7 @@ class Shikigami(utils.Command):
         time.sleep(0.15)
 
 
-class Tengu(utils.Command):
+class Tengu(Command):
     """Uses 'Tengu Strike' once."""
 
     def __init__(self):
@@ -249,7 +186,7 @@ class Tengu(utils.Command):
         press('q', 1)
 
 
-class Yaksha(utils.Command):
+class Yaksha(Command):
     """
     Places 'Ghost Yaksha Boss' in a given direction, or towards the center of the map if
     no direction is specified.
@@ -273,17 +210,17 @@ class Yaksha(utils.Command):
         press('2', 3)
 
 
-class Kishin(utils.Command):
+class Kishin(Command):
     """Uses 'Kishin Shoukan' once."""
 
     def __init__(self):
         self.name = 'Kishin'
 
     def main(self):
-        press('del', 4, down_time=0.1, up_time=0.15)
+        press('lshift', 4, down_time=0.1, up_time=0.15)
 
 
-class NineTails(utils.Command):
+class NineTails(Command):
     """Uses 'Nine-Tailed Fury' once."""
 
     def __init__(self):
@@ -293,7 +230,7 @@ class NineTails(utils.Command):
         press('3', 3)
 
 
-class Exorcist(utils.Command):
+class Exorcist(Command):
     """Uses 'Exorcist's Charm' once."""
 
     def __init__(self):
@@ -303,7 +240,7 @@ class Exorcist(utils.Command):
         press('w', 1, down_time=0.15)
 
 
-class Domain(utils.Command):
+class Domain(Command):
     """Uses 'Spirit's Domain' once."""
 
     def __init__(self):
@@ -313,7 +250,7 @@ class Domain(utils.Command):
         press('v', 3)
 
 
-class Legion(utils.Command):
+class Legion(Command):
     """Uses 'Ghost Yaksha: Great Oni Lord's Legion' once."""
 
     def __init__(self):
