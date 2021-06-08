@@ -15,23 +15,22 @@ class Move(Command):
         self.name = 'Move'
         self.target = (float(x), float(y))
         self.max_steps = utils.validate_nonzero_int(max_steps)
-        self.counter = 0
 
     def main(self):
-        self.counter = self.max_steps
+        counter = self.max_steps
         path = config.layout.shortest_path(config.player_pos, self.target)
         config.path = path.copy()
         config.path.insert(0, config.player_pos)
         for point in path:
-            self._step(point)
+            counter = self._step(point, counter)
 
     @utils.run_if_enabled
-    def _step(self, target):
+    def _step(self, target, counter):
         toggle = True
         local_error = utils.distance(config.player_pos, target)
         global_error = utils.distance(config.player_pos, self.target)
         while config.enabled and \
-                self.counter > 0 and \
+                counter > 0 and \
                 local_error > config.move_tolerance and \
                 global_error > config.move_tolerance:
             if toggle:
@@ -42,7 +41,7 @@ class Move(Command):
                         Teleport('left', jump=jump).main()
                     else:
                         Teleport('right', jump=jump).main()
-                    self.counter -= 1
+                    counter -= 1
             else:
                 d_y = target[1] - config.player_pos[1]
                 if abs(d_y) > config.move_tolerance / math.sqrt(2):
@@ -51,10 +50,11 @@ class Move(Command):
                         Teleport('up', jump=jump).main()
                     else:
                         Teleport('down', jump=jump).main()
-                    self.counter -= 1
+                    counter -= 1
             local_error = utils.distance(config.player_pos, target)
             global_error = utils.distance(config.player_pos, self.target)
             toggle = not toggle
+        return counter
 
 
 class Adjust(Command):
@@ -64,13 +64,12 @@ class Adjust(Command):
         self.name = 'Adjust'
         self.target = (float(x), float(y))
         self.max_steps = utils.validate_nonzero_int(max_steps)
-        self.counter = 0
 
     def main(self):
-        self.counter = self.max_steps
+        counter = self.max_steps
         toggle = True
         error = utils.distance(config.player_pos, self.target)
-        while config.enabled and self.counter > 0 and error > config.adjust_tolerance:
+        while config.enabled and counter > 0 and error > config.adjust_tolerance:
             if toggle:
                 d_x = self.target[0] - config.player_pos[0]
                 threshold = config.adjust_tolerance / math.sqrt(2)
@@ -87,7 +86,7 @@ class Adjust(Command):
                             time.sleep(0.01)
                             d_x = self.target[0] - config.player_pos[0]
                         key_up('right')
-                    self.counter -= 1
+                    counter -= 1
             else:
                 d_y = self.target[1] - config.player_pos[1]
                 if abs(d_y) > config.adjust_tolerance / math.sqrt(2):
@@ -99,7 +98,7 @@ class Adjust(Command):
                         press('space', 3, down_time=0.1)
                         key_up('down')
                         time.sleep(0.05)
-                    self.counter -= 1
+                    counter -= 1
             error = utils.distance(config.player_pos, self.target)
             toggle = not toggle
 
