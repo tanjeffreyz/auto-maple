@@ -87,7 +87,7 @@ layout = None
 #       Routine Settings        #
 #################################
 # The allowed error from the destination when moving towards a Point
-move_tolerance = 0.075
+move_tolerance = 0.1
 
 # The allowed error from a specific location while adjusting to that location
 adjust_tolerance = 0.01
@@ -96,4 +96,4 @@ adjust_tolerance = 0.01
 record_layout = False
 
 # The amount of time (in seconds) to wait between each call to the 'buff' command
-buff_cooldown = 220
+buff_cooldown = 250

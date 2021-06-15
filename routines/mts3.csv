@@ -1,3 +1,68 @@
-@, main
-*, 0.257, 0.303
-    
+s, adjust_tolerance, 0.0125
+
+#*, 0.303, 0.303
+    goto, main1
+
+@, loot
+*, 0.120, 0.303
+    shikigami, direction=right
+*, 0.138, 0.414
+    shikigami, direction=right
+*, 0.461, 0.414
+    ninetails
+*, 0.737, 0.414
+    kishin
+    teleport, direction=right
+    walk, left, 0.2
+*, 0.720, 0.414, adjust=True
+    teleport, direction=up
+*, 0.720, 0.303
+    walk, left, 0.3
+*, 0.865, 0.303, adjust=True
+    shikigami, direction=left, attacks=3
+    wait, 0.1
+*, 0.865, 0.138
+    shikigami, direction=left
+*, 0.645, 0.138, adjust=True
+    wait, 0.1
+    teleport, direction=down
+*, 0.539, 0.237
+    yaksha, direction=right
+*, 0.428, 0.237, adjust=True
+    teleport, direction=up
+*, 0.280, 0.151
+    shikigami, direction=right
+*, 0.315, 0.151, adjust=True
+    teleport, direction=down
+
+@, main1
+*, 0.283, 0.303, adjust=True
+    shikigami, direction=left, attacks=3
+    wait, 0.15
+    shikigami, direction=right, attacks=3
+    wait, 0.15
+*, 0.283, 0.303, adjust=True
+    wait, 0.15
+    exorcist, jump=True
+    wait, 1
+*, 0.460, 0.342, frequency=4, counter=1
+    shikigami, direction=right
+*, 0.500, 0.342, frequency=4, counter=1
+    teleport, direction=up
+    goto, boss
+*, 0.283, 0.303
+    teleport, direction=right
+    shikigami, direction=right
+*, 0.283, 0.303
+    goto, main1
+
+@, boss
+*, 0.539, 0.237
+    yaksha, direction=right
+    teleport, direction=down
+*, 0.530, 0.342
+    shikigami, direction=left
+*, 0.500, 0.342, frequency=4, counter=1
+    goto, loot
+*, 0.500, 0.342
+    goto, main1

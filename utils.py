@@ -26,10 +26,10 @@ def reset_settings():
     :return:    None
     """
 
-    config.move_tolerance = 0.075
+    config.move_tolerance = 0.1
     config.adjust_tolerance = 0.01
     config.record_layout = False
-    config.buff_cooldown = 220
+    config.buff_cooldown = 250
 
 
 def distance(a, b):

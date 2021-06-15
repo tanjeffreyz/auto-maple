@@ -36,11 +36,10 @@ class Move(Command):
             if toggle:
                 d_x = target[0] - config.player_pos[0]
                 if abs(d_x) > config.move_tolerance / math.sqrt(2):
-                    jump = str(utils.bernoulli(0.1))
                     if d_x < 0:
-                        Teleport('left', jump=jump).main()
+                        Teleport('left').main()
                     else:
-                        Teleport('right', jump=jump).main()
+                        Teleport('right').main()
                     counter -= 1
             else:
                 d_y = target[1] - config.player_pos[1]
@@ -74,16 +73,19 @@ class Adjust(Command):
                 d_x = self.target[0] - config.player_pos[0]
                 threshold = config.adjust_tolerance / math.sqrt(2)
                 if abs(d_x) > threshold:
+                    walk_counter = 0
                     if d_x < 0:
                         key_down('left')
-                        while config.enabled and d_x < -1 * threshold:
-                            time.sleep(0.01)
+                        while config.enabled and d_x < -1 * threshold and walk_counter < 60:
+                            time.sleep(0.05)
+                            walk_counter += 1
                             d_x = self.target[0] - config.player_pos[0]
                         key_up('left')
                     else:
                         key_down('right')
-                        while config.enabled and d_x > threshold:
-                            time.sleep(0.01)
+                        while config.enabled and d_x > threshold and walk_counter < 60:
+                            time.sleep(0.05)
+                            walk_counter += 1
                             d_x = self.target[0] - config.player_pos[0]
                         key_up('right')
                     counter -= 1
@@ -159,10 +161,10 @@ class Teleport(Command):
 class Shikigami(Command):
     """Attacks using 'Shikigami Haunting' in a given direction."""
 
-    def __init__(self, direction, num_attacks=2, repetitions=1):
+    def __init__(self, direction, attacks=2, repetitions=1):
         self.name = 'Shikigami'
         self.direction = utils.validate_horizontal_arrows(direction)
-        self.num_attacks = int(num_attacks)
+        self.attacks = int(attacks)
         self.repetitions = int(repetitions)
 
     def main(self):
@@ -170,7 +172,7 @@ class Shikigami(Command):
         key_down(self.direction)
         time.sleep(0.05)
         for _ in range(self.repetitions):
-            press('r', self.num_attacks, up_time=0.05)
+            press('r', self.attacks, up_time=0.05)
         key_up(self.direction)
         time.sleep(0.15)
 
@@ -232,11 +234,14 @@ class NineTails(Command):
 class Exorcist(Command):
     """Uses 'Exorcist's Charm' once."""
 
-    def __init__(self):
+    def __init__(self, jump='False'):
         self.name = 'Exorcist'
+        self.jump = utils.validate_boolean(jump)
 
     def main(self):
-        press('w', 1, down_time=0.15)
+        if self.jump:
+            press('space', 1, down_time=0.1, up_time=0.15)
+        press('w', 2, up_time=0.05)
 
 
 class Domain(Command):
@@ -257,3 +262,13 @@ class Legion(Command):
 
     def main(self):
         press('z', 2, down_time=0.1)
+
+
+class BlossomBarrier(Command):
+    """Places a 'Blossom Barrier' on the ground once."""
+
+    def __init__(self):
+        self.name = 'Blossom Barrier'
+
+    def main(self):
+        press('g', 2)
