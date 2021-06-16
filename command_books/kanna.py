@@ -174,7 +174,7 @@ class Shikigami(Command):
         for _ in range(self.repetitions):
             press('r', self.attacks, up_time=0.05)
         key_up(self.direction)
-        time.sleep(0.15)
+        time.sleep(0.2)
 
 
 class Tengu(Command):
@@ -272,3 +272,13 @@ class BlossomBarrier(Command):
 
     def main(self):
         press('g', 2)
+
+
+class Yukimusume(Command):
+    """Uses 'Yuki-musume Shoukan' once."""
+
+    def __init__(self):
+        self.name = 'Yuki-musume'
+
+    def main(self):
+        press('c', 2)
