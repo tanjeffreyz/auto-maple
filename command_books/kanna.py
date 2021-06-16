@@ -44,7 +44,7 @@ class Move(Command):
             else:
                 d_y = target[1] - config.player_pos[1]
                 if abs(d_y) > config.move_tolerance / math.sqrt(2):
-                    jump = str(abs(d_y) > config.move_tolerance)
+                    jump = str(abs(d_y) > config.move_tolerance * 1.5)
                     if d_y < 0:
                         Teleport('up', jump=jump).main()
                     else:
@@ -209,6 +209,19 @@ class Yaksha(Command):
             else:
                 press('right', 1, down_time=0.1, up_time=0.05)
         press('2', 3)
+
+
+class Vanquisher(Command):
+    """Holds down 'Vanquisher's Charm' until this command is called again."""
+
+    def __init__(self):
+        self.name = 'Vanquisher'
+
+    def main(self):
+        key_up('f')
+        time.sleep(0.075)
+        key_down('f')
+        time.sleep(0.15)
 
 
 class Kishin(Command):
