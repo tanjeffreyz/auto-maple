@@ -56,7 +56,7 @@ each in-game ability, that tells the bot what keys it should press and when to p
 </p>
 
 <p align="center">
-  <a href="https://www.youtube.com/watch?v=qs8Nw55edhg">
+  <a href="https://www.youtube.com/watch?v=qs8Nw55edhg" target="_blank">
     <img src="https://img.youtube.com/vi/qs8Nw55edhg/0.jpg"/>
   </a>
 </p>
