@@ -9,7 +9,7 @@ vision techniques.
 
 
 <h2 align="center">
-  The Minimap
+  Minimap
 </h2>
 <img align="right" src="https://user-images.githubusercontent.com/69165598/123177212-b16f0700-d439-11eb-8a21-8b414273f1e1.gif" width="400"/>
 
