@@ -1,4 +1,3 @@
-
 # Auto Maple
 
 Auto Maple is a Python program that plays MapleStory, a 2D side-scrolling MMORPG, using 
@@ -7,7 +6,7 @@ vision techniques.
 
 ### The Minimap
 <div style= "float: right;position: relative; top: -80px;">
-  <img src="https://user-images.githubusercontent.com/69165598/123174791-8da9c200-d435-11eb-9af7-9a49490b8f18.gif" width="400" />
+  <img src="https://user-images.githubusercontent.com/69165598/123177212-b16f0700-d439-11eb-8a21-8b414273f1e1.gif" width="400" />
 </div>
 asdfasdfasdfasdf
 asdfasdfaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
