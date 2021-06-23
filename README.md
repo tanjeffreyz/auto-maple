@@ -10,15 +10,22 @@ vision techniques.
 
 
 
+
+
+
 <h2 align="center">
   Minimap
 </h2>
+
 <img align="right" src="https://user-images.githubusercontent.com/69165598/123177212-b16f0700-d439-11eb-8a21-8b414273f1e1.gif" width="400"/>
 
 Auto Maple uses OpenCV template matching to determine the bounds of the minimap as well as the various elements within it, allowing it to accurately track
 the player's in-game position. If "record_layout" is set to "True" in the routine file, then Auto Maple will record the player's previous positions in a quadtree-based Layout object, which is periodically saved to a file in the "layouts" directory. This Layout object uses the A* search algorithm on its stored points to calculate the shortest path from the player to any target location, which can dramatically improve the accuracy and speed at which routines are executed.
 
 <br clear="right"/>
+
+
+
 
 
 
@@ -35,15 +42,33 @@ each in-game ability, that tells the bot what keys it should press and when to p
 
 
 
+
+
+
 <h2 align="center">
   Runes
 </h2>
 
 
 
+
+
+
 <h2 align="center">
   Routines
 </h2>
+
+<p align="left">
+  <a href="https://user-images.githubusercontent.com/69165598/123182117-9d300780-d443-11eb-890b-c11edbe5f1d0.jpg">
+    <img src="https://user-images.githubusercontent.com/69165598/123182370-221b2100-d444-11eb-9988-21ac3e956883.jpg"/>
+  </a>
+</p>
+
+<br clear="left"/>
+
+
+
+
 
 
 
