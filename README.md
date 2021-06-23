@@ -6,6 +6,8 @@ Auto Maple is a Python program that plays MapleStory, a 2D side-scrolling MMORPG
 simulated key presses, TensorFlow machine learning, OpenCV template matching, and other computer 
 vision techniques.
 
+<br />
+
 
 
 <h2 align="center">
@@ -29,19 +31,31 @@ in the game as long as it is provided with an appropriate list of in-game action
 "command book". A command book is a Python file that contains multiple classes, one for 
 each in-game ability, that tells the bot what keys it should press and when to press them.
 
+<br clear="right"/>
+
+
+
 <h2 align="center">
   Runes
 </h2>
+
+
 
 <h2 align="center">
   Routines
 </h2>
 
+
+
 <h2 align="center">
   Video Demonstration
 </h2>
+
 <p align="center">
-  Click the image below to see Auto Maple in action:
+  Click the below image to see Auto Maple in action:
+</p>
+
+<p align="center">
   <a href="https://www.youtube.com/watch?v=qs8Nw55edhg">
     <img src="https://img.youtube.com/vi/qs8Nw55edhg/0.jpg"/>
   </a>
