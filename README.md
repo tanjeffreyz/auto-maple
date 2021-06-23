@@ -3,7 +3,7 @@
 </h1>
 
 Auto Maple is a Python program that plays MapleStory, a 2D side-scrolling MMORPG, using 
-simulated key presses, TensorFlow machine learning, template matching, and other computer 
+simulated key presses, TensorFlow machine learning, OpenCV template matching, and other computer 
 vision techniques.
 
 
