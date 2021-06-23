@@ -40,8 +40,8 @@ each in-game ability, that tells the bot what keys it should press and when to p
 <h2 align="center">
   Video Demonstration
 </h2>
-
 <p align="center">
+  Click the image below to see Auto Maple in action:
   <a href="https://www.youtube.com/watch?v=qs8Nw55edhg">
     <img src="https://img.youtube.com/vi/qs8Nw55edhg/0.jpg"/>
   </a>
