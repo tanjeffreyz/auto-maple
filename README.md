@@ -1,3 +1,11 @@
+
+
+
+
+
+
+
+
 <h1 align="center">
   Auto Maple
 </h1>
@@ -15,7 +23,20 @@ Auto Maple is a Python program that plays MapleStory, a 2D side-scrolling MMORPG
   Minimap
 </h2>
 
-<img align="right" src="https://user-images.githubusercontent.com/69165598/123177212-b16f0700-d439-11eb-8a21-8b414273f1e1.gif" width="400"/>
+<table align="center" border="0">
+ <tr>
+    <td width="600px">
+      Auto Maple uses OpenCV template matching to determine the bounds of the minimap as well as the various elements within it, allowing it to accurately track
+      the player's in-game position. If "record_layout" is set to "True" in the routine file, Auto Maple will record the player's previous positions in a quadtree-based Layout
+      object, which is periodically saved to a file in the "layouts" directory. Every time a new routine is loaded, its corresponding layout file, if it exists, will also be
+      loaded. This Layout object uses the A* search algorithm on its stored points to calculate the shortest path from the player to any target location, which can dramatically
+      improve the accuracy and speed at which routines are executed.
+    </td>
+    <td>
+      <img align="center" src="https://user-images.githubusercontent.com/69165598/123177212-b16f0700-d439-11eb-8a21-8b414273f1e1.gif" width="400"/>
+    </td>
+ </tr>
+</table>
 
 Auto Maple uses OpenCV template matching to determine the bounds of the minimap as well as the various elements within it, allowing it to accurately track
 the player's in-game position. If "record_layout" is set to "True" in the routine file, Auto Maple will record the player's previous positions in a quadtree-based Layout object, which is periodically saved to a file in the "layouts" directory. Every time a new routine is loaded, its corresponding layout file, if it exists, will also be loaded. This Layout object uses the A* search algorithm on its stored points to calculate the shortest path from the player to any target location, which can dramatically improve the accuracy and speed at which routines are executed.
