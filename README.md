@@ -58,11 +58,13 @@ each in-game ability, that tells the bot what keys it should press and when to p
   Routines
 </h2>
 
-<p align="left">
+<p>
   <a href="https://user-images.githubusercontent.com/69165598/123182117-9d300780-d443-11eb-890b-c11edbe5f1d0.jpg">
-    <img src="https://user-images.githubusercontent.com/69165598/123182370-221b2100-d444-11eb-9988-21ac3e956883.jpg"/>
+    <img align="left" src="https://user-images.githubusercontent.com/69165598/123182370-221b2100-d444-11eb-9988-21ac3e956883.jpg"/>
   </a>
 </p>
+
+asdfasdfasdf
 
 <br clear="left"/>
 
