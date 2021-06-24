@@ -72,7 +72,7 @@ Designed with modularity in mind, Auto Maple can operate any character in the ga
     <td width="400px">
       <p align="center">
         <a href="https://user-images.githubusercontent.com/69165598/123182117-9d300780-d443-11eb-890b-c11edbe5f1d0.jpg">
-          <img src="https://user-images.githubusercontent.com/69165598/123300035-fa24cf80-d4ce-11eb-8d43-eae94fa2a914.jpg"/>
+          <img src="https://user-images.githubusercontent.com/69165598/123300035-fa24cf80-d4ce-11eb-8d43-eae94fa2a914.jpg" width="400px"/>
         </a>
       </p>
     </td>
