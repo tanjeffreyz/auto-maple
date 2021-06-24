@@ -1,11 +1,3 @@
-
-
-
-
-
-
-
-
 <h1 align="center">
   Auto Maple
 </h1>
@@ -13,6 +5,11 @@
 Auto Maple is a Python program that plays MapleStory, a 2D side-scrolling MMORPG, using simulated key presses, TensorFlow machine learning, OpenCV template matching, and other computer vision techniques.
 
 <br>
+
+
+
+
+
 
 
 
@@ -38,6 +35,8 @@ Auto Maple uses OpenCV template matching to determine the bounds of the minimap 
 
 
 
+
+
 <h2 align="center">
   Command Books
 </h2>
@@ -46,17 +45,6 @@ Designed with modularity in mind, Auto Maple can operate any character in the ga
 
 <br>
 
-
-
-
-
-
-<h2 align="center">
-  Runes
-</h2>
-
-
-<br>
 
 
 
@@ -87,6 +75,22 @@ The "*" symbol creates a new Point object, which represents an in-game location.
 </table>
 
 <br>
+
+
+
+
+
+
+
+
+<h2 align="center">
+  Runes
+</h2>
+
+
+<br>
+
+
 
 
 
