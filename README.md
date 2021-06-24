@@ -104,6 +104,6 @@ The "*" symbol creates a new Point object, which represents an in-game location.
 
 <p align="center">
   <a href="https://www.youtube.com/watch?v=qs8Nw55edhg">
-    <img src="https://img.youtube.com/vi/qs8Nw55edhg/0.jpg"/>
+    <img src="https://user-images.githubusercontent.com/69165598/123308656-c5b61100-d4d8-11eb-99ac-c465665474b5.gif"/>
   </a>
 </p>
