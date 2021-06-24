@@ -38,7 +38,7 @@ in the game as long as it is provided with an appropriate list of in-game action
 "command book". A command book is a Python file that contains multiple classes, one for 
 each in-game ability, that tells the bot what keys it should press and when to press them.
 
-<br clear="right"/>
+<br clear="left"/>
 
 
 
@@ -48,6 +48,9 @@ each in-game ability, that tells the bot what keys it should press and when to p
 <h2 align="center">
   Runes
 </h2>
+
+
+<br clear="right"/>
 
 
 
