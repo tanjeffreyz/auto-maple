@@ -41,8 +41,18 @@ Auto Maple uses OpenCV template matching to determine the bounds of the minimap 
   Command Books
 </h2>
 
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/69165598/123372905-502e5d00-d539-11eb-81c2-46b8bbf929cc.gif" width="900px"/>
+</p>
+  
+<table align="center" border="0">
+  <tr>
+    <td width="900px">
 Designed with modularity in mind, Auto Maple can operate any character in the game as long as it is provided with an appropriate list of in-game actions, or a "command book". A command book is a Python file that contains multiple classes, one for each in-game ability, that tells the program what keys it should press and when to press them. Once a command book is imported, its classes are automatically compiled into a dictionary that Auto Maple can then use to interpret commands within routines. Commands have access to all of Auto Maple's global variables, which allow them to change their behavior based on the state of the game.
-
+    </td>
+  </tr>
+</table>
+  
 <br>
 
 
@@ -108,6 +118,6 @@ The "*" symbol creates a new Point object, which represents an in-game location.
 
 <p align="center">
   <a href="https://www.youtube.com/watch?v=qs8Nw55edhg">
-    <img src="https://user-images.githubusercontent.com/69165598/123308656-c5b61100-d4d8-11eb-99ac-c465665474b5.gif"/>
+    <img src="https://user-images.githubusercontent.com/69165598/123308656-c5b61100-d4d8-11eb-99ac-c465665474b5.gif" width="600px"/>
   </a>
 </p>
