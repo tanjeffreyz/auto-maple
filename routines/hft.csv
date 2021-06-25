@@ -1,0 +1,20 @@
+s, record_layout, True
+
+*, 0.304, 0.560, adjust=True
+    shikigami, left
+*, 0.280, 0.424
+    shikigami, left
+*, 0.584, 0.424
+    shikigami, left
+*, 0.512, 0.320
+    shikigami, left
+*, 0.760, 0.320
+    shikigami, left
+*, 0.544, 0.208
+    shikigami, left
+*, 0.312, 0.208
+    shikigami, left
+*, 0.584, 0.104
+    shikigami, left
+*, 0.768, 0.104
+    shikigami, left

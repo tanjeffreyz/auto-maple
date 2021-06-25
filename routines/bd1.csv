@@ -1,0 +1,8 @@
+*, 0.700, 0.191
+    magnumpunch, direction=right
+*, 0.500, 0.191
+    magnumpunch, direction=left
+*, 0.300, 0.191
+    magnumpunch, direction=left
+*, 0.500, 0.191
+    magnumpunch, direction=right
