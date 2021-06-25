@@ -50,7 +50,7 @@ Auto Maple uses OpenCV template matching to determine the bounds of the minimap 
     <td width="900px">
 Designed with modularity in mind, Auto Maple can operate any character in the game as long as it is provided with an appropriate list of in-game actions, or a "command book". A command book is a Python file that contains multiple classes, one for each in-game ability, that tells the program what keys it should press and when to press them. Once a command book is imported, its classes are automatically compiled into a dictionary that Auto Maple can then use to interpret commands within routines. Commands have access to all of Auto Maple's global variables, which can allow them to actively change their behavior based on the player's position and the state of the game.
 <br><br>
-The above video shows Auto Maple consistently performing a mechanically intensive ability combination.
+The above video shows Auto Maple consistently performing a mechanically advanced ability combination.
     </td>
   </tr>
 </table>
