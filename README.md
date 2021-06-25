@@ -135,3 +135,22 @@ Auto Maple has the ability to automatically solve "runes", or in-game arrow key 
     <img src="https://user-images.githubusercontent.com/69165598/123308656-c5b61100-d4d8-11eb-99ac-c465665474b5.gif" width="600px"/>
   </a>
 </p>
+
+<br>
+
+
+
+
+
+
+
+
+<h2 align="center">
+  Reflection
+</h2>
+
+From working on this project, I truly learned a lot. Auto Maple not only allowed me to apply the knowledge I gained in class to a challenging problem, but it also introduced me to many exciting and complex concepts such as machine learning and Canny edge detection. However, perhaps more importantly, working on Auto Maple has given me a deeper appreciation of human problem solving and a clearer understanding of just how hard it is for a computer to emulate that.
+
+Early in this project, when I was still trying to get the character to move to locations on the minimap, I resorted to letting the program blindly move horizontally and vertically until it reached its target. This was very inefficient and often resulted in the character getting stuck. Later, I realized that memory was the main aspect Auto Maple was missing: human gamers remember where they've been, which places are safe to walk on, and which places aren't. This gave me the idea to create a Layout class to help the program chart a path in advance based on where it has already been, much like a human.
+
+Auto Maple is far from perfect. It can't predict and prevent missteps. It can't reproduce the fluid actions and gameplay of a practiced gamer. But acknowledging these shortcomings inspires me to continue discovering and experimenting with new ways to make programs faster and smarter.
