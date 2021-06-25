@@ -48,7 +48,9 @@ Auto Maple uses OpenCV template matching to determine the bounds of the minimap 
 <table align="center" border="0">
   <tr>
     <td width="900px">
-Designed with modularity in mind, Auto Maple can operate any character in the game as long as it is provided with an appropriate list of in-game actions, or a "command book". A command book is a Python file that contains multiple classes, one for each in-game ability, that tells the program what keys it should press and when to press them. Once a command book is imported, its classes are automatically compiled into a dictionary that Auto Maple can then use to interpret commands within routines. Commands have access to all of Auto Maple's global variables, which allow them to change their behavior based on the state of the game.
+Designed with modularity in mind, Auto Maple can operate any character in the game as long as it is provided with an appropriate list of in-game actions, or a "command book". A command book is a Python file that contains multiple classes, one for each in-game ability, that tells the program what keys it should press and when to press them. Once a command book is imported, its classes are automatically compiled into a dictionary that Auto Maple can then use to interpret commands within routines. Commands have access to all of Auto Maple's global variables, which allow them to actively change their behavior based on the state of the game.
+<br><br>
+The above video shows Auto Maple consistently performing a mechanically intensive ability combination.
     </td>
   </tr>
 </table>
@@ -79,7 +81,7 @@ A routine is a user-created CSV file that tells Auto Maple where to move and wha
 <br><br>
 The "*" symbol creates a new Point object, which represents an in-game location. Each Point object will store the commands listed below it, and will execute them in that order once the player reaches that Point. The "@" symbol indicates that the following parameter is a label, which can be jumped to using the "goto" command. This can be used to create loops and organize routines into sections. Lastly, "s" is used to set the value of certain global variables during runtime, which allows the user to save different settings specific to each routine.
 <br><br>
-(Click the image to see more of the routine).
+(Click the image on the left to see more of the routine).
     </td>
   </tr>
 </table>
