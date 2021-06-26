@@ -1,4 +1,4 @@
-"""A key listener to track user inputs."""
+"""A keyboard listener to track user inputs."""
 
 import config
 import time
