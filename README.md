@@ -22,7 +22,7 @@ Auto Maple is a Python program that plays MapleStory, a 2D side-scrolling MMORPG
     <td>
 Auto Maple uses OpenCV template matching to determine the bounds of the minimap as well as the various elements within it, allowing it to accurately track the player's in-game position. If "record_layout" is set to "True" in the routine file, Auto Maple will record the player's previous positions in a quadtree-based Layout object, which is periodically saved to a file in the "layouts" directory. Every time a new routine is loaded, its corresponding layout file, if it exists, will also be loaded. This Layout object uses the A* search algorithm on its stored points to calculate the shortest path from the player to any target location, which can dramatically improve the accuracy and speed at which routines are executed.
 <br><br>
-(Click <a href="https://github.com/tanjeffreyz02/Auto-Maple/blob/version-2/routines/hft.csv">here</a> to see the routine used in the demonstration on the right).
+(Click <a href="https://github.com/tanjeffreyz02/Auto-Maple/blob/version-2/routines/hft.csv">here</a> to view the routine used in the demonstration on the right).
     </td>
     <td width="400px">
       <img align="center" src="https://user-images.githubusercontent.com/69165598/123177212-b16f0700-d439-11eb-8a21-8b414273f1e1.gif"/>
@@ -83,7 +83,7 @@ A routine is a user-created CSV file that tells Auto Maple where to move and wha
 <br><br>
 The "*" symbol creates a new Point object, which represents an in-game location. Each Point object will store the commands listed below it, and will execute them in that order once the player reaches that Point. The "@" symbol indicates that the following parameter is a label, which can be jumped to using the "goto" command. This can be used to create loops and organize routines into sections. Lastly, "s" is used to set the value of certain global variables during runtime, which allows the user to save different settings specific to each routine.
 <br><br>
-(Click the image on the left to see more of the routine).
+(Click <a href="https://github.com/tanjeffreyz02/Auto-Maple/blob/version-2/routines/mts3.csv">here</a> to view the entire routine).
     </td>
   </tr>
 </table>
