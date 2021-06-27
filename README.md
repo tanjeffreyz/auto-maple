@@ -129,7 +129,7 @@ Auto Maple has the ability to automatically solve "runes", or in-game arrow key 
 </h2>
 
 <p align="center">
-  Click the below image to see Auto Maple in action:
+  Click below to see Auto Maple in action:
 </p>
 
 <p align="center">
