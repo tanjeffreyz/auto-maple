@@ -73,8 +73,8 @@ The above video shows Auto Maple consistently performing a mechanically advanced
   <tr>
     <td width="300px">
       <p align="center">
-        <a href="https://user-images.githubusercontent.com/69165598/123182117-9d300780-d443-11eb-890b-c11edbe5f1d0.jpg">
-          <img src="https://user-images.githubusercontent.com/69165598/123300035-fa24cf80-d4ce-11eb-8d43-eae94fa2a914.jpg"/>
+        <a href="https://user-images.githubusercontent.com/69165598/129115704-d702944d-fc6e-4bfb-919f-0d9328be8cd2.jpg">
+          <img src="https://user-images.githubusercontent.com/69165598/129115666-7e366738-0249-47ea-8cc1-6ce8a57593a5.jpg"/>
         </a>
         <br>
           (Click <a href="https://github.com/tanjeffreyz02/Auto-Maple/blob/version-2/routines/mts3.csv">here</a> to view the entire routine).
@@ -91,13 +91,13 @@ Each point stores the commands below it and will execute them in that order once
         <br>
 <sub>- **"frequency"**: How often to execute this point. </sub>
         <br>
-<sub>- **"counter"**: Set's the initial value of this point's counter. A point's counter increments every cycle (wrapped back to 0 at `frequency`), and the point will only execute if its counter reaches 0. </sub>
+<sub>- **"counter"**: Set's the initial value of this point's counter. A point's counter increments every cycle (wrapped back to 0 at `frequency`), and the point will only execute if its counter is 0. </sub>
 
 **Labels** are created using `@, <label name>` <br>
 They can be jumped to using the "goto" command, which allows users to create loops and organize routines into sections.
 
 **Commands** are created using `<command name>, <p1>, <p2>, ...` <br>
-`<command name>` corresponds with the class names inside command book files, and `<p1>, <p2>, ...` correspond with the command's `__init__` parameters. Keyword arguments are also supported.
+`<command name>` corresponds with the class names inside command book files, and `<p1>, <p2>, ...` correspond with the class's `__init__` parameters. Keyword arguments are also supported.
         
 **Settings** are updated using `s, <setting name>, <value>` <br>
 All the editable settings can be found at the bottom of [config.py](https://github.com/tanjeffreyz02/Auto-Maple/blob/version-2/config.py).
