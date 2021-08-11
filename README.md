@@ -71,10 +71,10 @@ The above video shows Auto Maple consistently performing a mechanically advanced
 
 <table align="center" border="0">
   <tr>
-    <td width="400px">
+    <td width="300px">
       <p align="center">
         <a href="https://user-images.githubusercontent.com/69165598/123182117-9d300780-d443-11eb-890b-c11edbe5f1d0.jpg">
-          <img src="https://user-images.githubusercontent.com/69165598/123300035-fa24cf80-d4ce-11eb-8d43-eae94fa2a914.jpg" width="300px"/>
+          <img src="https://user-images.githubusercontent.com/69165598/123300035-fa24cf80-d4ce-11eb-8d43-eae94fa2a914.jpg"/>
         </a>
         <br>
           (Click <a href="https://github.com/tanjeffreyz02/Auto-Maple/blob/version-2/routines/mts3.csv">here</a> to view the entire routine).
