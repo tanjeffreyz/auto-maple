@@ -87,7 +87,7 @@ A routine is a user-created CSV file that tells Auto Maple where to move and wha
 **Points** are created using `*, <x position>, <y position>` <br>
 Each point stores the commands below it and will execute them in that order once the character reaches that point. There are also a couple optional keyword arguments:
         <br>
-<sub>- **"adjust"**: Fine-tunes character position to be within `adjust_tolerance` (routine setting). </sub>
+<sub>- **"adjust"**: Fine-tunes character position to be within `adjust_tolerance` (a routine setting). </sub>
         <br>
 <sub>- **"frequency"**: How often to execute this point. </sub>
         <br>
