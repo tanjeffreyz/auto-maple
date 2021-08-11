@@ -76,14 +76,25 @@ The above video shows Auto Maple consistently performing a mechanically advanced
         <a href="https://user-images.githubusercontent.com/69165598/123182117-9d300780-d443-11eb-890b-c11edbe5f1d0.jpg">
           <img src="https://user-images.githubusercontent.com/69165598/123300035-fa24cf80-d4ce-11eb-8d43-eae94fa2a914.jpg" width="400px"/>
         </a>
+          (Click <a href="https://github.com/tanjeffreyz02/Auto-Maple/blob/version-2/routines/mts3.csv">here</a> to view the entire routine).
       </p>
     </td>
     <td>
+      <p>
 A routine is a user-created CSV file that tells Auto Maple where to move and what abilities and commands to use at each location. A custom-made interpreter within Auto Maple parses through the selected routine and converts it into a list of objects that can then be executed by the program. An error message is printed for every line that contains invalid parameters, and those lines are ignored during the conversion.
-<br><br>
-The "*" symbol creates a new Point object, which represents an in-game location. Each Point object will store the commands listed below it, and will execute them in that order once the player reaches that Point. The "@" symbol indicates that the following parameter is a label, which can be jumped to using the "goto" command. This can be used to create loops and organize routines into sections. Lastly, "s" is used to set the value of certain global variables during runtime, which allows the user to save different settings specific to each routine.
-<br><br>
-(Click <a href="https://github.com/tanjeffreyz02/Auto-Maple/blob/version-2/routines/mts3.csv">here</a> to view the entire routine).
+    
+Points (locations) are created using `*, <x position>, <y position>` <br>
+Each point stores the commands below it and will execute them in that order once the player reaches that point. There's an optional "adjust" keyword argument to make the character fine-tune to the location.
+
+Labels are created using `@, <label name>` <br>
+They can be jumped to using the "goto" command, which allows users to create loops and organize routines into sections.
+
+Commands are created using `<command name>, <param1>, <param2>, ...` <br>
+The command names correspond with the class names inside command book files, and the <params...> correspond with the command's \_\_init\_\_ parameters. Keyword arguments are also supported.
+        
+Settings are updated using `s, <setting name>, <value>` <br>
+All the editable settings can be found at the bottom of [config.py](https://github.com/tanjeffreyz02/Auto-Maple/blob/version-2/config.py).
+    </p>
     </td>
   </tr>
 </table>
