@@ -84,16 +84,22 @@ The above video shows Auto Maple consistently performing a mechanically advanced
       <p>
 A routine is a user-created CSV file that tells Auto Maple where to move and what abilities and commands to use at each location. A custom-made interpreter within Auto Maple parses through the selected routine and converts it into a list of objects that can then be executed by the program. An error message is printed for every line that contains invalid parameters, and those lines are ignored during the conversion.
     
-Points (locations) are created using `*, <x position>, <y position>` <br>
-Each point stores the commands below it and will execute them in that order once the player reaches that point. There's an optional "adjust" keyword argument to make the character fine-tune to the location.
+**Points** are created using `*, <x position>, <y position>` <br>
+Each point stores the commands below it and will execute them in that order once the character reaches that point. There are also a couple optional keyword arguments:
+        <br>
+<sub>- **"adjust"**: Fine-tunes character position to be within `adjust_tolerance` (routine setting). </sub>
+        <br>
+<sub>- **"frequency"**: How often to execute this point. </sub>
+        <br>
+<sub>- **"counter"**: Set's the initial value of this point's counter. A point's counter increments every cycle (wrapped back to 0 at `frequency`), and the point will only execute if its counter reaches 0. </sub>
 
-Labels are created using `@, <label name>` <br>
+**Labels** are created using `@, <label name>` <br>
 They can be jumped to using the "goto" command, which allows users to create loops and organize routines into sections.
 
-Commands are created using `<command name>, <param1>, <param2>, ...` <br>
-The command names correspond with the class names inside command book files, and the <params...> correspond with the command's \_\_init\_\_ parameters. Keyword arguments are also supported.
+**Commands** are created using `<command name>, <p1>, <p2>, ...` <br>
+`<command name>` corresponds with the class names inside command book files, and `<p1>, <p2>, ...` correspond with the command's `__init__` parameters. Keyword arguments are also supported.
         
-Settings are updated using `s, <setting name>, <value>` <br>
+**Settings** are updated using `s, <setting name>, <value>` <br>
 All the editable settings can be found at the bottom of [config.py](https://github.com/tanjeffreyz02/Auto-Maple/blob/version-2/config.py).
     </p>
     </td>
