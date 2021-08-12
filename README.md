@@ -21,11 +21,13 @@ Auto Maple is a Python program that plays MapleStory, a 2D side-scrolling MMORPG
   <tr>
     <td>
 Auto Maple uses OpenCV template matching to determine the bounds of the minimap as well as the various elements within it, allowing it to accurately track the player's in-game position. If "record_layout" is set to "True" in the routine file, Auto Maple will record the player's previous positions in a quadtree-based Layout object, which is periodically saved to a file in the "layouts" directory. Every time a new routine is loaded, its corresponding layout file, if it exists, will also be loaded. This Layout object uses the A* search algorithm on its stored points to calculate the shortest path from the player to any target location, which can dramatically improve the accuracy and speed at which routines are executed.
-<br><br>
-(Click <a href="https://github.com/tanjeffreyz02/Auto-Maple/blob/version-2/routines/hft.csv">here</a> to view the routine used in the demonstration on the right).
     </td>
-    <td width="400px">
+    <td align="center" width="400px">
       <img align="center" src="https://user-images.githubusercontent.com/69165598/123177212-b16f0700-d439-11eb-8a21-8b414273f1e1.gif"/>
+      <br>
+      <sub>
+      Click <a href="https://github.com/tanjeffreyz02/Auto-Maple/blob/version-2/routines/hft.csv">here</a> to view the above routine.
+      </sub>
     </td>
   </tr>
 </table>
@@ -77,7 +79,9 @@ The above video shows Auto Maple consistently performing a mechanically advanced
           <img src="https://user-images.githubusercontent.com/69165598/129115666-7e366738-0249-47ea-8cc1-6ce8a57593a5.jpg"/>
         </a>
         <br>
-          (Click <a href="https://github.com/tanjeffreyz02/Auto-Maple/blob/version-2/routines/mts3.csv">here</a> to view the entire routine).
+        <sub>
+          Click <a href="https://github.com/tanjeffreyz02/Auto-Maple/blob/version-2/routines/mts3.csv">here</a> to view the entire routine.
+        </sub>
       </p>
     </td>
     <td>
