@@ -96,7 +96,20 @@ key_map = {'tab': 0x09,     # Special Keys
 wintypes.ULONG_PTR = wintypes.WPARAM
 
 
-class MOUSEINPUT(ctypes.Structure):
+class KeyboardInput(ctypes.Structure):
+    _fields_ = (('wVk', wintypes.WORD),
+                ('wScan', wintypes.WORD),
+                ('dwFlags', wintypes.DWORD),
+                ('time', wintypes.DWORD),
+                ('dwExtraInfo', wintypes.ULONG_PTR))
+
+    def __init__(self, *args, **kwargs):
+        super(KeyboardInput, self).__init__(*args, **kwargs)
+        if not self.dwFlags & KEYEVENTF_UNICODE:
+            self.wScan = user32.MapVirtualKeyExW(self.wVk, MAPVK_VK_TO_VSC, 0)
+
+
+class MouseInput(ctypes.Structure):
     _fields_ = (('dx', wintypes.LONG),
                 ('dy', wintypes.LONG),
                 ('mouseData', wintypes.DWORD),
@@ -105,46 +118,34 @@ class MOUSEINPUT(ctypes.Structure):
                 ('dwExtraInfo', wintypes.ULONG_PTR))
 
 
-class KEYBDINPUT(ctypes.Structure):
-    _fields_ = (('wVk', wintypes.WORD),
-                ('wScan', wintypes.WORD),
-                ('dwFlags', wintypes.DWORD),
-                ('time', wintypes.DWORD),
-                ('dwExtraInfo', wintypes.ULONG_PTR))
-
-    def __init__(self, *args, **kwds):
-        super(KEYBDINPUT, self).__init__(*args, **kwds)
-        if not self.dwFlags & KEYEVENTF_UNICODE:
-            self.wScan = user32.MapVirtualKeyExW(self.wVk, MAPVK_VK_TO_VSC, 0)
-
-
-class HARDWAREINPUT(ctypes.Structure):
+class HardwareInput(ctypes.Structure):
     _fields_ = (('uMsg', wintypes.DWORD),
                 ('wParamL', wintypes.WORD),
                 ('wParamH', wintypes.WORD))
 
 
-class INPUT(ctypes.Structure):
-    class _INPUT(ctypes.Union):
-        _fields_ = (('ki', KEYBDINPUT),
-                    ('mi', MOUSEINPUT),
-                    ('hi', HARDWAREINPUT))
+class Input(ctypes.Structure):
+    class _Input(ctypes.Union):
+        _fields_ = (('ki', KeyboardInput),
+                    ('mi', MouseInput),
+                    ('hi', HardwareInput))
 
     _anonymous_ = ('_input',)
     _fields_ = (('type', wintypes.DWORD),
-                ('_input', _INPUT))
+                ('_input', _Input))
 
 
-LPINPUT = ctypes.POINTER(INPUT)
+LPINPUT = ctypes.POINTER(Input)
 
 
-def _check_count(result, func, args):
+def err_check(result, _, args):
     if result == 0:
         raise ctypes.WinError(ctypes.get_last_error())
-    return args
+    else:
+        return args
 
 
-user32.SendInput.errcheck = _check_count
+user32.SendInput.errcheck = err_check
 user32.SendInput.argtypes = (wintypes.UINT, LPINPUT, ctypes.c_int)
 
 
@@ -163,7 +164,7 @@ def key_down(key):
     if key not in key_map.keys():
         print(f"Invalid keyboard input: '{key}'.")
     else:
-        x = INPUT(type=INPUT_KEYBOARD, ki=KEYBDINPUT(wVk=key_map[key]))
+        x = Input(type=INPUT_KEYBOARD, ki=KeyboardInput(wVk=key_map[key]))
         user32.SendInput(1, ctypes.byref(x), ctypes.sizeof(x))
 
 
@@ -179,7 +180,7 @@ def key_up(key):
     if key not in key_map.keys():
         print(f"Invalid keyboard input: '{key}'.")
     else:
-        x = INPUT(type=INPUT_KEYBOARD, ki=KEYBDINPUT(wVk=key_map[key], dwFlags=KEYEVENTF_KEYUP))
+        x = Input(type=INPUT_KEYBOARD, ki=KeyboardInput(wVk=key_map[key], dwFlags=KEYEVENTF_KEYUP))
         user32.SendInput(1, ctypes.byref(x), ctypes.sizeof(x))
 
 
