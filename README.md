@@ -97,7 +97,7 @@ Each point stores the commands below it and will execute them in that order once
         <br>
 <sub>- **"frequency"**: How often to execute this point. </sub>
         <br>
-<sub>- **"counter"**: Set's the initial value of this point's counter. The counter increments every cycle (wrapped back to 0 at `frequency`), and the point will only execute if its counter is 0. </sub>
+<sub>- **"counter"**: Set's the initial value of this point's counter. The counter increments every cycle (wrapped back to 0 at `frequency`) and the point will only execute if its counter is 0. </sub>
 
 **Labels** are created using `@, <label name>` <br>
 They can be jumped to using the "goto" command, which allows users to create loops and organize routines into sections.
