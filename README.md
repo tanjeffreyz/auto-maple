@@ -20,12 +20,14 @@ Auto Maple is a Python program that plays MapleStory, a 2D side-scrolling MMORPG
 <table align="center" border="0">
   <tr>
     <td>
-Auto Maple uses OpenCV template matching to determine the bounds of the minimap as well as the various elements within it, allowing it to accurately track the player's in-game position. If "record_layout" is set to "True" in the routine file, Auto Maple will record the player's previous positions in a quadtree-based Layout object, which is periodically saved to a file in the "layouts" directory. Every time a new routine is loaded, its corresponding layout file, if it exists, will also be loaded. This Layout object uses the A* search algorithm on its stored points to calculate the shortest path from the player to any target location, which can dramatically improve the accuracy and speed at which routines are executed.
-<br><br>
-(Click <a href="https://github.com/tanjeffreyz02/Auto-Maple/blob/version-2/routines/hft.csv">here</a> to view the routine used in the demonstration on the right).
+Auto Maple uses OpenCV template matching to determine the bounds of the minimap as well as the various elements within it, allowing it to accurately track the player's in-game position. If <code>record_layout</code> is set to <code>True</code> in the routine file, Auto Maple will record the player's previous positions in a quadtree-based Layout object, which is periodically saved to a file in the "layouts" directory. Every time a new routine is loaded, its corresponding layout file, if it exists, will also be loaded. This Layout object uses the A* search algorithm on its stored points to calculate the shortest path from the player to any target location, which can dramatically improve the accuracy and speed at which routines are executed.
     </td>
-    <td width="400px">
+    <td align="center" width="400px">
       <img align="center" src="https://user-images.githubusercontent.com/69165598/123177212-b16f0700-d439-11eb-8a21-8b414273f1e1.gif"/>
+      <br>
+      <sub>
+      Click <a href="https://github.com/tanjeffreyz02/Auto-Maple/blob/version-2/routines/hft.csv">here</a> to view the above routine.
+      </sub>
     </td>
   </tr>
 </table>
@@ -45,14 +47,16 @@ Auto Maple uses OpenCV template matching to determine the bounds of the minimap 
 
 <p align="center">
   <img src="https://user-images.githubusercontent.com/69165598/123372905-502e5d00-d539-11eb-81c2-46b8bbf929cc.gif" width="900px"/>
+  <br>
+  <sub>
+    The above video shows Auto Maple consistently performing a mechanically advanced ability combination.
+  </sub>
 </p>
   
 <table align="center" border="0">
   <tr>
     <td width="900px">
 Designed with modularity in mind, Auto Maple can operate any character in the game as long as it is provided with a list of in-game actions, or a "command book". A command book is a Python file that contains multiple classes, one for each in-game ability, that tells the program what keys it should press and when to press them. Once a command book is imported, its classes are automatically compiled into a dictionary that Auto Maple can then use to interpret commands within routines. Commands have access to all of Auto Maple's global variables, which can allow them to actively change their behavior based on the player's position and the state of the game.
-<br><br>
-The above video shows Auto Maple consistently performing a mechanically advanced ability combination.
     </td>
   </tr>
 </table>
@@ -77,12 +81,14 @@ The above video shows Auto Maple consistently performing a mechanically advanced
           <img src="https://user-images.githubusercontent.com/69165598/129115666-7e366738-0249-47ea-8cc1-6ce8a57593a5.jpg"/>
         </a>
         <br>
-          (Click <a href="https://github.com/tanjeffreyz02/Auto-Maple/blob/version-2/routines/mts3.csv">here</a> to view the entire routine).
+        <sub>
+          Click <a href="https://github.com/tanjeffreyz02/Auto-Maple/blob/version-2/routines/mts3.csv">here</a> to view the entire routine.
+        </sub>
       </p>
     </td>
     <td>
       <p>
-A routine is a user-created CSV file that tells Auto Maple where to move and what abilities and commands to use at each location. A custom-made interpreter within Auto Maple parses through the selected routine and converts it into a list of objects that can then be executed by the program. An error message is printed for every line that contains invalid parameters, and those lines are ignored during the conversion.
+A routine is a user-created CSV file that tells Auto Maple where to move and what commands to use at each location. A custom-made interpreter within Auto Maple parses through the selected routine and converts it into a list of objects that can then be executed by the program. An error message is printed for every line that contains invalid parameters, and those lines are ignored during the conversion.
     
 **Points** are created using `*, <x position>, <y position>` <br>
 Each point stores the commands below it and will execute them in that order once the character reaches that point. There are also a couple optional keyword arguments:
@@ -91,13 +97,13 @@ Each point stores the commands below it and will execute them in that order once
         <br>
 <sub>- **"frequency"**: How often to execute this point. </sub>
         <br>
-<sub>- **"counter"**: Set's the initial value of this point's counter. A point's counter increments every cycle (wrapped back to 0 at `frequency`), and the point will only execute if its counter is 0. </sub>
+<sub>- **"counter"**: Set's the initial value of this point's counter. The counter increments every cycle (wrapped back to 0 at `frequency`) and the point will only execute if its counter is 0. </sub>
 
 **Labels** are created using `@, <label name>` <br>
 They can be jumped to using the "goto" command, which allows users to create loops and organize routines into sections.
 
 **Commands** are created using `<command name>, <p1>, <p2>, ...` <br>
-`<command name>` corresponds with the class names inside command book files, and `<p1>, <p2>, ...` correspond with the class's `__init__` parameters. Keyword arguments are also supported.
+The `<command name>` corresponds with the class names inside command book files, and `<p1>, <p2>, ...` correspond with the class's `__init__` parameters. Keyword arguments are also supported.
         
 **Settings** are updated using `s, <setting name>, <value>` <br>
 All the editable settings can be found at the bottom of [config.py](https://github.com/tanjeffreyz02/Auto-Maple/blob/version-2/config.py).
