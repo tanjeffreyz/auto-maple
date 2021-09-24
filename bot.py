@@ -128,8 +128,8 @@ class Bot:
             config.listening = True
             buff = config.command_book['buff']()
             while True:
-                if config.elite_active:
-                    Bot._elite_alert()
+                if config.alert_active:
+                    Bot._alert()
                 if config.enabled:
                     buff.main()
                     element = config.sequence[config.seq_index]
@@ -184,9 +184,9 @@ class Bot:
         config.rune_active = False
 
     @staticmethod
-    def _elite_alert():
+    def _alert():
         """
-        Plays an alert to notify user of an Elite Boss spawn. Stops the alert
+        Plays an alert to notify user of a dangerous event. Stops the alert
         once 'insert' is pressed.
         :return:    None
         """
@@ -196,7 +196,7 @@ class Bot:
         while not kb.is_pressed('insert'):
             time.sleep(0.1)
         Bot.alert.stop()
-        config.elite_active = False
+        config.alert_active = False
         time.sleep(1)
         config.listening = True
 
@@ -387,7 +387,7 @@ class Bot:
         """
 
         config.rune_active = False
-        config.elite_active = False
+        config.alert_active = False
         utils.print_separator()
         print('#' * 18)
         print(f"#    {'DISABLED' if config.enabled else 'ENABLED '}    #")

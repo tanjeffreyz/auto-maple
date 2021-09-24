@@ -59,16 +59,18 @@ class Capture:
                     frame = np.array(sct.grab(config.MONITOR))
                     height, width, _ = frame.shape
 
-                    # Check for unexpected black screen
+                    # Check for unexpected black screen regardless of whether bot is enabled
                     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-                    if np.count_nonzero(gray < 15) / height / width > 0.95:
+                    if not config.alert_active \
+                            and np.count_nonzero(gray < 15) / height / width > 0.95:
+                        config.alert_active = True
                         config.enabled = False
 
                     # Check for elite warning
                     elite_frame = frame[height//4:3*height//4, width//4:3*width//4]
                     elite = utils.multi_match(elite_frame, config.ELITE_TEMPLATE, threshold=0.9)
-                    if config.enabled and not config.elite_active and elite:
-                        config.elite_active = True
+                    if config.enabled and not config.alert_active and elite:
+                        config.alert_active = True
                         config.enabled = False
 
                     # Crop the frame to only show the minimap

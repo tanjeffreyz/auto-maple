@@ -182,11 +182,12 @@ if __name__ == '__main__':
     import mss
     config.enabled = True
     monitor = {'top': 0, 'left': 0, 'width': 1366, 'height': 768}
+    model = load_model()
     while True:
         with mss.mss() as sct:
             frame = np.array(sct.grab(monitor))
             cv2.imshow('frame', canny(filter_color(frame)))
-            arrows = merge_detection(frame)
+            arrows = merge_detection(model, frame)
             print(arrows)
             if cv2.waitKey(1) & 0xFF == 27:     # 27 is ASCII for the Esc key
                 break

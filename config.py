@@ -61,8 +61,8 @@ rune_pos = (0, 0)
 # The location of the Point object that is closest to the rune
 rune_index = (0, 0)
 
-# Describes whether an Elite Boss has been detected
-elite_active = False
+# Indicates whether a danger has been detected (Elite Boss, room change, etc)
+alert_active = False
 
 # Stores all the Points and labels in the current user-defined routine
 sequence = []
