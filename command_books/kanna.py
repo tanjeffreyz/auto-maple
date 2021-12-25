@@ -114,10 +114,11 @@ class Buff(Command):
         self.buff_time = 0
 
     def main(self):
-        buffs = ['f1', 'f2', 'f4']
+        buffs = ['f1']
         now = time.time()
         if self.haku_time == 0 or now - self.haku_time > 490:
-            press('ctrl', 2)
+            press('f4', 2)
+            press('f3', 2)
             self.haku_time = now
         if self.buff_time == 0 or now - self.buff_time > config.buff_cooldown:
             for key in buffs:
@@ -174,7 +175,10 @@ class Shikigami(Command):
         for _ in range(self.repetitions):
             press('r', self.attacks, up_time=0.05)
         key_up(self.direction)
-        time.sleep(0.2)
+        if self.attacks > 2:
+            time.sleep(0.3)
+        else:
+            time.sleep(0.2)
 
 
 class Tengu(Command):
@@ -231,7 +235,7 @@ class Kishin(Command):
         self.name = 'Kishin'
 
     def main(self):
-        press('lshift', 4, down_time=0.1, up_time=0.15)
+        press('ctrl', 4, down_time=0.1, up_time=0.15)
 
 
 class NineTails(Command):
@@ -295,3 +299,13 @@ class Yukimusume(Command):
 
     def main(self):
         press('c', 2)
+
+
+class Balance(Command):
+    """Restores mana using 'Mana Balance' once."""
+
+    def __init__(self):
+        self.name = 'Mana Balance'
+
+    def main(self):
+        press('lshift', 4)

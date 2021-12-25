@@ -61,7 +61,7 @@ class Capture:
 
                     # Check for unexpected black screen regardless of whether bot is enabled
                     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-                    if not config.alert_active \
+                    if config.enabled and not config.alert_active \
                             and np.count_nonzero(gray < 15) / height / width > 0.95:
                         config.alert_active = True
                         config.enabled = False

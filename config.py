@@ -96,4 +96,4 @@ adjust_tolerance = 0.01
 record_layout = False
 
 # The amount of time (in seconds) to wait between each call to the 'buff' command
-buff_cooldown = 250
+buff_cooldown = 180

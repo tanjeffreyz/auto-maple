@@ -1,0 +1,38 @@
+s, record_layout, True
+
+
+*, 0.811, 0.243, frequency=15
+    kishin
+*, 0.415, 0.243, frequency=5
+    yaksha, direction=right
+*, 0.150, 0.243, frequency=15
+    shikigami, direction=left, attacks=3
+*, 0.275, 0.142
+    shikigami, direction=left, attacks=3
+    shikigami, direction=right, attacks=3
+    wait, 0.05
+*, 0.275, 0.142, adjust=True
+    exorcist
+    wait, 0.3
+    teleport, direction=up, jump=False
+    shikigami, direction=right, attacks=3
+    shikigami, direction=right
+    teleport, direction=down, jump=False
+    wait, 0.05
+*, 0.125, 0.142, counter=1, frequency=15
+    yaksha, direction=right
+    balance
+*, 0.275, 0.142, counter=1, frequency=15
+    teleport, direction=up
+    shikigami, direction=left, attacks=3
+    teleport, direction=right
+    shikigami, direction=right, attacks=3
+    shikigami, direction=right
+    teleport, direction=down
+*, 0.640, 0.108, counter=1, frequency=15, adjust=True
+    shikigami, direction=left
+    shikigami, direction=right
+*, 0.640, 0.108, counter=1, frequency=15
+    exorcist
+    wait, 0.2
+*, 0.640, 0.243, counter=1, frequency=15
