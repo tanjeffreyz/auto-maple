@@ -308,4 +308,14 @@ class Balance(Command):
         self.name = 'Mana Balance'
 
     def main(self):
-        press('lshift', 4)
+        press('lshift', 2)
+
+
+class Charm(Command):
+    """Jumps up using 'Shikigami Charm'."""
+
+    def __init__(self):
+        self.name = 'Shikigami Charm'
+
+    def main(self):
+        press('d', 2)

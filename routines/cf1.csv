@@ -1,12 +1,20 @@
 s, record_layout, True
+s, move_tolerance, 0.09
+s, buff_cooldown, 185
 
 
-*, 0.811, 0.243, frequency=15
+@, kish
+*, 0.811, 0.243
     kishin
-*, 0.415, 0.243, frequency=5
+*, 0.640, 0.243, adjust=True
+*, 0.415, 0.243
     yaksha, direction=right
-*, 0.150, 0.243, frequency=15
+*, 0.150, 0.243
     shikigami, direction=left, attacks=3
+    shikigami, direction=left
+    shikigami, direction=right, attacks=3
+
+@, main
 *, 0.275, 0.142
     shikigami, direction=left, attacks=3
     shikigami, direction=right, attacks=3
@@ -19,20 +27,40 @@ s, record_layout, True
     shikigami, direction=right
     teleport, direction=down, jump=False
     wait, 0.05
-*, 0.125, 0.142, counter=1, frequency=15
+*, 0.275, 0.142, counter=1, frequency=6
+    goto, boss
+*, 0.275, 0.142
+    goto, main
+
+@, boss
+*, 0.275, 0.142, frequency=3, counter=1
+    goto, loot
+*, 0.415, 0.243
     yaksha, direction=right
+    charm
+    teleport, direction=left, jump=False
+    goto, main
+
+@, loot
+*, 0.125, 0.142
+    yaksha, direction=right
+    wait, 0.1
     balance
-*, 0.275, 0.142, counter=1, frequency=15
+*, 0.257, 0.142, adjust=True
+    exorcist
+    tengu
     teleport, direction=up
     shikigami, direction=left, attacks=3
     teleport, direction=right
     shikigami, direction=right, attacks=3
     shikigami, direction=right
     teleport, direction=down
-*, 0.640, 0.108, counter=1, frequency=15, adjust=True
+*, 0.640, 0.108, adjust=True
     shikigami, direction=left
     shikigami, direction=right
-*, 0.640, 0.108, counter=1, frequency=15
-    exorcist
+*, 0.640, 0.108
+    ninetails
+    tengu
     wait, 0.2
-*, 0.640, 0.243, counter=1, frequency=15
+*, 0.640, 0.243
+    goto, kish
