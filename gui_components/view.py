@@ -68,9 +68,9 @@ class Minimap(LabelFrame):
 
             img = ImageTk.PhotoImage(Image.fromarray(img))
             self.canvas.create_image(c_width // 2,
-                                c_height // 2,
-                                image=img, anchor=tk.CENTER)
-            self._img = img             # Prevent garbage collection
+                                     c_height // 2,
+                                     image=img, anchor=tk.CENTER)
+            self._img = img                 # Prevent garbage collection
         self.after(10, self.display_minimap)
 
 
