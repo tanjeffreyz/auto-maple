@@ -19,7 +19,8 @@ class Capture:
     def __init__(self):
         """Initializes this Capture object's main thread."""
 
-        self.thread = threading.Thread(target=Capture._main)
+        self.ready = False
+        self.thread = threading.Thread(target=self._main)
         self.thread.daemon = True
 
     def start(self):
@@ -31,23 +32,22 @@ class Capture:
         print('\nStarted video capture.')
         self.thread.start()
 
-    @staticmethod
-    def _main():
+    def _main(self):
         """
         Constantly monitors the player's position and in-game events.
         :return:    None
         """
 
         with mss.mss() as sct:
-            config.ready = True
+            self.ready = True
             while True:
                 if not config.calibrated:
                     frame = np.array(sct.grab(config.MONITOR))
 
                     # Get the bottom right corner of the minimap
                     _, br = utils.single_match(frame[:round(frame.shape[0] / 4),
-                                                       :round(frame.shape[1] / 3)],
-                                                 config.MINIMAP_TEMPLATE)
+                                                     :round(frame.shape[1] / 3)],
+                                               config.MINIMAP_TEMPLATE)
                     mm_tl = (config.MINIMAP_BOTTOM_BORDER, config.MINIMAP_TOP_BORDER)
                     mm_br = tuple(max(75, a - config.MINIMAP_BOTTOM_BORDER) for a in br)
                     config.mm_ratio = (mm_br[0] - mm_tl[0]) / (mm_br[1] - mm_tl[1])
@@ -93,7 +93,7 @@ class Capture:
                     #########################################
                     #       Display useful information      #
                     #########################################
-                    minimap = Capture._rescale_frame(minimap, 2.0)
+                    minimap = Capture._rescale_frame(minimap, 5.0)
 
                     # Mark the position of the active rune
                     if config.rune_active:
@@ -127,9 +127,11 @@ class Capture:
                                3,
                                (255, 0, 0),
                                -1)
-                    cv2.imshow('minimap', minimap)
-                if cv2.waitKey(1) & 0xFF == 27:     # 27 is ASCII for the Esc key
-                    break
+
+                    config.minimap = minimap
+                #     cv2.imshow('minimap', minimap)
+                # if cv2.waitKey(1) & 0xFF == 27:     # 27 is ASCII for the Esc key
+                #     break
 
     @staticmethod
     def _count(frame, threshold):

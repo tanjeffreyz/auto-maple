@@ -1,4 +1,3 @@
-s, record_layout, True
 s, move_tolerance, 0.09
 s, buff_cooldown, 185
 

@@ -12,7 +12,8 @@ class Listener:
     def __init__(self):
         """Initializes this Listener object's main thread."""
 
-        self.thread = threading.Thread(target=Listener._main)
+        self.ready = False
+        self.thread = threading.Thread(target=self._main)
         self.thread.daemon = True
 
     def start(self):
@@ -24,13 +25,13 @@ class Listener:
         print('\nStarted keyboard listener.')
         self.thread.start()
 
-    @staticmethod
-    def _main():
+    def _main(self):
         """
         Constantly listens for user inputs and updates variables in config accordingly.
         :return:    None
         """
 
+        self.ready = True
         while True:
             if config.listening:
                 if kb.is_pressed('insert'):

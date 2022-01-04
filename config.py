@@ -40,14 +40,14 @@ player_pos = (0, 0)
 # Describes whether the bot is currently running or not
 enabled = False
 
-# Describes whether the bot has been successfully initialized
-ready = False
-
 # Describes whether the video capture has calibrated the minimap
 calibrated = False
 
 # Describes whether the keyboard listener is currently running
 listening = False
+
+# The current minimap
+minimap = None
 
 # The ratio of the minimap's width divided by its height (used for conversions)
 mm_ratio = 1

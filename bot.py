@@ -100,7 +100,8 @@ class Bot:
         Bot.load_commands()
         Bot.load_routine()
 
-        self.thread = threading.Thread(target=Bot._main)
+        self.ready = False
+        self.thread = threading.Thread(target=self._main)
         self.thread.daemon = True
 
     def start(self):
@@ -112,8 +113,7 @@ class Bot:
         print('\nStarted main bot loop.')
         self.thread.start()
 
-    @staticmethod
-    def _main():
+    def _main(self):
         """
         The main body of Bot that executes the user's routine.
         :return:    None
@@ -124,7 +124,7 @@ class Bot:
         print('\nInitialized detection algorithm.')
 
         with mss.mss() as sct:
-            config.ready = True
+            self.ready = True
             config.listening = True
             buff = config.command_book['buff']()
             while True:
