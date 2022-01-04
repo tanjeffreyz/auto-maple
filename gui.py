@@ -4,7 +4,7 @@ import config
 import cv2
 import tkinter as tk
 from tkinter import ttk
-from gui_components import Main, Edit
+from gui_components import View, Edit
 from PIL import Image, ImageTk
 
 
@@ -16,7 +16,7 @@ class GUI:
 
         self.navigation = ttk.Notebook(self.root)
 
-        self.main = Main(self.navigation)
+        self.main = View(self.navigation)
         self.edit = Edit(self.navigation)
 
         self.navigation.pack(expand=1, fill='both')
@@ -34,8 +34,8 @@ class GUI:
         if config.minimap is not None:
             img = cv2.cvtColor(config.minimap, cv2.COLOR_BGR2RGB)
             img = ImageTk.PhotoImage(Image.fromarray(img))
-            self.main.canvas.create_image(0, 0, image=img, anchor=tk.NW)
-            self.main.img = img
+            self.main.minimap.canvas.create_image(0, 0, image=img, anchor=tk.NW)
+            self._img = img             # Prevent garbage collection
         self.root.after(10, self._display_minimap)
 
     def _save_layout(self):

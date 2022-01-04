@@ -1,7 +1,7 @@
 """Allows the user to edit routines while viewing each Point's location on the minimap."""
 
 import tkinter as tk
-from gui_components.interfaces import Frame, Tab
+from gui_components.interfaces import Tab
 
 
 class Edit(Tab):
