@@ -230,7 +230,11 @@ class Layout:
         while i != 0:
             path.append(vertices[i])
             i = edge_to[i]
-        return list(reversed(path))
+
+        path.append(source)
+        path = list(reversed(path))
+        config.path = path.copy()
+        return path
 
     def draw(self, image):
         """

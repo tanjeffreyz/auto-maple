@@ -19,8 +19,8 @@ class Move(Command):
     def main(self):
         counter = self.max_steps
         path = config.layout.shortest_path(config.player_pos, self.target)
-        config.path = path.copy()
-        config.path.insert(0, config.player_pos)
+        # config.path = path.copy()
+        # config.path.insert(0, config.player_pos)
         for point in path:
             counter = self._step(point, counter)
 

@@ -2,6 +2,7 @@
 
 import config
 import mss
+import time
 import cv2
 import threading
 import numpy as np
@@ -39,7 +40,6 @@ class Capture:
         """
 
         with mss.mss() as sct:
-            self.ready = True
             while True:
                 if not config.calibrated:
                     frame = np.array(sct.grab(config.MONITOR))
@@ -90,10 +90,11 @@ class Capture:
                             config.rune_index = config.sequence[index].location
                             config.rune_active = True
 
+                    """
                     #########################################
                     #       Display useful information      #
                     #########################################
-                    minimap = Capture._rescale_frame(minimap, 5.0)
+                    minimap = Capture._rescale_frame(minimap, 10.0)
 
                     # Mark the position of the active rune
                     if config.rune_active:
@@ -127,11 +128,23 @@ class Capture:
                                3,
                                (255, 0, 0),
                                -1)
+                    """
 
-                    config.minimap = minimap
-                #     cv2.imshow('minimap', minimap)
-                # if cv2.waitKey(1) & 0xFF == 27:     # 27 is ASCII for the Esc key
-                #     break
+                    # Package display information to be polled by GUI
+                    config.minimap = {
+                        'minimap': minimap,
+                        'rune_active': config.rune_active,
+                        'rune_pos': config.rune_pos,
+                        'path': config.path,
+                        'player_pos': config.player_pos
+                    }
+
+                    cv2.imshow('minimap', minimap)
+                if not self.ready:
+                    self.ready = True
+                # time.sleep(0.001)
+                if cv2.waitKey(1) & 0xFF == 27:     # 27 is ASCII for the Esc key
+                    break
 
     @staticmethod
     def _count(frame, threshold):
@@ -168,7 +181,7 @@ class Capture:
         return float('inf')
 
     @staticmethod
-    def _draw_point(minimap, point, color):
+    def draw_point(minimap, point, color):
         """
         Draws a visual representation of POINT onto MINIMAP. The radius of the circle represents
         the allowed error when moving towards POINT.

@@ -4,7 +4,7 @@ import config
 import cv2
 import tkinter as tk
 from tkinter import ttk
-from gui_components import View, Edit
+from gui_components import Menu, View, Edit
 from PIL import Image, ImageTk
 
 
@@ -14,29 +14,22 @@ class GUI:
         self.root.title('Auto Maple')
         self.root.geometry('700x400')
 
+        self.menu = Menu(self.root)
+        self.root.config(menu=self.menu)
+
         self.navigation = ttk.Notebook(self.root)
 
         self.main = View(self.navigation)
         self.edit = Edit(self.navigation)
 
-        self.navigation.pack(expand=1, fill='both')
+        self.navigation.pack(expand=True, fill='both')
 
     def start(self):
         """Starts the GUI as well as any scheduled functions."""
 
-        self._display_minimap()
+        self.main.minimap.display_minimap()
         self._save_layout()
         self.root.mainloop()
-
-    def _display_minimap(self):
-        """Updates the Main page with the current minimap."""
-
-        if config.minimap is not None:
-            img = cv2.cvtColor(config.minimap, cv2.COLOR_BGR2RGB)
-            img = ImageTk.PhotoImage(Image.fromarray(img))
-            self.main.minimap.canvas.create_image(0, 0, image=img, anchor=tk.NW)
-            self._img = img             # Prevent garbage collection
-        self.root.after(10, self._display_minimap)
 
     def _save_layout(self):
         """Periodically saves the current Layout object."""

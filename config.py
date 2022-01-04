@@ -46,10 +46,10 @@ calibrated = False
 # Describes whether the keyboard listener is currently running
 listening = False
 
-# The current minimap
-minimap = None
+# Various display information regarding the current minimap frame
+minimap = {}
 
-# The ratio of the minimap's width divided by its height (used for conversions)
+# The ratio of the minimap's width divided by its height
 mm_ratio = 1
 
 # Describes whether a rune has appeared in the game
