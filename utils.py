@@ -2,7 +2,9 @@
 
 import config
 import math
+import queue
 import cv2
+import threading
 import numpy as np
 from random import random
 
@@ -162,6 +164,38 @@ def bernoulli(p):
     """
 
     return random() < p
+
+
+##########################
+#       Threading        #
+##########################
+class Async(threading.Thread):
+    def __init__(self, function, *args, **kwargs):
+        super().__init__()
+        self.queue = queue.Queue()
+        self.function = function
+        self.args = args
+        self.kwargs = kwargs
+
+    def run(self):
+        self.function(*self.args, **self.kwargs)
+        self.queue.put('x')
+
+    def process_queue(self, root):
+        def f():
+            try:
+                self.queue.get_nowait()
+            except queue.Empty:
+                root.after(100, self.process_queue(root))
+        return f
+
+
+def async_callback(context, function, *args, **kwargs):
+    def f():
+        task = Async(function, *args, **kwargs)
+        task.start()
+        context.after(100, task.process_queue(context))
+    return f
 
 
 #################################

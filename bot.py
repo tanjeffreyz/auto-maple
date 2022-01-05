@@ -97,8 +97,8 @@ class Bot:
         Bot.alert = pygame.mixer.music
         Bot.alert.load('./assets/alert.mp3')
 
-        Bot.load_commands()
-        Bot.load_routine()
+        # Bot.load_commands()
+        # Bot.load_routine()
 
         self.ready = False
         self.thread = threading.Thread(target=self._main)
@@ -226,16 +226,21 @@ class Bot:
         utils.print_separator()
         print(f"Loading command book '{module_name}'...")
         module = __import__(f'command_books.{module_name}', fromlist=[''])
-        config.command_book = {}
+        config.command_book = {
+            'goto': commands.Goto,
+            'wait': commands.Wait,
+            'walk': commands.Walk,
+            'fall': commands.Fall
+        }
         for name, command in inspect.getmembers(module, inspect.isclass):
             name = name.lower()
             config.command_book[name] = command
 
         # Import common commands
-        config.command_book['goto'] = commands.Goto
-        config.command_book['wait'] = commands.Wait
-        config.command_book['walk'] = commands.Walk
-        config.command_book['fall'] = commands.Fall
+        # config.command_book['goto'] = commands.Goto
+        # config.command_book['wait'] = commands.Wait
+        # config.command_book['walk'] = commands.Walk
+        # config.command_book['fall'] = commands.Fall
 
         # Check if required commands have been implemented
         success = True
@@ -397,3 +402,4 @@ class Bot:
             winsound.Beep(784, 333)     # G5
         else:
             winsound.Beep(523, 333)     # C5
+        time.sleep(0.667)

@@ -36,7 +36,6 @@ class Listener:
             if config.listening:
                 if kb.is_pressed('insert'):
                     Bot.toggle_enabled()
-                    time.sleep(0.667)
                 elif kb.is_pressed('F6'):
                     Bot.load_routine(config.routine)
                 elif kb.is_pressed('F7'):

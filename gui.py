@@ -1,18 +1,16 @@
 """User friendly GUI to interact with Auto Maple."""
 
 import config
-import cv2
 import tkinter as tk
 from tkinter import ttk
 from gui_components import Menu, View, Edit
-from PIL import Image, ImageTk
 
 
 class GUI:
     def __init__(self):
         self.root = tk.Tk()
         self.root.title('Auto Maple')
-        self.root.geometry('700x400')
+        self.root.geometry('800x800')
 
         self.menu = Menu(self.root)
         self.root.config(menu=self.menu)
