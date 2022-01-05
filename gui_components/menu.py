@@ -7,7 +7,8 @@ import queue
 import winsound
 import tkinter as tk
 from tkinter.filedialog import askopenfilename
-from bot import Bot, Point
+from bot import Bot
+from routine import Point
 from layout import Layout
 from commands import Command
 
@@ -28,6 +29,7 @@ class Menu(tk.Menu):
         self.add_cascade(label='File', menu=self.file)
 
     @staticmethod
+    @utils.run_if_disabled('\n[!] Cannot load routines while Auto Maple is enabled.')
     def _load_routine():
         file_path = askopenfilename(initialdir='./routines/',
                                     title='Select a routine',
@@ -36,6 +38,7 @@ class Menu(tk.Menu):
             Bot.load_routine(file_path)
 
     @staticmethod
+    @utils.run_if_disabled('\n[!] Cannot load command books while Auto Maple is enabled.')
     def _load_commands():
         file_path = askopenfilename(initialdir='./command_books/',
                                     title='Select a command book',

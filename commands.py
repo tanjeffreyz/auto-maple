@@ -1,6 +1,7 @@
 """A collection of Commands shared across all command books."""
 
 import config
+import settings
 import utils
 import time
 from vkeys import key_down, key_up, press
@@ -14,12 +15,6 @@ class Command:
 
     @utils.run_if_enabled
     def execute(self):
-        """
-        Prints this Command's string representation and executes its main function.
-        :return:    None
-        """
-
-        print(self)
         self.main()
 
     def main(self):
@@ -50,7 +45,7 @@ class Goto(Command):
 
     def main(self):
         try:
-            config.seq_index = config.sequence.index(self.label)
+            config.seq_index = config.routine.index(self.label)
         except ValueError:
             print(f"Label '{self.label}' does not exist.")
 
@@ -87,7 +82,7 @@ class Fall(Command):
     from their starting position.
     """
 
-    def __init__(self, distance=config.move_tolerance/2):
+    def __init__(self, distance=settings.move_tolerance / 2):
         self.name = 'Fall'
         self.distance = float(distance)
 
@@ -115,6 +110,7 @@ class DefaultMove(Command):
         self.name = 'Undefined Move Command'
 
     def main(self):
+        print("\n[!] 'Move' command not implemented in current command book, aborting process.")
         config.enabled = False
 
 
@@ -125,6 +121,7 @@ class DefaultAdjust(Command):
         self.name = 'Undefined Adjust Command'
 
     def main(self):
+        print("\n[!] 'Adjust' command not implemented in current command book, aborting process.")
         config.enabled = False
 
 
@@ -135,4 +132,5 @@ class DefaultBuff(Command):
         self.name = 'Undefined Buff Command'
 
     def main(self):
+        print("\n[!] 'Buff' command not implemented in current command book, aborting process.")
         config.enabled = False

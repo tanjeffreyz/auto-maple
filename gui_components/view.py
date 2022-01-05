@@ -69,7 +69,7 @@ class Minimap(LabelFrame):
                     cv2.line(img, start, end, (0, 255, 255), 1)
 
             # Draw each Point in the routine as a circle
-            for p in config.sequence:
+            for p in config.routine.sequence:
                 Capture.draw_point(img,
                                    p,
                                    (0, 255, 0) if config.enabled else (255, 0, 0))
@@ -98,7 +98,7 @@ class Details(LabelFrame):
     def __init__(self, parent, **kwargs):
         super().__init__(parent, 'Details', **kwargs)
 
-        self.canvas = tk.Canvas(self)
+        self.canvas = tk.Canvas(self)       # TODO: labels
         self.canvas.pack()
 
 
@@ -106,8 +106,5 @@ class Routine(LabelFrame):
     def __init__(self, parent, **kwargs):
         super().__init__(parent, 'Routine', **kwargs)
 
-        self.arr = list(range(100))
-        self.test = tk.StringVar(value=self.arr)
-        self.listbox = tk.Listbox(self, width=25, listvariable=self.test)
-        self.listbox.pack(expand=True, fill='both', padx=5, pady=5)
-
+        config.view_listbox = tk.Listbox(self, width=25, listvariable=config.routine_var)
+        config.view_listbox.pack(expand=True, fill='both', padx=5, pady=5)

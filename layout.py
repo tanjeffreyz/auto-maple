@@ -1,6 +1,7 @@
 """A module for saving map layouts and determining shortest paths."""
 
 import config
+import settings
 import utils
 import cv2
 import math
@@ -65,7 +66,7 @@ class Layout:
     """Uses a quadtree to represent possible player positions in a map layout."""
 
     LAYOUTS_DIR = 'layouts'
-    TOLERANCE = config.move_tolerance / 2
+    TOLERANCE = settings.move_tolerance / 2
 
     def __init__(self, name):
         """
@@ -187,16 +188,16 @@ class Layout:
 
             x_error = (target[0] - point[0])
             y_error = (target[1] - point[1])
-            delta = config.move_tolerance / math.sqrt(2)
+            delta = settings.move_tolerance / math.sqrt(2)
 
             # Push best possible node using horizontal teleport
-            if abs(x_error) > config.move_tolerance:
+            if abs(x_error) > settings.move_tolerance:
                 if x_error > 0:
-                    x_min = point[0] + config.move_tolerance / 4
-                    x_max = point[0] + config.move_tolerance * 2
+                    x_min = point[0] + settings.move_tolerance / 4
+                    x_max = point[0] + settings.move_tolerance * 2
                 else:
-                    x_min = point[0] - config.move_tolerance * 2
-                    x_max = point[0] - config.move_tolerance / 4
+                    x_min = point[0] - settings.move_tolerance * 2
+                    x_max = point[0] - settings.move_tolerance / 4
                 candidates = self.search(x_min,
                                          x_max,
                                          point[1] - delta,
@@ -204,13 +205,13 @@ class Layout:
                 push_best(candidates)
 
             # Push best possible node using vertical teleport
-            if abs(y_error) > config.move_tolerance:
+            if abs(y_error) > settings.move_tolerance:
                 if y_error > 0:
-                    y_min = point[1] + config.move_tolerance / 4
+                    y_min = point[1] + settings.move_tolerance / 4
                     y_max = 1
                 else:
                     y_min = 0
-                    y_max = point[1] - config.move_tolerance / 4
+                    y_max = point[1] - settings.move_tolerance / 4
                 candidates = self.search(point[0] - delta,
                                          point[0] + delta,
                                          y_min,
@@ -219,7 +220,7 @@ class Layout:
 
         # Perform the A* search algorithm
         i = 0
-        while utils.distance(vertices[i], target) > config.move_tolerance:
+        while utils.distance(vertices[i], target) > settings.move_tolerance:
             push_neighbors(i)
             if len(fringe) == 0:
                 break

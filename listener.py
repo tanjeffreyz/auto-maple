@@ -37,10 +37,12 @@ class Listener:
                 if kb.is_pressed('insert'):
                     Bot.toggle_enabled()
                 elif kb.is_pressed('F6'):
-                    Bot.load_routine(config.routine_path)
+                    config.calibrated = False
+                    Bot.load_routine(config.routine.path)
                 elif kb.is_pressed('F7'):
-                    Bot.load_commands()
-                    Bot.load_routine()
+                    pass            # TODO: update listener
+                    # Bot.load_commands()
+                    # Bot.load_routine()
                 elif kb.is_pressed('F8'):
                     displayed_pos = tuple('{:.3f}'.format(round(i, 3)) for i in config.player_pos)
                     utils.print_separator()

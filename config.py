@@ -64,9 +64,6 @@ rune_index = (0, 0)
 # Indicates whether a danger has been detected (Elite Boss, room change, etc)
 alert_active = False
 
-# Stores all the Points and labels in the current user-defined routine
-sequence = []
-
 # Represents the index that the bot is currently at
 seq_index = 0
 
@@ -76,24 +73,18 @@ path = []
 # Stores a map of all available commands that can be used by routines
 command_book = {}
 
-# Stores the name of the current routine file
-routine_path = None
+# A Routine object that manages the 'machine code' of the current routine
+routine = None
 
 # Stores the Layout object associated with the current routine
 layout = None
 
 
-#################################
-#       Routine Settings        #
-#################################
-# The allowed error from the destination when moving towards a Point
-move_tolerance = 0.1
+##############################
+#       GUI Variables        #
+##############################
+# StringVar for displaying the current routine elements
+routine_var = None
 
-# The allowed error from a specific location while adjusting to that location
-adjust_tolerance = 0.01
-
-# Whether the bot should save new player positions to the current layout
-record_layout = False
-
-# The amount of time (in seconds) to wait between each call to the 'buff' command
-buff_cooldown = 180
+# The Listbox component on the 'View' page
+view_listbox = None

@@ -6,8 +6,10 @@ import time
 import cv2
 import threading
 import numpy as np
+
+import settings
 import utils
-from bot import Point
+from routine import Point
 
 
 class Capture:
@@ -79,12 +81,12 @@ class Capture:
                     # Check for a rune
                     if not config.rune_active:
                         rune = utils.multi_match(minimap, config.RUNE_TEMPLATE, threshold=0.9)
-                        if rune and config.sequence:
+                        if rune and config.routine.sequence:
                             abs_rune_pos = (rune[0][0] - 1, rune[0][1])
                             config.rune_pos = utils.convert_to_relative(abs_rune_pos, minimap)
-                            distances = list(map(Capture._distance_to_rune, config.sequence))
+                            distances = list(map(Capture._distance_to_rune, config.routine.sequence))
                             index = np.argmin(distances)
-                            config.rune_index = config.sequence[index].location
+                            config.rune_index = config.routine.sequence[index].location
                             config.rune_active = True
 
 
@@ -191,7 +193,7 @@ class Capture:
             center = utils.convert_to_absolute(point.location, minimap)
             cv2.circle(minimap,
                        center,
-                       round(minimap.shape[1] * config.move_tolerance),
+                       round(minimap.shape[1] * settings.move_tolerance),
                        color,
                        1)
 

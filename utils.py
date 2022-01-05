@@ -8,6 +8,8 @@ import threading
 import numpy as np
 from random import random
 
+import settings
+
 
 def run_if_enabled(function):
     """
@@ -22,16 +24,33 @@ def run_if_enabled(function):
     return helper
 
 
+def run_if_disabled(message=''):
+    """
+    Decorator for functions that should only run while the bot is disabled. If MESSAGE
+    is not empty, it will also print that message if its function attempts to run when
+    it is not supposed to.
+    """
+
+    def decorator(function):
+        def helper(*args, **kwargs):
+            if not config.enabled:
+                return function(*args, **kwargs)
+            elif message:
+                print(message)
+        return helper
+    return decorator
+
+
 def reset_settings():
     """
     Resets all settings to their default values.
     :return:    None
     """
 
-    config.move_tolerance = 0.1
-    config.adjust_tolerance = 0.01
-    config.record_layout = False
-    config.buff_cooldown = 250
+    settings.move_tolerance = 0.1
+    settings.adjust_tolerance = 0.01
+    settings.record_layout = False
+    settings.buff_cooldown = 180
 
 
 def distance(a, b):

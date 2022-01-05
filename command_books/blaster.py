@@ -3,6 +3,8 @@
 import config
 import time
 import math
+
+import settings
 import utils
 from commands import Command
 from vkeys import press, key_down, key_up
@@ -31,11 +33,11 @@ class Move(Command):
         global_error = utils.distance(config.player_pos, self.target)
         while config.enabled and \
                 counter > 0 and \
-                local_error > config.move_tolerance and \
-                global_error > config.move_tolerance:
+                local_error > settings.move_tolerance and \
+                global_error > settings.move_tolerance:
             if toggle:
                 d_x = target[0] - config.player_pos[0]
-                if abs(d_x) > config.move_tolerance / math.sqrt(2):
+                if abs(d_x) > settings.move_tolerance / math.sqrt(2):
                     if d_x < 0:
                         Jump('left').main()
                     else:
@@ -43,7 +45,7 @@ class Move(Command):
                     counter -= 1
             else:
                 d_y = target[1] - config.player_pos[1]
-                if abs(d_y) > config.move_tolerance / math.sqrt(2):
+                if abs(d_y) > settings.move_tolerance / math.sqrt(2):
                     if d_y < 0:
                         Jump('up').main()
                     else:
@@ -67,10 +69,10 @@ class Adjust(Command):
         counter = self.max_steps
         toggle = True
         error = utils.distance(config.player_pos, self.target)
-        while config.enabled and counter > 0 and error > config.adjust_tolerance:
+        while config.enabled and counter > 0 and error > settings.adjust_tolerance:
             if toggle:
                 d_x = self.target[0] - config.player_pos[0]
-                threshold = config.adjust_tolerance / math.sqrt(2)
+                threshold = settings.adjust_tolerance / math.sqrt(2)
                 if abs(d_x) > threshold:
                     walk_counter = 0
                     if d_x < 0:
@@ -90,7 +92,7 @@ class Adjust(Command):
                     counter -= 1
             else:
                 d_y = self.target[1] - config.player_pos[1]
-                if abs(d_y) > config.adjust_tolerance / math.sqrt(2):
+                if abs(d_y) > settings.adjust_tolerance / math.sqrt(2):
                     if d_y < 0:
                         Jump('up').main()
                     else:
