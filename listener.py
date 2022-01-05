@@ -22,7 +22,7 @@ class Listener:
         :return:    None
         """
 
-        print('\nStarted keyboard listener.')
+        print('\n[~] Started keyboard listener.')
         self.thread.start()
 
     def _main(self):
@@ -37,7 +37,7 @@ class Listener:
                 if kb.is_pressed('insert'):
                     Bot.toggle_enabled()
                 elif kb.is_pressed('F6'):
-                    Bot.load_routine(config.routine)
+                    Bot.load_routine(config.routine_path)
                 elif kb.is_pressed('F7'):
                     Bot.load_commands()
                     Bot.load_routine()

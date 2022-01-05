@@ -22,7 +22,7 @@ bot.start()
 while not bot.ready:
     time.sleep(0.01)
 
-print('\nSuccessfully initialized Auto Maple.')
+print('\n[~] Successfully initialized Auto Maple.')
 
 gui = GUI()
 gui.start()

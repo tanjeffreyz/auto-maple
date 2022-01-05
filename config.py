@@ -77,7 +77,7 @@ path = []
 command_book = {}
 
 # Stores the name of the current routine file
-routine = None
+routine_path = None
 
 # Stores the Layout object associated with the current routine
 layout = None

@@ -5,7 +5,7 @@ import utils
 import cv2
 import math
 import pickle
-from os.path import join, isfile, splitext
+from os.path import join, isfile, splitext, basename
 from heapq import heappush, heappop
 
 
@@ -64,7 +64,7 @@ class Node:
 class Layout:
     """Uses a quadtree to represent possible player positions in a map layout."""
 
-    LAYOUTS_DIR = './layouts'
+    LAYOUTS_DIR = 'layouts'
     TOLERANCE = config.move_tolerance / 2
 
     def __init__(self, name):
@@ -265,12 +265,14 @@ class Layout:
         :return:            A Layout instance.
         """
 
-        layout_name = splitext(routine)[0]
-        target = join(Layout.LAYOUTS_DIR, layout_name)
+        layout_name = splitext(basename(routine))[0]
+        target = f'{Layout.LAYOUTS_DIR}/{layout_name}'
         if isfile(target):
+            print(f" ~  Found existing Layout file at '{target}'.")
             with open(target, 'rb') as file:
                 return pickle.load(file)
         else:
+            print(f" ~  Created new Layout file at '{target}'.")
             new_layout = Layout(layout_name)
             new_layout.save()
             return new_layout

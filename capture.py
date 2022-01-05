@@ -30,7 +30,7 @@ class Capture:
         :return:    None
         """
 
-        print('\nStarted video capture.')
+        print('\n[~] Started video capture.')
         self.thread.start()
 
     def _main(self):

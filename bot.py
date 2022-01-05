@@ -14,7 +14,7 @@ import commands
 import keyboard as kb
 import numpy as np
 from os import listdir
-from os.path import isfile, join, splitext
+from os.path import isfile, join, splitext, basename
 from vkeys import press, click
 from layout import Layout
 
@@ -89,6 +89,7 @@ class Bot:
     """A class that interprets and executes user-defined routines."""
 
     alert = None
+    buff = commands.DefaultBuff()
 
     def __init__(self):
         """Loads a user-defined routine on start up and initializes this Bot's main thread."""
@@ -110,7 +111,7 @@ class Bot:
         :return:    None
         """
 
-        print('\nStarted main bot loop.')
+        print('\n[~] Started main bot loop.')
         self.thread.start()
 
     def _main(self):
@@ -119,19 +120,18 @@ class Bot:
         :return:    None
         """
 
-        print('\nInitializing detection algorithm...\n')
+        print('\n[~] Initializing detection algorithm...\n')
         model = detection.load_model()
-        print('\nInitialized detection algorithm.')
+        print('\n[~] Initialized detection algorithm.')
 
         with mss.mss() as sct:
             self.ready = True
             config.listening = True
-            buff = config.command_book['buff']()
             while True:
                 if config.alert_active:
                     Bot._alert()
                 if config.enabled:
-                    buff.main()
+                    Bot.buff.main()     # TODO: when loading command book, overwrite this only if it exists in new command book
                     element = config.sequence[config.seq_index]
                     if isinstance(element, Point):
                         element.execute()
@@ -211,20 +211,28 @@ class Bot:
         config.seq_index = (config.seq_index + 1) % len(config.sequence)
 
     @staticmethod
-    def load_commands():
+    def load_commands(file):
         """
         Prompts the user to select a command module to import. Updates config's command book.
         :return:    None
         """
 
         utils.print_separator()
-        print('~~~ Import Command Book ~~~')
-        module_file = Bot._select_file('./command_books', '.py')
-        module_name = splitext(module_file)[0]
+        print(f"[~] Loading command book '{basename(file)}':")
+
+        # utils.print_separator()
+        # print('~~~ Import Command Book ~~~')
+        # module_file = Bot._select_file('./command_books', '.py')
+        ext = splitext(file)[1]
+        if ext != '.py':
+            print(f" !  '{ext}' is not a supported file extension.")
+            return
+
 
         # Generate a command book using the selected module
-        utils.print_separator()
-        print(f"Loading command book '{module_name}'...")
+        # utils.print_separator()
+        # print(f"Loading command book '{module_name}'...")
+        module_name = splitext(basename(file))[0]
         module = __import__(f'command_books.{module_name}', fromlist=[''])
         config.command_book = {
             'goto': commands.Goto,
@@ -236,67 +244,71 @@ class Bot:
             name = name.lower()
             config.command_book[name] = command
 
-        # Import common commands
-        # config.command_book['goto'] = commands.Goto
-        # config.command_book['wait'] = commands.Wait
-        # config.command_book['walk'] = commands.Walk
-        # config.command_book['fall'] = commands.Fall
-
         # Check if required commands have been implemented
         success = True
         for command in ['move', 'adjust', 'buff']:
             if command not in config.command_book:
                 success = False
-                print(f"Error: Must implement '{command}' command.")
+                print(f" !  Error: Must implement '{command}' command.")
         if success:
-            print(f"Successfully loaded command book '{module_name}'.")
+            Bot.buff = config.command_book['buff']
+            print(f"[~] Successfully loaded command book '{module_name}'.")
         else:
             config.command_book = {'move': commands.DefaultMove,
                                    'adjust': commands.DefaultAdjust,
                                    'buff': commands.DefaultBuff}
-            print(f"Command book '{module_name}' was not loaded.")
+            print(f"[!] Command book '{module_name}' was not loaded.")
 
     @staticmethod
     def load_routine(file=None):
         """
-        Attempts to load FILE into a sequence of Points. Prompts user input if no file is given.
+        Attempts to load FILE into a sequence of Points. If no file path is provided, attempts to
+        load the previous routine file.
         :param file:    The file's path.
         :return:        None
         """
 
-        routines_dir = './routines'
+        utils.print_separator()
+        print(f"[~] Loading routine '{basename(file)}':")
+
         if not file:
-            utils.print_separator()
-            print('~~~ Import Routine ~~~')
-            file = Bot._select_file(routines_dir, '.csv')
-        if file:
-            config.calibrated = False
-            config.sequence = []
-            config.seq_index = 0
-            utils.reset_settings()
-            utils.print_separator()
-            print(f"Loading routine '{file}'...")
-            with open(join(routines_dir, file), newline='') as f:
-                csv_reader = csv.reader(f, skipinitialspace=True)
-                curr_point = None
-                line = 1
-                for row in csv_reader:
-                    result = Bot._eval(row, line)
-                    if result:
-                        if isinstance(result, commands.Command):
-                            if curr_point:
-                                curr_point.commands.append(result)
-                        else:
-                            config.sequence.append(result)
-                            if isinstance(result, Point):
-                                curr_point = result
-                    line += 1
-            config.routine = file
-            config.layout = Layout.load(file)
-            print(f"Finished loading routine '{file}'.")
-            winsound.Beep(523, 200)     # C5
-            winsound.Beep(659, 200)     # E5
-            winsound.Beep(784, 200)     # G5
+            if config.routine_path:
+                file = config.routine_path
+                print(' *  File path not provided, using previously loaded routine.')
+            else:
+                print(' !  File path not provided, no routine was previously loaded either.')
+                return
+
+        ext = splitext(file)[1]
+        if ext != '.csv':
+            print(f" !  '{ext}' is not a supported file extension.")
+            return
+
+        config.sequence = []
+        config.seq_index = 0
+        utils.reset_settings()
+
+        with open(file, newline='') as f:
+            csv_reader = csv.reader(f, skipinitialspace=True)
+            curr_point = None
+            line = 1
+            for row in csv_reader:
+                result = Bot._eval(row, line)
+                if result:
+                    if isinstance(result, commands.Command):
+                        if curr_point:
+                            curr_point.commands.append(result)
+                    else:
+                        config.sequence.append(result)
+                        if isinstance(result, Point):
+                            curr_point = result
+                line += 1
+        config.routine_path = file
+        config.layout = Layout.load(file)
+        print(f"[~] Finished loading routine at '{basename(file)}'.")
+        winsound.Beep(523, 200)     # C5
+        winsound.Beep(659, 200)     # E5
+        winsound.Beep(784, 200)     # G5
 
     @staticmethod
     def _eval(expr, n):
@@ -310,7 +322,7 @@ class Bot:
         if expr and isinstance(expr, list):
             first, rest = expr[0].lower(), expr[1:]
             args, kwargs = utils.separate_args(rest)
-            line = f'Line {n}: '
+            line = f' !  Line {n}: '
             if first == '@':        # Check for labels
                 if len(args) != 1 or len(kwargs) != 0:
                     print(line + 'Incorrect number of arguments for a label.')
@@ -347,41 +359,6 @@ class Bot:
                         print(line + f"Invalid arguments for command '{first}': {args}, {kwargs}")
                     except TypeError:
                         print(line + f"Incorrect number of arguments for command '{first}'.")
-
-    @staticmethod
-    def _select_file(directory, extension):
-        """
-        Prompts the user to select a file from the .csv files within DIRECTORY.
-        :param directory:   The directory in which to search.
-        :param extension:   The file extension for which to filter by.
-        :return:            The path of the selected file.
-        """
-
-        index = float('inf')
-        valid_files = [f for f in listdir(directory) if isfile(join(directory, f)) and extension in f]
-        num_files = len(valid_files)
-        if not valid_files:
-            print(f"Unable to find any '{extension}' files in '{directory}'.")
-        else:
-            print('Please select from the following files:\n')
-            for i in range(num_files):
-                print(f'{i:02} -- {valid_files[i]}')
-            print()
-
-            selection = 0
-            while index not in range(num_files):
-                try:
-                    selection = input('>>> ')
-                except KeyboardInterrupt:
-                    exit()
-
-                if not utils.validate_type(selection, int):
-                    print('Selection must be an integer.')
-                else:
-                    index = int(selection)
-                    if index not in range(num_files):
-                        print(f'Please enter an integer between 0 and {max(0, num_files - 1)}.')
-            return valid_files[index]
 
     @staticmethod
     def toggle_enabled():

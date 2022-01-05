@@ -32,7 +32,7 @@ class GUI:
     def _save_layout(self):
         """Periodically saves the current Layout object."""
 
-        if config.layout is not None:
+        if config.layout is not None and config.record_layout:
             config.layout.save()
         self.root.after(5000, self._save_layout)
 
