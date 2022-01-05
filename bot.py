@@ -80,6 +80,7 @@ class Bot:
                     # Highlight the current Point
                     config.view_listbox.selection_clear(0, len(config.routine))
                     config.view_listbox.selection_set(config.seq_index)
+                    config.view_listbox.activate(config.seq_index)
 
                     # Execute next Point in the routine
                     element = config.routine[config.seq_index]
@@ -197,10 +198,12 @@ class Bot:
 
         if success:
             config.command_book = new_cb
+            config.curr_cb.set(basename(file))
             Bot.buff = new_cb['buff']()        # TODO: update status on front page
 
             # Clear the current routine and Layout because command book changed
             config.routine.set([])
+            config.curr_routine.set('')
             config.layout = None
 
             print(f"[~] Successfully loaded command book '{module_name}'.")
@@ -255,7 +258,9 @@ class Bot:
                         if isinstance(result, Point):
                             curr_point = result
                 line += 1
+
         config.routine.path = file
+        config.curr_routine.set(basename(file))
         config.layout = Layout.load(file)
         print(f"[~] Finished loading routine '{basename(splitext(file)[0])}'.")
         winsound.Beep(523, 200)     # C5
