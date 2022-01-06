@@ -2,6 +2,11 @@
 
 import config
 import utils
+import csv
+from os.path import splitext, basename
+from commands import Command
+from layout import Layout
+from settings import SETTING_VALIDATORS
 
 
 def _update(func):
@@ -38,20 +43,144 @@ class Routine:
     def index(self, item):
         return self.sequence.index(item)
 
+    def save(self, file_path):
+        """Encodes and saves the current Routine at location PATH."""
+
+        result = []
+        for item in self.sequence:
+            # TODO: Label object
+            if isinstance(item, Point):
+                result.append(item.encode())
+                for c in item.commands:
+                    result.append(' ' * 4 + c.encode())
+            else:
+                result.append(f'@, {item}')
+
+        with open(file_path, 'w') as file:
+            file.write('\n'.join(result))
+
+        utils.print_separator()
+        print(f"[~] Saved routine to '{basename(file_path)}'.")
+
+    def load(self, file=None):
+        """
+        Attempts to load FILE into a sequence of Points. If no file path is provided, attempts to
+        load the previous routine file.
+        :param file:    The file's path.
+        :return:        None
+        """
+
+        utils.print_separator()
+        print(f"[~] Loading routine '{basename(file)}':")
+
+        if not file:
+            if self.path:
+                file = self.path
+                print(' *  File path not provided, using previously loaded routine.')
+            else:
+                print(' !  File path not provided, no routine was previously loaded either.')
+                return False
+
+        ext = splitext(file)[1]
+        if ext != '.csv':
+            print(f" !  '{ext}' is not a supported file extension.")
+            return False
+
+        config.routine.set([])
+        config.seq_index = 0
+        utils.reset_settings()
+
+        with open(file, newline='') as f:
+            csv_reader = csv.reader(f, skipinitialspace=True)
+            curr_point = None
+            line = 1
+            for row in csv_reader:
+                result = Routine._eval(row, line)
+                if result:
+                    if isinstance(result, Command):
+                        if curr_point:
+                            curr_point.commands.append(result)
+                    else:
+                        config.routine.append(result)
+                        if isinstance(result, Point):
+                            curr_point = result
+                line += 1
+
+        self.path = file
+        config.curr_routine.set(basename(file))
+        config.layout = Layout.load(file)
+        print(f"[~] Finished loading routine '{basename(splitext(file)[0])}'.")
+        return True
+
+    @staticmethod
+    def _eval(expr, n):
+        """
+        Evaluates the given expression EXPR in the context of Auto Kanna.
+        :param expr:    A list of strings to evaluate.
+        :param n:       The line number of EXPR in the routine file.
+        :return:        An object that represents EXPR.
+        """
+
+        if expr and isinstance(expr, list):
+            first, rest = expr[0].lower(), expr[1:]
+            args, kwargs = utils.separate_args(rest)
+            line = f' !  Line {n}: '
+            if first == '@':        # Check for labels
+                if len(args) != 1 or len(kwargs) != 0:
+                    print(line + 'Incorrect number of arguments for a label.')
+                else:
+                    return args[0]
+            elif first == 's':      # Check for settings
+                if len(args) != 2 or len(kwargs) != 0:
+                    print(line + 'Incorrect number of arguments for a setting.')
+                else:
+                    variable = args[0].lower()
+                    value = args[1].lower()
+                    if variable not in SETTING_VALIDATORS:
+                        print(line + f"'{variable}' is not a valid setting.")
+                    else:
+                        try:
+                            value = SETTING_VALIDATORS[variable](value)
+                            setattr(config, variable, value)
+                        except ValueError:
+                            print(line + f"'{value}' is not a valid value for '{variable}'.")
+            elif first == '*':      # Check for Points
+                try:
+                    return Point(*args, **kwargs)
+                except ValueError:
+                    print(line + f'Invalid arguments for a Point: {args}, {kwargs}')
+                except TypeError:
+                    print(line + 'Incorrect number of arguments for a Point.')
+            else:                   # Otherwise might be a Command
+                if first not in config.command_book.keys():
+                    print(line + f"Command '{first}' does not exist.")
+                else:
+                    try:
+                        return config.command_book.get(first)(*args, **kwargs)
+                    except ValueError:
+                        print(line + f"Invalid arguments for command '{first}': {args}, {kwargs}")
+                    except TypeError:
+                        print(line + f"Incorrect number of arguments for command '{first}'.")
+
     def __getitem__(self, i):
-        if i < 0 or i >= len(self):
-            raise IndexError
         return self.sequence[i]
 
     def __len__(self):
         return len(self.sequence)
 
 
-class Point:
+#################################
+#       Routine Components      #
+#################################
+class Point(utils.Serializable):
     """Represents a location in a user-defined routine."""
 
+    id = '*'
+
     def __init__(self, x, y, frequency=1, counter=0, adjust='False'):
-        self.location = (float(x), float(y))
+        self.x = float(x)
+        self.y = float(y)
+        self.location = (self.x, self.y)
         self.frequency = utils.validate_nonzero_int(frequency)
         self.counter = int(counter)
         self.adjust = utils.validate_boolean(adjust)

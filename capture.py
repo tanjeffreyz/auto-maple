@@ -6,7 +6,6 @@ import time
 import cv2
 import threading
 import numpy as np
-
 import settings
 import utils
 from routine import Point
@@ -89,45 +88,6 @@ class Capture:
                             config.rune_index = config.routine.sequence[index].location
                             config.rune_active = True
 
-
-                    #########################################
-                    #       Display useful information      #
-                    #########################################
-                    # minimap = Capture._rescale_frame(minimap, 2.0)
-                    #
-                    # # Mark the position of the active rune
-                    # if config.rune_active:
-                    #     cv2.circle(minimap,
-                    #                utils.convert_to_absolute(config.rune_pos, minimap),
-                    #                5,
-                    #                (128, 0, 128),
-                    #                -1)
-                    #
-                    # # Draw the current path that the program is taking
-                    # path = config.path
-                    # if config.enabled and len(path) > 1:
-                    #     for i in range(len(path) - 1):
-                    #         start = utils.convert_to_absolute(path[i], minimap)
-                    #         end = utils.convert_to_absolute(path[i + 1], minimap)
-                    #         cv2.line(minimap, start, end, (255, 255, 0), 1)
-                    #
-                    # # Draw each Point in the routine as a circle
-                    # for p in config.sequence:
-                    #     Capture.draw_point(minimap,
-                    #                         p,
-                    #                         (0, 255, 0) if config.enabled else (0, 0, 255))
-                    #
-                    # # Display the current Layout
-                    # if config.layout:
-                    #     config.layout.draw(minimap)
-                    #
-                    # # Draw the player's position on top of everything
-                    # cv2.circle(minimap,
-                    #            utils.convert_to_absolute(config.player_pos, minimap),
-                    #            3,
-                    #            (255, 0, 0),
-                    #            -1)
-
                     # Package display information to be polled by GUI
                     config.minimap = {
                         'minimap': minimap,
@@ -136,10 +96,6 @@ class Capture:
                         'path': config.path,
                         'player_pos': config.player_pos
                     }
-
-                    # cv2.imshow('minimap', minimap)
-                # if cv2.waitKey(1) & 0xFF == 27:     # 27 is ASCII for the Esc key
-                #     break
                 if not self.ready:
                     self.ready = True
                 time.sleep(0.001)

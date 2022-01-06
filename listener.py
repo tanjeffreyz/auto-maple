@@ -4,6 +4,7 @@ import config
 import time
 import utils
 import threading
+import winsound
 import keyboard as kb
 from bot import Bot
 
@@ -36,9 +37,17 @@ class Listener:
             if config.listening:
                 if kb.is_pressed('insert'):
                     Bot.toggle_enabled()
+                    if config.enabled:
+                        winsound.Beep(784, 333)     # G5
+                    else:
+                        winsound.Beep(523, 333)     # C5
+                    time.sleep(0.267)
                 elif kb.is_pressed('F6'):
                     config.calibrated = False
-                    Bot.load_routine(config.routine.path)
+                    config.routine.load(config.routine.path)
+                    winsound.Beep(523, 200)     # C5
+                    winsound.Beep(659, 200)     # E5
+                    winsound.Beep(784, 200)     # G5
                 elif kb.is_pressed('F7'):
                     pass            # TODO: update listener
                     # Bot.load_commands()

@@ -6,9 +6,8 @@ import queue
 import cv2
 import threading
 import numpy as np
-from random import random
-
 import settings
+from random import random
 
 
 def run_if_enabled(function):
@@ -154,12 +153,18 @@ def convert_to_absolute(point, frame):
 
 
 def print_separator():
-    """
-    Prints a 3 blank lines for visual clarity.
-    :return:    None
-    """
+    """Prints a 3 blank lines for visual clarity."""
 
     print('\n\n')
+
+
+def print_state():
+    """Prints whether Auto Maple is currently enabled or disabled."""
+
+    print_separator()
+    print('#' * 18)
+    print(f"#    {'ENABLED ' if config.enabled else 'DISABLED'}    #")
+    print('#' * 18)
 
 
 def closest_point(points, target):
@@ -215,6 +220,24 @@ def async_callback(context, function, *args, **kwargs):
         task.start()
         context.after(100, task.process_queue(context))
     return f
+
+
+#############################
+#       Serialization       #
+#############################
+PRIMITIVES = {int, str, bool, float}
+
+
+class Serializable:
+    id = 'Serializable'
+
+    def encode(self):
+        variables = self.__dict__
+        arr = [self.id]
+        for key, value in variables.items():
+            if key != 'id' and type(variables[key]) in PRIMITIVES:
+                arr.append(f'{key}={value}')
+        return ', '.join(arr)
 
 
 #################################

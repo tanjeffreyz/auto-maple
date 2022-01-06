@@ -207,115 +207,110 @@ class Bot:
             config.layout = None
 
             print(f"[~] Successfully loaded command book '{module_name}'.")
-            winsound.Beep(523, 200)     # C5
-            winsound.Beep(784, 200)     # G5
         else:
             print(f"[!] Command book '{module_name}' was not loaded.")
-            time.sleep(0.4)
+        return success
 
-    @staticmethod
-    def load_routine(file=None):
-        """
-        Attempts to load FILE into a sequence of Points. If no file path is provided, attempts to
-        load the previous routine file.
-        :param file:    The file's path.
-        :return:        None
-        """
-
-        utils.print_separator()
-        print(f"[~] Loading routine '{basename(file)}':")
-
-        if not file:
-            if config.routine.path:
-                file = config.routine.path
-                print(' *  File path not provided, using previously loaded routine.')
-            else:
-                print(' !  File path not provided, no routine was previously loaded either.')
-                time.sleep(0.6)
-                return
-
-        ext = splitext(file)[1]
-        if ext != '.csv':
-            print(f" !  '{ext}' is not a supported file extension.")
-            return
-
-        config.routine.set([])
-        config.seq_index = 0
-        utils.reset_settings()
-
-        with open(file, newline='') as f:
-            csv_reader = csv.reader(f, skipinitialspace=True)
-            curr_point = None
-            line = 1
-            for row in csv_reader:
-                result = Bot._eval(row, line)
-                if result:
-                    if isinstance(result, commands.Command):
-                        if curr_point:
-                            curr_point.commands.append(result)
-                    else:
-                        config.routine.append(result)
-                        if isinstance(result, Point):
-                            curr_point = result
-                line += 1
-
-        config.routine.path = file
-        config.curr_routine.set(basename(file))
-        config.layout = Layout.load(file)
-        print(f"[~] Finished loading routine '{basename(splitext(file)[0])}'.")
-        winsound.Beep(523, 200)     # C5
-        winsound.Beep(659, 200)     # E5
-        winsound.Beep(784, 200)     # G5
-
-    @staticmethod
-    def _eval(expr, n):
-        """
-        Evaluates the given expression EXPR in the context of Auto Kanna.
-        :param expr:    A list of strings to evaluate.
-        :param n:       The line number of EXPR in the routine file.
-        :return:        An object that represents EXPR.
-        """
-
-        if expr and isinstance(expr, list):
-            first, rest = expr[0].lower(), expr[1:]
-            args, kwargs = utils.separate_args(rest)
-            line = f' !  Line {n}: '
-            if first == '@':        # Check for labels
-                if len(args) != 1 or len(kwargs) != 0:
-                    print(line + 'Incorrect number of arguments for a label.')
-                else:
-                    return args[0]
-            elif first == 's':      # Check for settings
-                if len(args) != 2 or len(kwargs) != 0:
-                    print(line + 'Incorrect number of arguments for a setting.')
-                else:
-                    variable = args[0].lower()
-                    value = args[1].lower()
-                    if variable not in SETTING_VALIDATORS:
-                        print(line + f"'{variable}' is not a valid setting.")
-                    else:
-                        try:
-                            value = SETTING_VALIDATORS[variable](value)
-                            setattr(config, variable, value)
-                        except ValueError:
-                            print(line + f"'{value}' is not a valid value for '{variable}'.")
-            elif first == '*':      # Check for Points
-                try:
-                    return Point(*args, **kwargs)
-                except ValueError:
-                    print(line + f'Invalid arguments for a Point: {args}, {kwargs}')
-                except TypeError:
-                    print(line + 'Incorrect number of arguments for a Point.')
-            else:                   # Otherwise might be a Command
-                if first not in config.command_book.keys():
-                    print(line + f"Command '{first}' does not exist.")
-                else:
-                    try:
-                        return config.command_book.get(first)(*args, **kwargs)
-                    except ValueError:
-                        print(line + f"Invalid arguments for command '{first}': {args}, {kwargs}")
-                    except TypeError:
-                        print(line + f"Incorrect number of arguments for command '{first}'.")
+    # @staticmethod
+    # def load_routine(file=None):
+    #     """
+    #     Attempts to load FILE into a sequence of Points. If no file path is provided, attempts to
+    #     load the previous routine file.
+    #     :param file:    The file's path.
+    #     :return:        None
+    #     """
+    #
+    #     utils.print_separator()
+    #     print(f"[~] Loading routine '{basename(file)}':")
+    #
+    #     if not file:
+    #         if config.routine.path:
+    #             file = config.routine.path
+    #             print(' *  File path not provided, using previously loaded routine.')
+    #         else:
+    #             print(' !  File path not provided, no routine was previously loaded either.')
+    #             time.sleep(0.6)
+    #             return
+    #
+    #     ext = splitext(file)[1]
+    #     if ext != '.csv':
+    #         print(f" !  '{ext}' is not a supported file extension.")
+    #         return
+    #
+    #     config.routine.set([])
+    #     config.seq_index = 0
+    #     utils.reset_settings()
+    #
+    #     with open(file, newline='') as f:
+    #         csv_reader = csv.reader(f, skipinitialspace=True)
+    #         curr_point = None
+    #         line = 1
+    #         for row in csv_reader:
+    #             result = Bot._eval(row, line)
+    #             if result:
+    #                 if isinstance(result, commands.Command):
+    #                     if curr_point:
+    #                         curr_point.commands.append(result)
+    #                 else:
+    #                     config.routine.append(result)
+    #                     if isinstance(result, Point):
+    #                         curr_point = result
+    #             line += 1
+    #
+    #     config.routine.path = file
+    #     config.curr_routine.set(basename(file))
+    #     config.layout = Layout.load(file)
+    #     print(f"[~] Finished loading routine '{basename(splitext(file)[0])}'.")
+    #
+    # @staticmethod
+    # def _eval(expr, n):
+    #     """
+    #     Evaluates the given expression EXPR in the context of Auto Kanna.
+    #     :param expr:    A list of strings to evaluate.
+    #     :param n:       The line number of EXPR in the routine file.
+    #     :return:        An object that represents EXPR.
+    #     """
+    #
+    #     if expr and isinstance(expr, list):
+    #         first, rest = expr[0].lower(), expr[1:]
+    #         args, kwargs = utils.separate_args(rest)
+    #         line = f' !  Line {n}: '
+    #         if first == '@':        # Check for labels
+    #             if len(args) != 1 or len(kwargs) != 0:
+    #                 print(line + 'Incorrect number of arguments for a label.')
+    #             else:
+    #                 return args[0]
+    #         elif first == 's':      # Check for settings
+    #             if len(args) != 2 or len(kwargs) != 0:
+    #                 print(line + 'Incorrect number of arguments for a setting.')
+    #             else:
+    #                 variable = args[0].lower()
+    #                 value = args[1].lower()
+    #                 if variable not in SETTING_VALIDATORS:
+    #                     print(line + f"'{variable}' is not a valid setting.")
+    #                 else:
+    #                     try:
+    #                         value = SETTING_VALIDATORS[variable](value)
+    #                         setattr(config, variable, value)
+    #                     except ValueError:
+    #                         print(line + f"'{value}' is not a valid value for '{variable}'.")
+    #         elif first == '*':      # Check for Points
+    #             try:
+    #                 return Point(*args, **kwargs)
+    #             except ValueError:
+    #                 print(line + f'Invalid arguments for a Point: {args}, {kwargs}')
+    #             except TypeError:
+    #                 print(line + 'Incorrect number of arguments for a Point.')
+    #         else:                   # Otherwise might be a Command
+    #             if first not in config.command_book.keys():
+    #                 print(line + f"Command '{first}' does not exist.")
+    #             else:
+    #                 try:
+    #                     return config.command_book.get(first)(*args, **kwargs)
+    #                 except ValueError:
+    #                     print(line + f"Invalid arguments for command '{first}': {args}, {kwargs}")
+    #                 except TypeError:
+    #                     print(line + f"Incorrect number of arguments for command '{first}'.")
 
     @staticmethod
     def toggle_enabled():
@@ -327,18 +322,9 @@ class Bot:
 
         config.rune_active = False
         config.alert_active = False
-        utils.print_separator()
-        print('#' * 18)
-        print(f"#    {'DISABLED' if config.enabled else 'ENABLED '}    #")
-        print('#' * 18)
-
         config.calibrated = False
         while not config.calibrated:
             time.sleep(0.01)
 
         config.enabled = not config.enabled
-        if config.enabled:
-            winsound.Beep(784, 333)     # G5
-        else:
-            winsound.Beep(523, 333)     # C5
-        time.sleep(0.667)
+        utils.print_state()

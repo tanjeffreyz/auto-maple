@@ -13,15 +13,13 @@ class Move(Command):
     """Moves to a given position using the shortest path based on the current Layout."""
 
     def __init__(self, x, y, max_steps=15):
-        self.name = 'Move'
+        super().__init__()
         self.target = (float(x), float(y))
         self.max_steps = utils.validate_nonzero_int(max_steps)
 
     def main(self):
         counter = self.max_steps
         path = config.layout.shortest_path(config.player_pos, self.target)
-        # config.path = path.copy()
-        # config.path.insert(0, config.player_pos)
         for point in path:
             counter = self._step(point, counter)
 
@@ -61,7 +59,7 @@ class Adjust(Command):
     """Fine-tunes player position using small movements."""
 
     def __init__(self, x, y, max_steps=5):
-        self.name = 'Adjust'
+        super().__init__()
         self.target = (float(x), float(y))
         self.max_steps = utils.validate_nonzero_int(max_steps)
 
@@ -110,7 +108,7 @@ class Buff(Command):
     """Uses each of Kanna's buffs once. Uses 'Haku Reborn' whenever it is available."""
 
     def __init__(self):
-        self.name = 'Buff'
+        super().__init__()
         self.haku_time = 0
         self.buff_time = 0
 
@@ -134,7 +132,7 @@ class Teleport(Command):
     """
 
     def __init__(self, direction, jump='False'):
-        self.name = 'Teleport'
+        super().__init__()
         self.direction = utils.validate_arrows(direction)
         self.jump = utils.validate_boolean(jump)
 
@@ -164,7 +162,7 @@ class Shikigami(Command):
     """Attacks using 'Shikigami Haunting' in a given direction."""
 
     def __init__(self, direction, attacks=2, repetitions=1):
-        self.name = 'Shikigami'
+        super().__init__()
         self.direction = utils.validate_horizontal_arrows(direction)
         self.attacks = int(attacks)
         self.repetitions = int(repetitions)
@@ -185,9 +183,6 @@ class Shikigami(Command):
 class Tengu(Command):
     """Uses 'Tengu Strike' once."""
 
-    def __init__(self):
-        self.name = 'Tengu'
-
     def main(self):
         press('q', 1)
 
@@ -199,7 +194,7 @@ class Yaksha(Command):
     """
 
     def __init__(self, direction=None):
-        self.name = 'Yaksha'
+        super().__init__()
         if direction is None:
             self.direction = direction
         else:
@@ -219,9 +214,6 @@ class Yaksha(Command):
 class Vanquisher(Command):
     """Holds down 'Vanquisher's Charm' until this command is called again."""
 
-    def __init__(self):
-        self.name = 'Vanquisher'
-
     def main(self):
         key_up('f')
         time.sleep(0.075)
@@ -232,18 +224,12 @@ class Vanquisher(Command):
 class Kishin(Command):
     """Uses 'Kishin Shoukan' once."""
 
-    def __init__(self):
-        self.name = 'Kishin'
-
     def main(self):
         press('ctrl', 4, down_time=0.1, up_time=0.15)
 
 
 class NineTails(Command):
     """Uses 'Nine-Tailed Fury' once."""
-
-    def __init__(self):
-        self.name = 'NineTails'
 
     def main(self):
         press('3', 3)
@@ -253,7 +239,7 @@ class Exorcist(Command):
     """Uses 'Exorcist's Charm' once."""
 
     def __init__(self, jump='False'):
-        self.name = 'Exorcist'
+        super().__init__()
         self.jump = utils.validate_boolean(jump)
 
     def main(self):
@@ -265,18 +251,12 @@ class Exorcist(Command):
 class Domain(Command):
     """Uses 'Spirit's Domain' once."""
 
-    def __init__(self):
-        self.name = 'Domain'
-
     def main(self):
         press('v', 3)
 
 
 class Legion(Command):
     """Uses 'Ghost Yaksha: Great Oni Lord's Legion' once."""
-
-    def __init__(self):
-        self.name = 'Legion'
 
     def main(self):
         press('z', 2, down_time=0.1)
@@ -285,18 +265,12 @@ class Legion(Command):
 class BlossomBarrier(Command):
     """Places a 'Blossom Barrier' on the ground once."""
 
-    def __init__(self):
-        self.name = 'Blossom Barrier'
-
     def main(self):
         press('g', 2)
 
 
 class Yukimusume(Command):
     """Uses 'Yuki-musume Shoukan' once."""
-
-    def __init__(self):
-        self.name = 'Yuki-musume'
 
     def main(self):
         press('c', 2)
@@ -305,18 +279,12 @@ class Yukimusume(Command):
 class Balance(Command):
     """Restores mana using 'Mana Balance' once."""
 
-    def __init__(self):
-        self.name = 'Mana Balance'
-
     def main(self):
         press('lshift', 2)
 
 
 class Charm(Command):
     """Jumps up using 'Shikigami Charm'."""
-
-    def __init__(self):
-        self.name = 'Shikigami Charm'
 
     def main(self):
         press('d', 2)

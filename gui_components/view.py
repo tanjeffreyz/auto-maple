@@ -94,7 +94,7 @@ class Minimap(LabelFrame):
                                      c_height // 2,
                                      image=img, anchor=tk.CENTER)
             self._img = img                 # Prevent garbage collection
-        self.after(10, self.display_minimap)
+        self.after(33, self.display_minimap)
 
 
 class Status(LabelFrame):
