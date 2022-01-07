@@ -30,8 +30,6 @@ class View(Page):
         self.routine.grid(row=0, column=1, rowspan=3, sticky=tk.NSEW, padx=10, pady=10)
 
 
-
-
 class Minimap(LabelFrame):
     def __init__(self, parent, **kwargs):
         super().__init__(parent, 'Minimap', **kwargs)
@@ -132,21 +130,20 @@ class Status(LabelFrame):
 class Details(LabelFrame):
     def __init__(self, parent, **kwargs):
         super().__init__(parent, 'Details', **kwargs)
-
-        self.columnconfigure(0, weight=1)
-        self.columnconfigure(2, weight=1)
-
         self.name_var = tk.StringVar()
-        self.info_var = tk.StringVar()
 
         self.name = tk.Label(self, textvariable=self.name_var)
-        self.name.grid(row=0, column=1, padx=5, pady=(5, 1))
+        self.name.pack(expand=True, fill='x', pady=(5, 0))
 
-        self.separator = ttk.Separator(self, orient='horizontal')
-        self.separator.grid(row=1, column=1, sticky=tk.EW)
+        self.scroll = tk.Scrollbar(self)
+        self.scroll.pack(side=tk.RIGHT, fill=tk.Y, pady=5)
 
-        self.info = tk.Label(self, textvariable=self.info_var, justify=tk.LEFT, wraplength=400)
-        self.info.grid(row=2, column=0, columnspan=3, padx=5, pady=(1, 5), sticky=tk.W)
+        self.text = tk.Text(self, width=1, height=10,
+                            yscrollcommand=self.scroll.set,
+                            state=tk.DISABLED, wrap=tk.WORD)
+        self.text.pack(side=tk.LEFT, expand=True, fill='both', padx=(5, 0), pady=(0, 5))
+
+        self.scroll.config(command=self.text.yview)
 
     def update_details(self, e):
         """Callback for updating the Details section everytime Listbox selection changes."""
@@ -155,19 +152,27 @@ class Details(LabelFrame):
         if len(selections) > 0:
             index = int(selections[0])
             self.display_info(index)
-        else:
-            self.name_var.set('')
-            self.info_var.set('')
 
     def display_info(self, index):
         """Updates the Details section to show info about the Component at position INDEX."""
 
+        self.text.config(state=tk.NORMAL)
+
         info = config.routine[index].info()
         self.name_var.set(info['name'])
         arr = []
-        for key, value in info['info'].items():
+        for key, value in info['vars'].items():
             arr.append(f'{key}: {value}')
-        self.info_var.set('\n'.join(arr))
+        self.text.delete(1.0, 'end')
+        self.text.insert(1.0, '\n'.join(arr))
+
+        self.text.config(state=tk.DISABLED)
+
+    def clear_info(self):
+        self.name_var.set('')
+        self.text.config(state=tk.NORMAL)
+        self.text.delete(1.0, 'end')
+        self.text.config(state=tk.DISABLED)
 
 
 class Routine(LabelFrame):

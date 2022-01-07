@@ -88,6 +88,7 @@ class Routine:
                 c.bind()
 
         self.path = file
+        config.gui.view.details.clear_info()
         config.gui.view.status.update_routine(basename(file))
         config.layout = Layout.load(file)
         print(f"[~] Finished loading routine '{basename(splitext(file)[0])}'.")
@@ -134,56 +135,6 @@ class Routine:
             except (ValueError, TypeError) as e:
                 print(line_error + f"Found invalid arguments for '{c.__name__}':")
                 print(f"{' ' * 4} -  {e}")
-    #
-    # @staticmethod
-    # def _eval(expr, n):
-    #     """
-    #     Evaluates the given expression EXPR in the context of Auto Kanna.
-    #     :param expr:    A list of strings to evaluate.
-    #     :param n:       The line number of EXPR in the routine file.
-    #     :return:        An object that represents EXPR.
-    #     """
-    #
-    #     if expr and isinstance(expr, list):
-    #         first, rest = expr[0].lower(), expr[1:]
-    #         args, kwargs = utils.separate_args(rest)
-    #         line = f' !  Line {n}: '
-    #         if first == '@':        # Check for labels
-    #             if len(args) != 1 or len(kwargs) != 0:
-    #                 print(line + 'Incorrect number of arguments for a label.')
-    #             else:
-    #                 return args[0]
-    #         elif first == 's':      # Check for settings
-    #             if len(args) != 2 or len(kwargs) != 0:
-    #                 print(line + 'Incorrect number of arguments for a setting.')
-    #             else:
-    #                 variable = args[0].lower()
-    #                 value = args[1].lower()
-    #                 if variable not in SETTING_VALIDATORS:
-    #                     print(line + f"'{variable}' is not a valid setting.")
-    #                 else:
-    #                     try:
-    #                         value = SETTING_VALIDATORS[variable](value)
-    #                         setattr(config, variable, value)
-    #                     except ValueError:
-    #                         print(line + f"'{value}' is not a valid value for '{variable}'.")
-    #         elif first == '*':      # Check for Points
-    #             try:
-    #                 return Point(*args, **kwargs)
-    #             except ValueError:
-    #                 print(line + f'Invalid arguments for a Point: {args}, {kwargs}')
-    #             except TypeError:
-    #                 print(line + 'Incorrect number of arguments for a Point.')
-    #         else:                   # Otherwise might be a Command
-    #             if first not in config.command_book.keys():
-    #                 print(line + f"Command '{first}' does not exist.")
-    #             else:
-    #                 try:
-    #                     return config.command_book.get(first)(*args, **kwargs)
-    #                 except ValueError:
-    #                     print(line + f"Invalid arguments for command '{first}': {args}, {kwargs}")
-    #                 except TypeError:
-    #                     print(line + f"Incorrect number of arguments for command '{first}'.")
 
     def __getitem__(self, i):
         return self.sequence[i]
@@ -221,7 +172,10 @@ class Component:
         for key in self.__dict__:
             if not key.startswith('_'):
                 attributes[key] = self.__dict__[key]
-        return {'name': self.__class__.__name__, 'info': attributes}
+        return {
+            'name': self.__class__.__name__,
+            'vars': attributes
+        }
 
     def encode(self):
         """Encodes an object using its ID and its __init__ arguments."""
@@ -285,6 +239,12 @@ class Point(Component):
 
         self.counter = (self.counter + 1) % self.frequency
 
+    def info(self):
+        curr = super().info()
+        curr['vars'].pop('location', None)
+        curr['vars']['commands'] = ', '.join([c.id for c in self.commands])
+        return curr
+
     def __str__(self):
         return f'  * {self.location}'
 
@@ -305,6 +265,11 @@ class Label(Component):
 
     def encode(self):
         return '\n' + super().encode()
+
+    def info(self):
+        curr = super().info()
+        curr['vars'].pop('links', None)
+        return curr
 
     def __delete__(self, instance):
         del self.links
@@ -350,6 +315,11 @@ class Jump(Component):
             self.link.links.add(self)
             return True
         return False
+
+    def info(self):
+        curr = super().info()
+        curr['vars'].pop('link', None)
+        return curr
 
     def __delete__(self, instance):
         if self.link is not None:

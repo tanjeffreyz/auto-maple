@@ -188,6 +188,7 @@ class Bot:
             Bot.buff = new_cb['buff']()
 
             # Clear the current routine and Layout because command book changed
+            config.gui.view.details.clear_info()
             config.routine.set([])
             config.gui.view.status.update_routine('')
             config.layout = None
