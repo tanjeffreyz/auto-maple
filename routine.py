@@ -8,12 +8,12 @@ from os.path import splitext, basename
 from layout import Layout
 
 
-def update(func):
+def update(func):           # TODO: routine keep track of display sequence, don't O(n) every time
     """Decorator function that updates CONFIG.ROUTINE_VAR for all mutative Routine operations."""
 
     def f(self, *args, **kwargs):
         result = func(self, *args, **kwargs)
-        config.routine_var.set([str(e) for e in self.sequence])
+        config.gui.set_routine([str(e) for e in self.sequence])
         return result
     return f
 
@@ -88,7 +88,7 @@ class Routine:
                 c.bind()
 
         self.path = file
-        config.curr_routine.set(basename(file))
+        config.gui.view.status.update_routine(basename(file))
         config.layout = Layout.load(file)
         print(f"[~] Finished loading routine '{basename(splitext(file)[0])}'.")
         return True
@@ -213,6 +213,15 @@ class Component:
 
     def main(self):
         pass
+
+    def info(self):
+        """Returns a dictionary of useful information about this Component."""
+
+        attributes = {}
+        for key in self.__dict__:
+            if not key.startswith('_'):
+                attributes[key] = self.__dict__[key]
+        return {'name': self.__class__.__name__, 'info': attributes}
 
     def encode(self):
         """Encodes an object using its ID and its __init__ arguments."""

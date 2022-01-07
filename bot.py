@@ -72,9 +72,7 @@ class Bot:
                     Bot.buff.main()
 
                     # Highlight the current Point
-                    config.view_listbox.selection_clear(0, len(config.routine))
-                    config.view_listbox.selection_set(Routine.index)
-                    config.view_listbox.activate(Routine.index)
+                    config.gui.view.routine.select(Routine.index, len(config.routine))
 
                     # Execute next Point in the routine
                     element = config.routine[Routine.index]
@@ -191,12 +189,12 @@ class Bot:
 
         if success:
             config.command_book = new_cb
-            config.curr_cb.set(basename(file))
+            config.gui.view.status.update_cb(basename(file))
             Bot.buff = new_cb['buff']()
 
             # Clear the current routine and Layout because command book changed
             config.routine.set([])
-            config.curr_routine.set('')
+            config.gui.view.status.update_routine('')
             config.layout = None
 
             print(f"[~] Successfully loaded command book '{module_name}'.")

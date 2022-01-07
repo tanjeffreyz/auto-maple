@@ -4,6 +4,7 @@ import config
 import utils
 import cv2
 import tkinter as tk
+from tkinter import ttk
 from gui_components.interfaces import LabelFrame, Page
 from capture import Capture
 from PIL import Image, ImageTk
@@ -29,11 +30,15 @@ class View(Page):
         self.routine.grid(row=0, column=1, rowspan=3, sticky=tk.NSEW, padx=10, pady=10)
 
 
+
+
 class Minimap(LabelFrame):
     def __init__(self, parent, **kwargs):
         super().__init__(parent, 'Minimap', **kwargs)
 
-        self.canvas = tk.Canvas(self, bg='black', borderwidth=0, highlightthickness=0)
+        self.canvas = tk.Canvas(self, bg='black',
+                                width=400, height=300,
+                                borderwidth=0, highlightthickness=0)
         self.canvas.pack(expand=True, fill='both', padx=5, pady=5)
 
     def display_minimap(self):
@@ -104,26 +109,63 @@ class Status(LabelFrame):
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(3, weight=1)
 
-        config.curr_cb = tk.StringVar()
-        config.curr_routine = tk.StringVar()
+        self.curr_cb = tk.StringVar()
+        self.curr_routine = tk.StringVar()
 
         self.cb_label = tk.Label(self, text='Commands:')
-        self.cb_label.grid(row=0, column=1, padx=5, sticky=tk.E)
-        self.cb_entry = tk.Entry(self, textvariable=config.curr_cb, state=tk.DISABLED)
-        self.cb_entry.grid(row=0, column=2, padx=(0, 5), sticky=tk.EW)
+        self.cb_label.grid(row=0, column=1, padx=5, pady=(5, 0), sticky=tk.E)
+        self.cb_entry = tk.Entry(self, textvariable=self.curr_cb, state=tk.DISABLED)
+        self.cb_entry.grid(row=0, column=2, padx=(0, 5), pady=(5, 0), sticky=tk.EW)
 
         self.r_label = tk.Label(self, text='Routine:')
-        self.r_label.grid(row=1, column=1, padx=5, sticky=tk.E)
-        self.r_entry = tk.Entry(self, textvariable=config.curr_routine, state=tk.DISABLED)
-        self.r_entry.grid(row=1, column=2, padx=(0, 5), sticky=tk.EW)
+        self.r_label.grid(row=1, column=1, padx=5, pady=(0, 5), sticky=tk.E)
+        self.r_entry = tk.Entry(self, textvariable=self.curr_routine, state=tk.DISABLED)
+        self.r_entry.grid(row=1, column=2, padx=(0, 5), pady=(0, 5), sticky=tk.EW)
+
+    def update_cb(self, string):
+        self.curr_cb.set(string)
+
+    def update_routine(self, string):
+        self.curr_routine.set(string)
 
 
 class Details(LabelFrame):
     def __init__(self, parent, **kwargs):
         super().__init__(parent, 'Details', **kwargs)
 
-        config.view_details = tk.Label(self)
-        config.view_details.pack(expand=True, fill='both', padx=5, pady=5)
+        self.columnconfigure(0, weight=1)
+        self.columnconfigure(2, weight=1)
+
+        self.name_var = tk.StringVar()
+        self.info_var = tk.StringVar()
+
+        self.name = tk.Label(self, textvariable=self.name_var)
+        self.name.grid(row=0, column=1, padx=5, pady=(5, 1))
+
+        self.separator = ttk.Separator(self, orient='horizontal')
+        self.separator.grid(row=1, column=1, sticky=tk.EW)
+
+        self.info = tk.Label(self, textvariable=self.info_var, justify=tk.LEFT, wraplength=400)
+        self.info.grid(row=2, column=0, columnspan=3, padx=5, pady=(1, 5), sticky=tk.W)
+        # self.info.config(wraplength=self.info.winfo_width())
+
+    def update_details(self, e):
+        """Callback for updating the Details section everytime Listbox selection changes."""
+
+        selections = e.widget.curselection()
+        if len(selections) > 0:
+            index = int(selections[0])
+            info = config.routine[index].info()
+
+            self.name_var.set(info['name'])
+
+            arr = []
+            for key, value in info['info'].items():
+                arr.append(f'{key}: {value}')
+            self.info_var.set('\n'.join(arr))
+        else:
+            self.name_var.set('')
+            self.info_var.set('')
 
 
 class Routine(LabelFrame):
@@ -133,15 +175,19 @@ class Routine(LabelFrame):
         self.scroll = tk.Scrollbar(self)
         self.scroll.pack(side=tk.RIGHT, fill='both', pady=5)
 
-        config.view_listbox = tk.Listbox(self, width=25,
-                                         listvariable=config.routine_var,
-                                         yscrollcommand=self.scroll.set)
-        config.view_listbox.bind('<Up>', lambda e: 'break')
-        config.view_listbox.bind('<Down>', lambda e: 'break')
-        config.view_listbox.bind('<Left>', lambda e: 'break')
-        config.view_listbox.bind('<Right>', lambda e: 'break')
-        config.view_listbox.pack(side=tk.LEFT, expand=True, fill='both', padx=(5, 0), pady=5)
+        self.listbox = tk.Listbox(self, width=25,
+                                  listvariable=config.gui.routine_var,
+                                  yscrollcommand=self.scroll.set)
+        self.listbox.bind('<Up>', lambda e: 'break')
+        self.listbox.bind('<Down>', lambda e: 'break')
+        self.listbox.bind('<Left>', lambda e: 'break')
+        self.listbox.bind('<Right>', lambda e: 'break')
+        self.listbox.bind('<<ListboxSelect>>', parent.details.update_details)
+        self.listbox.pack(side=tk.LEFT, expand=True, fill='both', padx=(5, 0), pady=5)
 
-        self.scroll.config(command=config.view_listbox.yview)
+        self.scroll.config(command=self.listbox.yview)
 
-
+    def select(self, i, end):
+        self.listbox.selection_clear(0, end)
+        self.listbox.selection_set(i)
+        self.listbox.activate(i)

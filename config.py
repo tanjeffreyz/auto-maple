@@ -76,18 +76,5 @@ routine = None
 # Stores the Layout object associated with the current routine
 layout = None
 
-
-##############################
-#       GUI Variables        #
-##############################
-# StringVar for displaying the current routine elements
-routine_var = None
-
-# The Listbox component on the 'View' page
-view_listbox = None
-
-# StringVar for the file name of the current command book
-curr_cb = None
-
-# StringVar for the file name of the current routine
-curr_routine = None
+# Shares the gui to all modules
+gui = None
