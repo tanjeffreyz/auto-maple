@@ -4,7 +4,6 @@ import config
 import utils
 import cv2
 import tkinter as tk
-from tkinter import ttk
 from gui_components.interfaces import LabelFrame, Page
 from capture import Capture
 from PIL import Image, ImageTk
@@ -110,7 +109,7 @@ class Status(LabelFrame):
         self.curr_cb = tk.StringVar()
         self.curr_routine = tk.StringVar()
 
-        self.cb_label = tk.Label(self, text='Commands:')
+        self.cb_label = tk.Label(self, text='Command Book:')
         self.cb_label.grid(row=0, column=1, padx=5, pady=(5, 0), sticky=tk.E)
         self.cb_entry = tk.Entry(self, textvariable=self.curr_cb, state=tk.DISABLED)
         self.cb_entry.grid(row=0, column=2, padx=(0, 5), pady=(5, 0), sticky=tk.EW)
@@ -132,8 +131,8 @@ class Details(LabelFrame):
         super().__init__(parent, 'Details', **kwargs)
         self.name_var = tk.StringVar()
 
-        self.name = tk.Label(self, textvariable=self.name_var)
-        self.name.pack(expand=True, fill='x', pady=(5, 0))
+        self.name = tk.Entry(self, textvariable=self.name_var, justify=tk.CENTER, state=tk.DISABLED)
+        self.name.pack(pady=(5, 2))
 
         self.scroll = tk.Scrollbar(self)
         self.scroll.pack(side=tk.RIGHT, fill=tk.Y, pady=5)
@@ -184,6 +183,7 @@ class Routine(LabelFrame):
 
         self.listbox = tk.Listbox(self, width=25,
                                   listvariable=config.gui.routine_var,
+                                  exportselection=False,
                                   yscrollcommand=self.scroll.set)
         self.listbox.bind('<Up>', lambda e: 'break')
         self.listbox.bind('<Down>', lambda e: 'break')

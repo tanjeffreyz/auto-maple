@@ -8,12 +8,18 @@ from gui_components import Menu, View, Edit
 
 
 class GUI:
+    RESOLUTIONS = {
+        'DEFAULT': '700x700',
+        'View': '700x700',
+        'Edit': '1200x700'
+    }
+
     def __init__(self):
         config.gui = self
 
         self.root = tk.Tk()
         self.root.title('Auto Maple')
-        self.root.geometry('800x700')
+        self.root.geometry(GUI.RESOLUTIONS['DEFAULT'])
 
         # Initialize GUI variables
         self.routine_var = tk.StringVar()
@@ -28,9 +34,18 @@ class GUI:
         self.edit = Edit(self.navigation)
 
         self.navigation.pack(expand=True, fill='both')
+        self.navigation.bind('<<NotebookTabChanged>>', self._resize_window)
 
     def set_routine(self, arr):
         self.routine_var.set(arr)
+
+    def _resize_window(self, e):
+        """Callback to resize entire Tkinter window every time a new Page is selected."""
+
+        nav = e.widget
+        page = nav.tab(nav.select(), 'text')
+        if self.root.state() != 'zoomed' and page in GUI.RESOLUTIONS:
+            self.root.geometry(GUI.RESOLUTIONS[page])
 
     def start(self):
         """Starts the GUI as well as any scheduled functions."""
