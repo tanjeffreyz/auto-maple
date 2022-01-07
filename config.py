@@ -64,9 +64,6 @@ rune_closest_pos = (0, 0)
 # Indicates whether a danger has been detected (Elite Boss, room change, etc)
 alert_active = False
 
-# Represents the index that the bot is currently at
-seq_index = 0
-
 # Represents the current shortest path that the bot is taking
 path = []
 

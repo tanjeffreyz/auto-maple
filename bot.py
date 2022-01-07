@@ -3,9 +3,7 @@
 import config
 import detection
 import threading
-import winsound
 import time
-import csv
 import mss
 import utils
 import pygame
@@ -14,11 +12,8 @@ import commands
 import keyboard as kb
 import numpy as np
 from os.path import splitext, basename
-from routine import Point
-from settings import SETTING_VALIDATORS
+from routine import Point, Routine
 from vkeys import press, click
-from routine import Routine
-from layout import Layout
 
 
 class Bot:
@@ -35,7 +30,6 @@ class Bot:
         Bot.alert.load('./assets/alert.mp3')
 
         config.command_book = {
-            'goto': commands.Goto,
             'wait': commands.Wait,
             'walk': commands.Walk,
             'fall': commands.Fall,
@@ -79,11 +73,11 @@ class Bot:
 
                     # Highlight the current Point
                     config.view_listbox.selection_clear(0, len(config.routine))
-                    config.view_listbox.selection_set(config.seq_index)
-                    config.view_listbox.activate(config.seq_index)
+                    config.view_listbox.selection_set(Routine.index)
+                    config.view_listbox.activate(Routine.index)
 
                     # Execute next Point in the routine
-                    element = config.routine[config.seq_index]
+                    element = config.routine[Routine.index]
                     element.execute()
                     if config.rune_active and isinstance(element, Point) \
                             and element.location == config.rune_closest_pos:      # TODO: rename rune index
@@ -159,7 +153,7 @@ class Bot:
         :return:    None
         """
 
-        config.seq_index = (config.seq_index + 1) % len(config.routine)
+        Routine.index = (Routine.index + 1) % len(config.routine)
 
     @staticmethod
     def load_commands(file):
@@ -180,7 +174,6 @@ class Bot:
         module_name = splitext(basename(file))[0]
         module = __import__(f'command_books.{module_name}', fromlist=[''])
         new_cb = {
-            'goto': commands.Goto,
             'wait': commands.Wait,
             'walk': commands.Walk,
             'fall': commands.Fall
@@ -191,7 +184,7 @@ class Bot:
 
         # Check if required commands have been implemented
         success = True
-        for command in ['move', 'adjust', 'buff']:
+        for command in ['move', 'adjust', 'buff']:      # TODO: change move to step
             if command not in new_cb:
                 success = False
                 print(f" !  Error: Must implement '{command}' command.")
@@ -199,7 +192,7 @@ class Bot:
         if success:
             config.command_book = new_cb
             config.curr_cb.set(basename(file))
-            Bot.buff = new_cb['buff']()        # TODO: update status on front page
+            Bot.buff = new_cb['buff']()
 
             # Clear the current routine and Layout because command book changed
             config.routine.set([])

@@ -13,13 +13,7 @@ def update(func):
 
     def f(self, *args, **kwargs):
         result = func(self, *args, **kwargs)
-        display = [str(e) for e in self.sequence]
-        # for e in self.sequence:
-        #     if isinstance(e, str):
-        #         display.append(e + ':')
-        #     elif isinstance(e, Point):
-        #         display.append(str(e))
-        config.routine_var.set(display)
+        config.routine_var.set([str(e) for e in self.sequence])
         return result
     return f
 
@@ -28,6 +22,7 @@ class Routine:
     """Describes a routine file in Auto Maple's custom 'machine code'."""
 
     labels = {}
+    index = 0
 
     def __init__(self):
         self.path = ''
@@ -40,9 +35,6 @@ class Routine:
     @update
     def append(self, p):
         self.sequence.append(p)
-
-    def index(self, item):
-        return self.sequence.index(item)
 
     def save(self, file_path):
         """Encodes and saves the current Routine at location PATH."""
@@ -86,7 +78,7 @@ class Routine:
             return False
 
         self.set([])
-        config.seq_index = 0            # TODO: seq_index can be inside routine
+        Routine.index = 0            # TODO: seq_index can be inside routine
         utils.reset_settings()
 
         # Compile and Link
@@ -330,7 +322,7 @@ class Jump(Component):
             print(f"\n[!] Label '{self.label}' does not exist.")
         else:
             if self.counter == 0:
-                config.seq_index = self.link.index
+                Routine.index = self.link.index
             self._increment_counter()
 
     @utils.run_if_enabled

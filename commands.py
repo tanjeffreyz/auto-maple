@@ -11,20 +11,6 @@ from vkeys import key_down, key_up, press
 #############################
 #       Shared Commands     #
 #############################
-class Goto(Command):
-    """Moves config.seq_index to the index of the specified label."""
-
-    def __init__(self, label):
-        super().__init__(locals())
-        self.label = str(label)
-
-    def main(self):
-        try:
-            config.seq_index = config.routine.index(self.label)
-        except ValueError:
-            print(f"Label '{self.label}' does not exist.")
-
-
 class Wait(Command):
     """Waits for a set amount of time."""
 
