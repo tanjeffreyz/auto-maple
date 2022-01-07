@@ -73,6 +73,7 @@ class Bot:
 
                     # Highlight the current Point
                     config.gui.view.routine.select(Routine.index, len(config.routine))
+                    config.gui.view.details.display_info(Routine.index)
 
                     # Execute next Point in the routine
                     element = config.routine[Routine.index]
@@ -146,19 +147,13 @@ class Bot:
     @staticmethod
     @utils.run_if_enabled
     def _step():
-        """
-        Increments config.seq_index and wraps back to 0 at the end of config.sequence.
-        :return:    None
-        """
+        """Increments config.seq_index and wraps back to 0 at the end of config.sequence."""
 
         Routine.index = (Routine.index + 1) % len(config.routine)
 
     @staticmethod
     def load_commands(file):
-        """
-        Prompts the user to select a command module to import. Updates config's command book.
-        :return:    None
-        """
+        """Prompts the user to select a command module to import. Updates config's command book."""
 
         utils.print_separator()
         print(f"[~] Loading command book '{basename(file)}':")

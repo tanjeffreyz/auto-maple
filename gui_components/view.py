@@ -147,7 +147,6 @@ class Details(LabelFrame):
 
         self.info = tk.Label(self, textvariable=self.info_var, justify=tk.LEFT, wraplength=400)
         self.info.grid(row=2, column=0, columnspan=3, padx=5, pady=(1, 5), sticky=tk.W)
-        # self.info.config(wraplength=self.info.winfo_width())
 
     def update_details(self, e):
         """Callback for updating the Details section everytime Listbox selection changes."""
@@ -155,17 +154,20 @@ class Details(LabelFrame):
         selections = e.widget.curselection()
         if len(selections) > 0:
             index = int(selections[0])
-            info = config.routine[index].info()
-
-            self.name_var.set(info['name'])
-
-            arr = []
-            for key, value in info['info'].items():
-                arr.append(f'{key}: {value}')
-            self.info_var.set('\n'.join(arr))
+            self.display_info(index)
         else:
             self.name_var.set('')
             self.info_var.set('')
+
+    def display_info(self, index):
+        """Updates the Details section to show info about the Component at position INDEX."""
+
+        info = config.routine[index].info()
+        self.name_var.set(info['name'])
+        arr = []
+        for key, value in info['info'].items():
+            arr.append(f'{key}: {value}')
+        self.info_var.set('\n'.join(arr))
 
 
 class Routine(LabelFrame):
