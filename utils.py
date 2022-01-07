@@ -71,10 +71,10 @@ def separate_args(arguments):
     :return:             An array of normal arguments and a dictionary of keyword arguments.
     """
 
-    arguments = [s.strip() for s in arguments]
     args = []
     kwargs = {}
     for a in arguments:
+        a = a.strip()
         index = a.find('=')
         if index > -1:
             key = a[:index].strip()
@@ -215,29 +215,13 @@ class Async(threading.Thread):
 
 
 def async_callback(context, function, *args, **kwargs):
+    """Returns a callback function that can be run asynchronously by the GUI."""
+
     def f():
         task = Async(function, *args, **kwargs)
         task.start()
         context.after(100, task.process_queue(context))
     return f
-
-
-#############################
-#       Serialization       #
-#############################
-PRIMITIVES = {int, str, bool, float}
-
-
-class Serializable:
-    id = 'Serializable'
-
-    def encode(self):
-        variables = self.__dict__
-        arr = [self.id]
-        for key, value in variables.items():
-            if key != 'id' and type(variables[key]) in PRIMITIVES:
-                arr.append(f'{key}={value}')
-        return ', '.join(arr)
 
 
 #################################

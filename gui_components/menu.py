@@ -9,9 +9,8 @@ import tkinter as tk
 from os.path import splitext, basename
 from tkinter.filedialog import askopenfilename, asksaveasfilename
 from bot import Bot
-from routine import Routine
+from routine import Routine, Command
 from layout import Layout
-from commands import Command
 
 
 class Menu(tk.Menu):

@@ -59,7 +59,7 @@ rune_active = False
 rune_pos = (0, 0)
 
 # The location of the Point object that is closest to the rune
-rune_index = (0, 0)
+rune_closest_pos = (0, 0)
 
 # Indicates whether a danger has been detected (Elite Boss, room change, etc)
 alert_active = False

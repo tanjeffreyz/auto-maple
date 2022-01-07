@@ -5,7 +5,7 @@ import time
 import math
 import settings
 import utils
-from commands import Command
+from routine import Command
 from vkeys import press, key_down, key_up
 
 
@@ -13,7 +13,7 @@ class Move(Command):
     """Moves to a given position using the shortest path based on the current Layout."""
 
     def __init__(self, x, y, max_steps=15):
-        super().__init__()
+        super().__init__(locals())
         self.target = (float(x), float(y))
         self.max_steps = utils.validate_nonzero_int(max_steps)
 
@@ -59,7 +59,7 @@ class Adjust(Command):
     """Fine-tunes player position using small movements."""
 
     def __init__(self, x, y, max_steps=5):
-        super().__init__()
+        super().__init__(locals())
         self.target = (float(x), float(y))
         self.max_steps = utils.validate_nonzero_int(max_steps)
 
@@ -108,7 +108,7 @@ class Buff(Command):
     """Uses each of Kanna's buffs once. Uses 'Haku Reborn' whenever it is available."""
 
     def __init__(self):
-        super().__init__()
+        super().__init__(locals())
         self.haku_time = 0
         self.buff_time = 0
 
@@ -132,7 +132,7 @@ class Teleport(Command):
     """
 
     def __init__(self, direction, jump='False'):
-        super().__init__()
+        super().__init__(locals())
         self.direction = utils.validate_arrows(direction)
         self.jump = utils.validate_boolean(jump)
 
@@ -162,7 +162,7 @@ class Shikigami(Command):
     """Attacks using 'Shikigami Haunting' in a given direction."""
 
     def __init__(self, direction, attacks=2, repetitions=1):
-        super().__init__()
+        super().__init__(locals())
         self.direction = utils.validate_horizontal_arrows(direction)
         self.attacks = int(attacks)
         self.repetitions = int(repetitions)
@@ -194,7 +194,7 @@ class Yaksha(Command):
     """
 
     def __init__(self, direction=None):
-        super().__init__()
+        super().__init__(locals())
         if direction is None:
             self.direction = direction
         else:
@@ -239,7 +239,7 @@ class Exorcist(Command):
     """Uses 'Exorcist's Charm' once."""
 
     def __init__(self, jump='False'):
-        super().__init__()
+        super().__init__(locals())
         self.jump = utils.validate_boolean(jump)
 
     def main(self):

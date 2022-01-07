@@ -85,7 +85,7 @@ class Capture:
                             config.rune_pos = utils.convert_to_relative(abs_rune_pos, minimap)
                             distances = list(map(Capture._distance_to_rune, config.routine.sequence))
                             index = np.argmin(distances)
-                            config.rune_index = config.routine.sequence[index].location
+                            config.rune_closest_pos = config.routine[index].location
                             config.rune_active = True
 
                     # Package display information to be polled by GUI

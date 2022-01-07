@@ -136,6 +136,10 @@ class Routine(LabelFrame):
         config.view_listbox = tk.Listbox(self, width=25,
                                          listvariable=config.routine_var,
                                          yscrollcommand=self.scroll.set)
+        config.view_listbox.bind('<Up>', lambda e: 'break')
+        config.view_listbox.bind('<Down>', lambda e: 'break')
+        config.view_listbox.bind('<Left>', lambda e: 'break')
+        config.view_listbox.bind('<Right>', lambda e: 'break')
         config.view_listbox.pack(side=tk.LEFT, expand=True, fill='both', padx=(5, 0), pady=5)
 
         self.scroll.config(command=config.view_listbox.yview)

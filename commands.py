@@ -4,46 +4,18 @@ import config
 import settings
 import utils
 import time
+from routine import Command
 from vkeys import key_down, key_up, press
 
 
 #############################
 #       Shared Commands     #
 #############################
-class Command(utils.Serializable):
-    id = 'Command Superclass'
-
-    def __init__(self):
-        self.id = self.__class__.__name__
-
-    @utils.run_if_enabled
-    def execute(self):
-        self.main()
-
-    def main(self):
-        pass
-
-    def __str__(self):
-        """
-        Returns a string representing this Command instance.
-        :return:    This Command's string representation.
-        """
-
-        variables = self.__dict__
-        result = '    ' + self.id
-        if len(variables) - 1 > 0:
-            result += ':'
-        for key, value in variables.items():
-            if key != 'id':
-                result += f'\n        {key}={value}'
-        return result
-
-
 class Goto(Command):
     """Moves config.seq_index to the index of the specified label."""
 
     def __init__(self, label):
-        super().__init__()
+        super().__init__(locals())
         self.label = str(label)
 
     def main(self):
@@ -57,7 +29,7 @@ class Wait(Command):
     """Waits for a set amount of time."""
 
     def __init__(self, duration):
-        super().__init__()
+        super().__init__(locals())
         self.duration = float(duration)
 
     def main(self):
@@ -68,7 +40,7 @@ class Walk(Command):
     """Walks in the given direction for a set amount of time."""
 
     def __init__(self, direction, duration):
-        super().__init__()
+        super().__init__(locals())
         self.direction = utils.validate_horizontal_arrows(direction)
         self.duration = float(duration)
 
@@ -86,7 +58,7 @@ class Fall(Command):
     """
 
     def __init__(self, distance=settings.move_tolerance / 2):
-        super().__init__()
+        super().__init__(locals())
         self.distance = float(distance)
 
     def main(self):
@@ -110,7 +82,7 @@ class DefaultMove(Command):
     """Undefined 'move' command for the default command book."""
 
     def __init__(self, *args, **kwargs):
-        super().__init__()
+        super().__init__(locals())
 
     def main(self):
         print("\n[!] 'Move' command not implemented in current command book, aborting process.")
@@ -121,7 +93,7 @@ class DefaultAdjust(Command):
     """Undefined 'adjust' command for the default command book."""
 
     def __init__(self, *args, **kwargs):
-        super().__init__()
+        super().__init__(locals())
 
     def main(self):
         print("\n[!] 'Adjust' command not implemented in current command book, aborting process.")

@@ -1,5 +1,5 @@
-s, move_tolerance, 0.09
-s, buff_cooldown, 185
+$, move_tolerance, 0.09
+$, buff_cooldown, 185
 
 
 @, kish
@@ -26,19 +26,16 @@ s, buff_cooldown, 185
     shikigami, direction=right
     teleport, direction=down, jump=False
     wait, 0.05
-*, 0.275, 0.142, counter=1, frequency=6
-    goto, boss
-*, 0.275, 0.142
-    goto, main
+>, boss, frequency=6, skip=True
+>, main
 
 @, boss
-*, 0.275, 0.142, frequency=3, counter=1
-    goto, loot
+>, loot, frequency=3, skip=True
 *, 0.415, 0.243
     yaksha, direction=right
     charm
     teleport, direction=left, jump=False
-    goto, main
+>, main
 
 @, loot
 *, 0.125, 0.142
@@ -62,4 +59,4 @@ s, buff_cooldown, 185
     tengu
     wait, 0.2
 *, 0.640, 0.243
-    goto, kish
+>, kish

@@ -5,7 +5,7 @@ import time
 import math
 import settings
 import utils
-from commands import Command
+from routine import Command
 from vkeys import press, key_down, key_up
 
 
@@ -13,7 +13,7 @@ class Move(Command):
     """Moves to a given position using the shortest path based on the current Layout."""
 
     def __init__(self, x, y, max_steps=15):
-        self.id = 'Move'
+        super().__init__(locals())
         self.target = (float(x), float(y))
         self.max_steps = utils.validate_nonzero_int(max_steps)
 
@@ -60,7 +60,7 @@ class Adjust(Command):
     """Fine-tunes player position using small movements."""
 
     def __init__(self, x, y, max_steps=5):
-        self.id = 'Adjust'
+        super().__init__(locals())
         self.target = (float(x), float(y))
         self.max_steps = utils.validate_nonzero_int(max_steps)
 
@@ -109,7 +109,7 @@ class Buff(Command):
     """Uses each of Blaster's buffs once."""
 
     def __init__(self):
-        self.id = 'Buff'
+        super().__init__(locals())
         self.booster_time = 0
         self.warrior_time = 0
 
@@ -127,7 +127,7 @@ class Jump(Command):
     """Performs a flash jump or 'Detonate' in the given direction."""
 
     def __init__(self, direction):
-        self.id = 'Jump'
+        super().__init__(locals())
         self.direction = utils.validate_arrows(direction)
 
     def main(self):
@@ -146,7 +146,7 @@ class MagnumPunch(Command):
     """Performs a 'No-Reload Magnum Punch' combo once."""
 
     def __init__(self, direction):
-        self.id = 'Magnum Punch'
+        super().__init__(locals())
         self.direction = utils.validate_arrows(direction)
 
     def main(self):

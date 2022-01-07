@@ -3,23 +3,22 @@
 import config
 import utils
 import csv
+import settings
 from os.path import splitext, basename
-from commands import Command
 from layout import Layout
-from settings import SETTING_VALIDATORS
 
 
-def _update(func):
+def update(func):
     """Decorator function that updates CONFIG.ROUTINE_VAR for all mutative Routine operations."""
 
     def f(self, *args, **kwargs):
         result = func(self, *args, **kwargs)
-        display = []
-        for e in self.sequence:
-            if isinstance(e, str):
-                display.append(e + ':')
-            elif isinstance(e, Point):
-                display.append(str(e))
+        display = [str(e) for e in self.sequence]
+        # for e in self.sequence:
+        #     if isinstance(e, str):
+        #         display.append(e + ':')
+        #     elif isinstance(e, Point):
+        #         display.append(str(e))
         config.routine_var.set(display)
         return result
     return f
@@ -28,15 +27,17 @@ def _update(func):
 class Routine:
     """Describes a routine file in Auto Maple's custom 'machine code'."""
 
+    labels = {}
+
     def __init__(self):
         self.path = ''
         self.sequence = []
 
-    @_update
+    @update
     def set(self, arr):
         self.sequence = arr
 
-    @_update
+    @update
     def append(self, p):
         self.sequence.append(p)
 
@@ -48,13 +49,11 @@ class Routine:
 
         result = []
         for item in self.sequence:
-            # TODO: Label object
+            result.append(item.encode())
             if isinstance(item, Point):
-                result.append(item.encode())
                 for c in item.commands:
                     result.append(' ' * 4 + c.encode())
-            else:
-                result.append(f'@, {item}')
+        result.append('')
 
         with open(file_path, 'w') as file:
             file.write('\n'.join(result))
@@ -64,7 +63,7 @@ class Routine:
 
     def load(self, file=None):
         """
-        Attempts to load FILE into a sequence of Points. If no file path is provided, attempts to
+        Attempts to load FILE into a sequence of Components. If no file path is provided, attempts to
         load the previous routine file.
         :param file:    The file's path.
         :return:        None
@@ -78,7 +77,7 @@ class Routine:
                 file = self.path
                 print(' *  File path not provided, using previously loaded routine.')
             else:
-                print(' !  File path not provided, no routine was previously loaded either.')
+                print('[!] File path not provided, no routine was previously loaded either.')
                 return False
 
         ext = splitext(file)[1]
@@ -86,25 +85,15 @@ class Routine:
             print(f" !  '{ext}' is not a supported file extension.")
             return False
 
-        config.routine.set([])
-        config.seq_index = 0
+        self.set([])
+        config.seq_index = 0            # TODO: seq_index can be inside routine
         utils.reset_settings()
 
-        with open(file, newline='') as f:
-            csv_reader = csv.reader(f, skipinitialspace=True)
-            curr_point = None
-            line = 1
-            for row in csv_reader:
-                result = Routine._eval(row, line)
-                if result:
-                    if isinstance(result, Command):
-                        if curr_point:
-                            curr_point.commands.append(result)
-                    else:
-                        config.routine.append(result)
-                        if isinstance(result, Point):
-                            curr_point = result
-                line += 1
+        # Compile and Link
+        self.compile(file)
+        for c in self.sequence:
+            if isinstance(c, Jump):
+                c.bind()
 
         self.path = file
         config.curr_routine.set(basename(file))
@@ -112,55 +101,97 @@ class Routine:
         print(f"[~] Finished loading routine '{basename(splitext(file)[0])}'.")
         return True
 
-    @staticmethod
-    def _eval(expr, n):
-        """
-        Evaluates the given expression EXPR in the context of Auto Kanna.
-        :param expr:    A list of strings to evaluate.
-        :param n:       The line number of EXPR in the routine file.
-        :return:        An object that represents EXPR.
-        """
-
-        if expr and isinstance(expr, list):
-            first, rest = expr[0].lower(), expr[1:]
-            args, kwargs = utils.separate_args(rest)
-            line = f' !  Line {n}: '
-            if first == '@':        # Check for labels
-                if len(args) != 1 or len(kwargs) != 0:
-                    print(line + 'Incorrect number of arguments for a label.')
-                else:
-                    return args[0]
-            elif first == 's':      # Check for settings
-                if len(args) != 2 or len(kwargs) != 0:
-                    print(line + 'Incorrect number of arguments for a setting.')
-                else:
-                    variable = args[0].lower()
-                    value = args[1].lower()
-                    if variable not in SETTING_VALIDATORS:
-                        print(line + f"'{variable}' is not a valid setting.")
+    def compile(self, file):
+        Routine.labels = {}
+        with open(file, newline='') as f:
+            csv_reader = csv.reader(f, skipinitialspace=True)
+            curr_point = None
+            line = 1
+            for row in csv_reader:
+                result = self._eval(row, line)
+                if result:
+                    if isinstance(result, Command):
+                        if curr_point:
+                            curr_point.commands.append(result)
                     else:
-                        try:
-                            value = SETTING_VALIDATORS[variable](value)
-                            setattr(config, variable, value)
-                        except ValueError:
-                            print(line + f"'{value}' is not a valid value for '{variable}'.")
-            elif first == '*':      # Check for Points
-                try:
-                    return Point(*args, **kwargs)
-                except ValueError:
-                    print(line + f'Invalid arguments for a Point: {args}, {kwargs}')
-                except TypeError:
-                    print(line + 'Incorrect number of arguments for a Point.')
-            else:                   # Otherwise might be a Command
-                if first not in config.command_book.keys():
-                    print(line + f"Command '{first}' does not exist.")
-                else:
-                    try:
-                        return config.command_book.get(first)(*args, **kwargs)
-                    except ValueError:
-                        print(line + f"Invalid arguments for command '{first}': {args}, {kwargs}")
-                    except TypeError:
-                        print(line + f"Incorrect number of arguments for command '{first}'.")
+                        self.append(result)
+                        if isinstance(result, Point):
+                            curr_point = result
+                line += 1
+
+    def _eval(self, row, i):
+        if row and isinstance(row, list):
+            first, rest = row[0].lower(), row[1:]
+            args, kwargs = utils.separate_args(rest)
+            line_error = f' !  Line {i}: '
+
+            if first in SYMBOLS:
+                c = SYMBOLS[first]
+            elif first in config.command_book:
+                c = config.command_book[first]
+            else:
+                print(line_error + f"Command '{first}' does not exist.")
+                return
+
+            try:
+                obj = c(*args, **kwargs)
+                if isinstance(obj, Label):
+                    obj.set_index(len(self))
+                    Routine.labels[obj.label] = obj
+                return obj
+            except (ValueError, TypeError) as e:
+                print(line_error + f"Found invalid arguments for '{c.__name__}':")
+                print(f"{' ' * 4} -  {e}")
+    #
+    # @staticmethod
+    # def _eval(expr, n):
+    #     """
+    #     Evaluates the given expression EXPR in the context of Auto Kanna.
+    #     :param expr:    A list of strings to evaluate.
+    #     :param n:       The line number of EXPR in the routine file.
+    #     :return:        An object that represents EXPR.
+    #     """
+    #
+    #     if expr and isinstance(expr, list):
+    #         first, rest = expr[0].lower(), expr[1:]
+    #         args, kwargs = utils.separate_args(rest)
+    #         line = f' !  Line {n}: '
+    #         if first == '@':        # Check for labels
+    #             if len(args) != 1 or len(kwargs) != 0:
+    #                 print(line + 'Incorrect number of arguments for a label.')
+    #             else:
+    #                 return args[0]
+    #         elif first == 's':      # Check for settings
+    #             if len(args) != 2 or len(kwargs) != 0:
+    #                 print(line + 'Incorrect number of arguments for a setting.')
+    #             else:
+    #                 variable = args[0].lower()
+    #                 value = args[1].lower()
+    #                 if variable not in SETTING_VALIDATORS:
+    #                     print(line + f"'{variable}' is not a valid setting.")
+    #                 else:
+    #                     try:
+    #                         value = SETTING_VALIDATORS[variable](value)
+    #                         setattr(config, variable, value)
+    #                     except ValueError:
+    #                         print(line + f"'{value}' is not a valid value for '{variable}'.")
+    #         elif first == '*':      # Check for Points
+    #             try:
+    #                 return Point(*args, **kwargs)
+    #             except ValueError:
+    #                 print(line + f'Invalid arguments for a Point: {args}, {kwargs}')
+    #             except TypeError:
+    #                 print(line + 'Incorrect number of arguments for a Point.')
+    #         else:                   # Otherwise might be a Command
+    #             if first not in config.command_book.keys():
+    #                 print(line + f"Command '{first}' does not exist.")
+    #             else:
+    #                 try:
+    #                     return config.command_book.get(first)(*args, **kwargs)
+    #                 except ValueError:
+    #                     print(line + f"Invalid arguments for command '{first}': {args}, {kwargs}")
+    #                 except TypeError:
+    #                     print(line + f"Incorrect number of arguments for command '{first}'.")
 
     def __getitem__(self, i):
         return self.sequence[i]
@@ -172,26 +203,70 @@ class Routine:
 #################################
 #       Routine Components      #
 #################################
-class Point(utils.Serializable):
+class Component:
+    id = 'Routine Component'
+    PRIMITIVES = {int, str, bool, float}
+
+    def __init__(self, args=None):
+        if args is None:
+            self._args = {}
+        else:
+            self._args = args.copy()
+            self._args.pop('__class__')
+            self._args.pop('self')
+
+    @utils.run_if_enabled
+    def execute(self):
+        self.main()
+
+    def main(self):
+        pass
+
+    def encode(self):
+        """Encodes an object using its ID and its __init__ arguments."""
+
+        arr = [self.id]
+        for key, value in self._args.items():
+            if key != 'id' and type(self._args[key]) in Component.PRIMITIVES:
+                arr.append(f'{key}={value}')
+        return ', '.join(arr)
+
+
+class Command(Component):
+    id = 'Command Superclass'
+
+    def __init__(self, args=None):
+        super().__init__(args)
+        self.id = self.__class__.__name__
+
+    def __str__(self):
+        variables = self.__dict__
+        result = '    ' + self.id
+        if len(variables) - 1 > 0:
+            result += ':'
+        for key, value in variables.items():
+            if key != 'id':
+                result += f'\n        {key}={value}'
+        return result
+
+
+class Point(Component):
     """Represents a location in a user-defined routine."""
 
     id = '*'
 
-    def __init__(self, x, y, frequency=1, counter=0, adjust='False'):
+    def __init__(self, x, y, frequency=1, skip='False', adjust='False'):
+        super().__init__(locals())
         self.x = float(x)
         self.y = float(y)
         self.location = (self.x, self.y)
         self.frequency = utils.validate_nonzero_int(frequency)
-        self.counter = int(counter)
+        self.counter = int(utils.validate_boolean(skip))
         self.adjust = utils.validate_boolean(adjust)
         self.commands = []
 
-    @utils.run_if_enabled
-    def execute(self):
-        """
-        Executes the set of actions associated with this Point.
-        :return:    None
-        """
+    def main(self):
+        """Executes the set of actions associated with this Point."""
 
         if self.counter == 0:
             move = config.command_book.get('move')
@@ -205,17 +280,106 @@ class Point(utils.Serializable):
 
     @utils.run_if_enabled
     def _increment_counter(self):
-        """
-        Increments this Point's counter, wrapping back to 0 at the upper bound.
-        :return:    None
-        """
+        """Increments this Point's counter, wrapping back to 0 at the upper bound."""
 
         self.counter = (self.counter + 1) % self.frequency
 
     def __str__(self):
+        return f'  * {self.location}'
+
+
+class Label(Component):
+    id = '@'
+
+    def __init__(self, label):
+        super().__init__(locals())
+        self.label = str(label)
+        if self.label in Routine.labels:
+            raise ValueError
+        self.links = set()
+        self.index = None
+
+    def set_index(self, i):
+        self.index = i
+
+    def encode(self):
+        return '\n' + super().encode()
+
+    def __delete__(self, instance):
+        del self.links
+        Routine.labels.pop(self.label)
+
+    def __str__(self):
+        return f'{self.label}:'
+
+
+class Jump(Component):
+    """Jumps to the given Label."""
+
+    id = '>'
+
+    def __init__(self, label, frequency=1, skip='False'):
+        super().__init__(locals())
+        self.label = str(label)
+        self.frequency = utils.validate_nonzero_int(frequency)
+        self.counter = int(utils.validate_boolean(skip))
+        self.link = None
+
+    def main(self):
+        if self.link is None:
+            print(f"\n[!] Label '{self.label}' does not exist.")
+        else:
+            if self.counter == 0:
+                config.seq_index = self.link.index
+            self._increment_counter()
+
+    @utils.run_if_enabled
+    def _increment_counter(self):
+        self.counter = (self.counter + 1) % self.frequency
+
+    def bind(self):
         """
-        Returns a string representation of this Point object.
-        :return:    This Point's string representation.
+        Binds this Goto to its corresponding Label. If the Label's index changes, this Goto
+        instance will automatically be able to access the updated value.
+        :return:    Whether the binding was successful
         """
 
-        return f'  * {self.location}'
+        if self.label in Routine.labels:
+            self.link = Routine.labels[self.label]
+            self.link.links.add(self)
+            return True
+        return False
+
+    def __delete__(self, instance):
+        if self.link is not None:
+            self.link.links.remove(self)
+
+    def __str__(self):
+        return f'  > {self.label}'
+
+
+class Setting(Component):
+    """Changes the value of the given setting variable."""
+
+    id = '$'
+
+    def __init__(self, key, value):
+        super().__init__(locals())
+        self.key = str(key)
+        if self.key not in settings.SETTING_VALIDATORS:
+            raise ValueError(f"Setting '{key}' does not exist")
+        self.value = settings.SETTING_VALIDATORS[self.key](value)
+
+    def main(self):
+        setattr(settings, self.key, self.value)
+
+    def __str__(self):
+        return f'  $ {self.key} = {self.value}'
+
+
+SYMBOLS = {
+    '*': Point,
+    '@': Label,
+    '>': Jump,
+    '$': Setting
+}
