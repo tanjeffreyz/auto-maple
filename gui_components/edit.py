@@ -45,7 +45,7 @@ class Editor(LabelFrame):
     def create_default_state(self):
         self.vars = {}
 
-        self.contents = Frame(self, width=262, highlightthickness=0)
+        self.contents = Frame(self)
         self.contents.grid(row=0, column=0, padx=5)
 
         title = tk.Entry(self.contents, justify=tk.CENTER)
@@ -95,11 +95,6 @@ class Editor(LabelFrame):
 
         for key, value in arr[i].kwargs.items():
             self.create_entry(key, value)
-
-        # def update_obj():
-        #     new_kwargs = {k: v.get() for k, v in self.vars.items()}
-        #     config.routine.update_component(i, new_kwargs)
-        #     self.create_edit(arr, i, func)
 
         button = tk.Button(self.contents, text='Save', command=func(arr, i, self.vars))
         button.pack(pady=5)
