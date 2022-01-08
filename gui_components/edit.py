@@ -220,7 +220,7 @@ class Commands(Frame):
     def update_obj(self, arr, i, stringvars):
         def f():
             new_kwargs = {k: v.get() for k, v in stringvars.items()}
-            print('Heckya')
+            print('Heckya')         # TODO: Finish dis
             # config.routine.update_component(i, new_kwargs)
             self.parent.parent.parent.editor.create_edit(arr, i, self.update_obj)
         return f

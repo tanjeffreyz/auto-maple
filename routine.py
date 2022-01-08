@@ -47,7 +47,17 @@ class Routine:
             target.update(**new_kwargs)
             self.display[i] = str(target)
         except (ValueError, TypeError) as e:
-            print(f"\n[!] Found invalid arguments for '{self.sequence[i].__class__.__name__}':")
+            print(f"\n[!] Found invalid arguments for '{target.__class__.__name__}':")
+            print(f"{' ' * 4} -  {e}")
+
+    @update
+    def update_nested(self, i, j, new_kwargs):
+        target = self.sequence[i].commands[j]
+        try:
+            target.update(**new_kwargs)
+            self.display[i] = str(self.sequence[i])
+        except (ValueError, TypeError) as e:
+            print(f"\n[!] Found invalid arguments for '{target.__class__.__name__}':")
             print(f"{' ' * 4} -  {e}")
 
     def save(self, file_path):          # TODO: Set Dirty bit to false
@@ -190,7 +200,7 @@ class Component:
 
         return {
             'name': self.__class__.__name__,
-            'vars': self.kwargs
+            'vars': self.kwargs.copy()
         }
 
     def encode(self):
