@@ -332,11 +332,6 @@ class Jump(Component):
             return True
         return False
 
-    def info(self):
-        curr = super().info()
-        curr['vars']['counter'] = self.counter
-        return curr
-
     def __delete__(self, instance):
         if self.link is not None:
             self.link.links.remove(self)
