@@ -258,7 +258,6 @@ class Point(Component):
     def info(self):
         curr = super().info()
         curr['vars'].pop('location', None)
-        curr['vars']['counter'] = self.counter
         curr['vars']['commands'] = ', '.join([c.id for c in self.commands])
         return curr
 
