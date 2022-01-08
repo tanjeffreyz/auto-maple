@@ -2,15 +2,10 @@
 
 import config
 import utils
-import csv
 import queue
-import winsound
 import tkinter as tk
-from os.path import splitext, basename
 from tkinter.filedialog import askopenfilename, asksaveasfilename
 from bot import Bot
-from routine import Routine, Command
-from layout import Layout
 
 
 class Menu(tk.Menu):
@@ -25,7 +20,7 @@ class Menu(tk.Menu):
         self.file.add_separator()
 
         self.file.add_command(label='Load Command Book', command=utils.async_callback(self, Menu._load_commands))
-        self.file.add_command(label='Load Routine', command=utils.async_callback(self, Menu._load_routine))       # TODO: move load funcs to here!
+        self.file.add_command(label='Load Routine', command=utils.async_callback(self, Menu._load_routine))
 
         self.add_cascade(label='File', menu=self.file)
 

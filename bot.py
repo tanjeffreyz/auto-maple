@@ -5,6 +5,7 @@ import detection
 import threading
 import time
 import mss
+import mss.windows
 import utils
 import pygame
 import inspect
@@ -62,6 +63,7 @@ class Bot:
         model = detection.load_model()
         print('\n[~] Initialized detection algorithm.')
 
+        mss.windows.CAPTUREBLT = 0
         with mss.mss() as sct:
             self.ready = True
             config.listening = True
@@ -79,7 +81,7 @@ class Bot:
                     element = config.routine[Routine.index]
                     element.execute()
                     if config.rune_active and isinstance(element, Point) \
-                            and element.location == config.rune_closest_pos:      # TODO: rename rune index
+                            and element.location == config.rune_closest_pos:
                         Bot._solve_rune(model, sct)
                     Bot._step()
                 else:
@@ -188,7 +190,7 @@ class Bot:
             Bot.buff = new_cb['buff']()
 
             # Clear the current routine and Layout because command book changed
-            config.gui.view.details.clear_info()
+            config.gui.clear_routine_info()
             config.routine.set([])
             config.gui.view.status.update_routine('')
             config.layout = None

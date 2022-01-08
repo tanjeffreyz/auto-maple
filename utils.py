@@ -270,11 +270,11 @@ def validate_horizontal_arrows(key):
     raise ValueError
 
 
-def validate_nonzero_int(value):
+def validate_nonnegative_int(value):
     """
-    Checks whether VALUE can be a valid nonzero integer.
+    Checks whether VALUE can be a valid non-negative integer.
     :param value:   The string to check.
-    :return:        STRING as an integer.
+    :return:        VALUE as an integer.
     """
 
     if int(value) >= 1:
@@ -282,17 +282,16 @@ def validate_nonzero_int(value):
     raise ValueError
 
 
-def validate_boolean(boolean):
+def validate_boolean(value):
     """
-    Checks whether string BOOLEAN is a valid bool.
-    :param boolean:     The string to check.
-    :return:            BOOLEAN as a bool if it is valid, otherwise None.
+    Checks whether VALUE is a valid Python boolean.
+    :param value:   The string to check.
+    :return:        VALUE as a boolean
     """
 
-    if isinstance(boolean, str):
-        boolean = boolean.lower()
-        if boolean == 'true':
-            return True
-        elif boolean == 'false':
-            return False
+    value = value.lower()
+    if value in {'true', 'false'}:
+        return True if value == 'true' else False
+    elif int(value) in {0, 1}:
+        return bool(int(value))
     raise ValueError

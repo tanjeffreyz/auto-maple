@@ -13,7 +13,7 @@ def update(func):           # TODO: routine keep track of display sequence, don'
 
     def f(self, *args, **kwargs):
         result = func(self, *args, **kwargs)
-        config.gui.set_routine([str(e) for e in self.sequence])
+        config.gui.set_routine(self.display)
         return result
     return f
 
@@ -25,18 +25,32 @@ class Routine:
     index = 0
 
     def __init__(self):
+        self.dirty = False          # TODO: Implement dirty bit
         self.path = ''
         self.sequence = []
+        self.display = []       # Updated alongside sequence
 
     @update
     def set(self, arr):
         self.sequence = arr
+        self.display = [str(x) for x in arr]
 
     @update
     def append(self, p):
         self.sequence.append(p)
+        self.display.append(str(p))
 
-    def save(self, file_path):
+    @update
+    def update_component(self, i, new_kwargs):
+        target = self.sequence[i]
+        try:
+            target.update(**new_kwargs)
+            self.display[i] = str(target)
+        except (ValueError, TypeError) as e:
+            print(f"\n[!] Found invalid arguments for '{self.sequence[i].__class__.__name__}':")
+            print(f"{' ' * 4} -  {e}")
+
+    def save(self, file_path):          # TODO: Set Dirty bit to false
         """Encodes and saves the current Routine at location PATH."""
 
         result = []
@@ -53,7 +67,7 @@ class Routine:
         utils.print_separator()
         print(f"[~] Saved routine to '{basename(file_path)}'.")
 
-    def load(self, file=None):
+    def load(self, file=None):      # TODO: dirty bit warn if not saved, same for load command book
         """
         Attempts to load FILE into a sequence of Components. If no file path is provided, attempts to
         load the previous routine file.
@@ -78,7 +92,7 @@ class Routine:
             return False
 
         self.set([])
-        Routine.index = 0            # TODO: seq_index can be inside routine
+        Routine.index = 0
         utils.reset_settings()
 
         # Compile and Link
@@ -88,7 +102,7 @@ class Routine:
                 c.bind()
 
         self.path = file
-        config.gui.view.details.clear_info()
+        config.gui.clear_routine_info()
         config.gui.view.status.update_routine(basename(file))
         config.layout = Layout.load(file)
         print(f"[~] Finished loading routine '{basename(splitext(file)[0])}'.")
@@ -152,11 +166,11 @@ class Component:
 
     def __init__(self, args=None):
         if args is None:
-            self._args = {}
+            self.kwargs = {}
         else:
-            self._args = args.copy()
-            self._args.pop('__class__')
-            self._args.pop('self')
+            self.kwargs = args.copy()
+            self.kwargs.pop('__class__')
+            self.kwargs.pop('self')
 
     @utils.run_if_enabled
     def execute(self):
@@ -165,24 +179,26 @@ class Component:
     def main(self):
         pass
 
+    def update(self, *args, **kwargs):
+        """Updates this Component's constructor arguments with new arguments."""
+
+        self.__class__(*args, **kwargs)     # Validate arguments before actually updating values
+        self.__init__(*args, **kwargs)
+
     def info(self):
         """Returns a dictionary of useful information about this Component."""
 
-        attributes = {}
-        for key in self.__dict__:
-            if not key.startswith('_'):
-                attributes[key] = self.__dict__[key]
         return {
             'name': self.__class__.__name__,
-            'vars': attributes
+            'vars': self.kwargs
         }
 
     def encode(self):
         """Encodes an object using its ID and its __init__ arguments."""
 
         arr = [self.id]
-        for key, value in self._args.items():
-            if key != 'id' and type(self._args[key]) in Component.PRIMITIVES:
+        for key, value in self.kwargs.items():
+            if key != 'id' and type(self.kwargs[key]) in Component.PRIMITIVES:
                 arr.append(f'{key}={value}')
         return ', '.join(arr)
 
@@ -215,7 +231,7 @@ class Point(Component):
         self.x = float(x)
         self.y = float(y)
         self.location = (self.x, self.y)
-        self.frequency = utils.validate_nonzero_int(frequency)
+        self.frequency = utils.validate_nonnegative_int(frequency)
         self.counter = int(utils.validate_boolean(skip))
         self.adjust = utils.validate_boolean(adjust)
         self.commands = []
@@ -242,6 +258,7 @@ class Point(Component):
     def info(self):
         curr = super().info()
         curr['vars'].pop('location', None)
+        curr['vars']['counter'] = self.counter
         curr['vars']['commands'] = ', '.join([c.id for c in self.commands])
         return curr
 
@@ -268,7 +285,7 @@ class Label(Component):
 
     def info(self):
         curr = super().info()
-        curr['vars'].pop('links', None)
+        curr['vars']['index'] = self.index
         return curr
 
     def __delete__(self, instance):
@@ -287,7 +304,7 @@ class Jump(Component):
     def __init__(self, label, frequency=1, skip='False'):
         super().__init__(locals())
         self.label = str(label)
-        self.frequency = utils.validate_nonzero_int(frequency)
+        self.frequency = utils.validate_nonnegative_int(frequency)
         self.counter = int(utils.validate_boolean(skip))
         self.link = None
 
@@ -318,7 +335,7 @@ class Jump(Component):
 
     def info(self):
         curr = super().info()
-        curr['vars'].pop('link', None)
+        curr['vars']['counter'] = self.counter
         return curr
 
     def __delete__(self, instance):
@@ -334,11 +351,11 @@ class Setting(Component):
 
     id = '$'
 
-    def __init__(self, key, value):
+    def __init__(self, target, value):
         super().__init__(locals())
-        self.key = str(key)
+        self.key = str(target)
         if self.key not in settings.SETTING_VALIDATORS:
-            raise ValueError(f"Setting '{key}' does not exist")
+            raise ValueError(f"Setting '{target}' does not exist")
         self.value = settings.SETTING_VALIDATORS[self.key](value)
 
     def main(self):

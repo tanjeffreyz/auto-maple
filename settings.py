@@ -2,13 +2,12 @@
 
 import utils
 
-
 # A dictionary that maps each setting to its validator function
 SETTING_VALIDATORS = {
     'move_tolerance': float,
     'adjust_tolerance': float,
     'record_layout': utils.validate_boolean,
-    'buff_cooldown': int
+    'buff_cooldown': utils.validate_nonnegative_int
 }
 
 # The allowed error from the destination when moving towards a Point

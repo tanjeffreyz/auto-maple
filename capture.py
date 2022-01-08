@@ -2,6 +2,7 @@
 
 import config
 import mss
+import mss.windows
 import time
 import cv2
 import threading
@@ -40,6 +41,7 @@ class Capture:
         :return:    None
         """
 
+        mss.windows.CAPTUREBLT = 0
         with mss.mss() as sct:
             while True:
                 if not config.calibrated:

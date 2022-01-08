@@ -39,6 +39,16 @@ class GUI:
     def set_routine(self, arr):
         self.routine_var.set(arr)
 
+    def clear_routine_info(self):
+        """
+        Clears information in various GUI elements regarding the current routine.
+        Does not clear Listboxes containing routine Components, as that is handled by Routine.
+        """
+
+        self.view.details.clear_info()
+        self.edit.routine.commands.clear_contents()
+        self.edit.editor.reset()
+
     def _resize_window(self, e):
         """Callback to resize entire Tkinter window every time a new Page is selected."""
 

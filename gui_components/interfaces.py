@@ -4,7 +4,7 @@ import tkinter as tk
 from tkinter import ttk
 
 
-class Frame(ttk.Frame):
+class Frame(tk.Frame):
     def __init__(self, parent, **kwargs):
         super().__init__(parent, **kwargs)
         self.parent = parent
