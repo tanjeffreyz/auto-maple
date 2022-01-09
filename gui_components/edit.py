@@ -32,6 +32,9 @@ class Edit(Page):
 class Editor(LabelFrame):
     def __init__(self, parent, **kwargs):
         super().__init__(parent, 'Editor', **kwargs)
+
+        self.columnconfigure(0, minsize=300)
+
         self.vars = {}
         self.contents = None
         self.create_default_state()
@@ -46,7 +49,7 @@ class Editor(LabelFrame):
         self.vars = {}
 
         self.contents = Frame(self)
-        self.contents.grid(row=0, column=0, padx=5)
+        self.contents.grid(row=0, column=0, sticky=tk.EW, padx=5)
 
         title = tk.Entry(self.contents, justify=tk.CENTER)
         title.pack(expand=True, fill='x', pady=(5, 2))
@@ -60,11 +63,11 @@ class Editor(LabelFrame):
         row.pack(expand=True, fill='x')
 
         label = tk.Entry(row)
-        label.pack(side=tk.LEFT, expand=True)
+        label.pack(side=tk.LEFT, expand=True, fill='x')
         label.config(state=tk.DISABLED)
 
         entry = tk.Entry(row)
-        entry.pack(side=tk.RIGHT, expand=True)
+        entry.pack(side=tk.RIGHT, expand=True, fill='x')
         entry.config(state=tk.DISABLED)
 
     def create_entry(self, key, value):
@@ -79,12 +82,12 @@ class Editor(LabelFrame):
         row.pack(expand=True, fill='x')
 
         label = tk.Entry(row)
-        label.pack(side=tk.LEFT, expand=True)
+        label.pack(side=tk.LEFT, expand=True, fill='x')
         label.insert(0, key)
         label.config(state=tk.DISABLED)
 
         entry = tk.Entry(row, textvariable=self.vars[key])
-        entry.pack(side=tk.RIGHT, expand=True)
+        entry.pack(side=tk.RIGHT, expand=True, fill='x')
 
     def create_edit(self, arr, i, func):
         """
@@ -98,7 +101,7 @@ class Editor(LabelFrame):
         self.contents.destroy()
         self.vars = {}
         self.contents = Frame(self)
-        self.contents.grid(row=0, column=0, padx=5)
+        self.contents.grid(row=0, column=0, sticky=tk.EW, padx=5)
 
         title = tk.Entry(self.contents, justify=tk.CENTER)
         title.pack(expand=True, fill='x', pady=(5, 2))
@@ -108,11 +111,20 @@ class Editor(LabelFrame):
         if len(arr[i].kwargs) > 0:
             for key, value in arr[i].kwargs.items():
                 self.create_entry(key, value)
+            button = tk.Button(self.contents, text='Save', command=func(arr, i, self.vars))
+            button.pack(pady=5)
         else:
             self.create_disabled_entry()
 
-        button = tk.Button(self.contents, text='Save', command=func(arr, i, self.vars))
-        button.pack(pady=5)
+    def create_new_prompt(self):
+        """Creates a UI that asks the user to select a class to create."""
+
+        self.contents.destroy()
+        self.vars = {}
+        self.contents = Frame(self)
+        self.contents.grid(row=0, column=0, sticky=tk.EW, padx=5)
+
+        
 
 
 class Routine(LabelFrame):
