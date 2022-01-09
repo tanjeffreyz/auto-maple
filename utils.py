@@ -227,21 +227,6 @@ def async_callback(context, function, *args, **kwargs):
 #################################
 #      Validator Functions      #
 #################################
-def validate_type(string, other):
-    """
-    Checks whether STRING can be converted into type OTHER.
-    :param string:      The string to check.
-    :param other:       The type to check against.
-    :return:            True if STRING can be of type OTHER, False otherwise.
-    """
-
-    try:
-        other(string)
-        return True
-    except ValueError:
-        return False
-
-
 def validate_arrows(key):
     """
     Checks whether string KEY is an arrow key.
@@ -253,7 +238,7 @@ def validate_arrows(key):
         key = key.lower()
         if key in ['up', 'down', 'left', 'right']:
             return key
-    raise ValueError
+    raise ValueError(f"'{key}' is not a valid arrow key.")
 
 
 def validate_horizontal_arrows(key):
@@ -267,7 +252,7 @@ def validate_horizontal_arrows(key):
         key = key.lower()
         if key in ['left', 'right']:
             return key
-    raise ValueError
+    raise ValueError(f"'{key}' is not a valid horizontal arrow key.")
 
 
 def validate_nonnegative_int(value):
@@ -279,7 +264,7 @@ def validate_nonnegative_int(value):
 
     if int(value) >= 1:
         return int(value)
-    raise ValueError
+    raise ValueError(f"'{value}' is not a valid non-negative integer.")
 
 
 def validate_boolean(value):
@@ -294,4 +279,4 @@ def validate_boolean(value):
         return True if value == 'true' else False
     elif int(value) in {0, 1}:
         return bool(int(value))
-    raise ValueError
+    raise ValueError(f"'{value}' is not a valid boolean.")

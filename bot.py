@@ -74,7 +74,7 @@ class Bot:
                     Bot.buff.main()
 
                     # Highlight the current Point
-                    config.gui.view.routine.select(Routine.index, len(config.routine))
+                    config.gui.view.routine.select(Routine.index)
                     config.gui.view.details.display_info(Routine.index)
 
                     # Execute next Point in the routine

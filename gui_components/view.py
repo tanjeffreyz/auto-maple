@@ -194,7 +194,8 @@ class Routine(LabelFrame):
 
         self.scroll.config(command=self.listbox.yview)
 
-    def select(self, i, end):
-        self.listbox.selection_clear(0, end)
+    def select(self, i):
+        self.listbox.selection_clear(0, 'end')
         self.listbox.selection_set(i)
         self.listbox.activate(i)
+        self.listbox.see(i)

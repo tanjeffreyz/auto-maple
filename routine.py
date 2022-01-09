@@ -41,6 +41,60 @@ class Routine:
         self.display.append(str(p))
 
     @update
+    def move_component_up(self, i):
+        """Moves the component at index I upward if possible and returns its new index."""
+
+        if i > 0:
+            temp_s = self.sequence[i-1]
+            temp_d = self.display[i-1]
+            self.sequence[i-1] = self.sequence[i]
+            self.display[i-1] = self.display[i]
+            self.sequence[i] = temp_s
+            self.display[i] = temp_d
+            config.gui.edit.routine.components.select(i-1)
+
+    @update
+    def move_component_down(self, i):
+        """Moves the component at index I upward if possible and returns its new index."""
+
+        if i < len(self) - 1:
+            temp_s = self.sequence[i+1]
+            temp_d = self.display[i+1]
+            self.sequence[i+1] = self.sequence[i]
+            self.display[i+1] = self.display[i]
+            self.sequence[i] = temp_s
+            self.display[i] = temp_d
+            config.gui.edit.routine.components.select(i+1)
+
+    def move_command_up(self, i, j):
+        """
+        Within the Point at routine index I, moves the Command at index J upward
+        if possible and returns its new index.
+        """
+
+        point = self.sequence[i]
+        if j > 0:
+            temp = point.commands[j-1]
+            point.commands[j-1] = point.commands[j]
+            point.commands[j] = temp
+            config.gui.edit.routine.commands.update_display()
+            config.gui.edit.routine.commands.select(j-1)
+
+    def move_command_down(self, i, j):
+        """
+        Within the Point at routine index I, moves the Command at index J upward
+        if possible and returns its new index.
+        """
+
+        point = self.sequence[i]
+        if j < len(point.commands) - 1:
+            temp = point.commands[j+1]
+            point.commands[j+1] = point.commands[j]
+            point.commands[j] = temp
+            config.gui.edit.routine.commands.update_display()
+            config.gui.edit.routine.commands.select(j+1)
+
+    @update
     def update_component(self, i, new_kwargs):
         target = self.sequence[i]
         try:
@@ -51,7 +105,7 @@ class Routine:
             print(f"{' ' * 4} -  {e}")
 
     @update
-    def update_nested(self, i, j, new_kwargs):
+    def update_command(self, i, j, new_kwargs):
         target = self.sequence[i].commands[j]
         try:
             target.update(**new_kwargs)

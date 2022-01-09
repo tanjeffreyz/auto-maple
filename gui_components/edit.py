@@ -53,7 +53,19 @@ class Editor(LabelFrame):
         title.insert(0, 'Nothing selected')
         title.config(state=tk.DISABLED)
 
-        self.create_entry('', '')
+        self.create_disabled_entry()
+
+    def create_disabled_entry(self):
+        row = Frame(self.contents, highlightthickness=0)
+        row.pack(expand=True, fill='x')
+
+        label = tk.Entry(row)
+        label.pack(side=tk.LEFT, expand=True)
+        label.config(state=tk.DISABLED)
+
+        entry = tk.Entry(row)
+        entry.pack(side=tk.RIGHT, expand=True)
+        entry.config(state=tk.DISABLED)
 
     def create_entry(self, key, value):
         """
@@ -79,7 +91,7 @@ class Editor(LabelFrame):
         Callback that Creates a UI to edit existing routine Components.
         :param arr:     List of Components to choose from.
         :param i:       The index to choose.
-        :param func:    Creates a function that can be bound to the button.
+        :param func:    When called, creates a function that can be bound to the button.
         :return:        None
         """
 
@@ -93,8 +105,11 @@ class Editor(LabelFrame):
         title.insert(0, f"Edit {arr[i].__class__.__name__}")
         title.config(state=tk.DISABLED)
 
-        for key, value in arr[i].kwargs.items():
-            self.create_entry(key, value)
+        if len(arr[i].kwargs) > 0:
+            for key, value in arr[i].kwargs.items():
+                self.create_entry(key, value)
+        else:
+            self.create_disabled_entry()
 
         button = tk.Button(self.contents, text='Save', command=func(arr, i, self.vars))
         button.pack(pady=5)
@@ -127,8 +142,36 @@ class Controls(Frame):
     def __init__(self, parent, **kwargs):
         super().__init__(parent, **kwargs)
 
-        self.label = tk.Label(self, text='asdfasdfasdfasdf', relief=tk.SOLID)
-        self.label.pack()
+        self.up_arrow = tk.Button(self, text='▲', width=6, command=self.move_up)
+        self.up_arrow.grid(row=0, column=0)
+
+        self.down_arrow = tk.Button(self, text='▼', width=6, command=self.move_down)
+        self.down_arrow.grid(row=0, column=1, padx=(5, 0))
+
+        self.delete = tk.Button(self, text=u'\U00002715', width=3)
+        self.delete.grid(row=0, column=2, padx=(5, 0))
+
+    def move_up(self):
+        components = self.parent.components.listbox.curselection()
+        commands = self.parent.commands.listbox.curselection()
+        if len(components) > 0:
+            p_index = int(components[0])
+            if len(commands) > 0:
+                c_index = int(commands[0])
+                config.routine.move_command_up(p_index, c_index)
+            else:
+                config.routine.move_component_up(p_index)
+
+    def move_down(self):
+        components = self.parent.components.listbox.curselection()
+        commands = self.parent.commands.listbox.curselection()
+        if len(components) > 0:
+            p_index = int(components[0])
+            if len(commands) > 0:
+                c_index = int(commands[0])
+                config.routine.move_command_down(p_index, c_index)
+            else:
+                config.routine.move_component_down(p_index)
 
 
 class Components(Frame):
@@ -182,6 +225,12 @@ class Components(Frame):
             self.parent.parent.parent.editor.create_edit(arr, i, self.update_obj)
         return f
 
+    def select(self, i):
+        self.listbox.selection_clear(0, 'end')
+        self.listbox.selection_set(i)
+        self.listbox.activate(i)
+        self.listbox.see(i)
+
 
 class Commands(Frame):
     def __init__(self, parent, **kwargs):
@@ -219,17 +268,33 @@ class Commands(Frame):
 
     def update_obj(self, arr, i, stringvars):
         def f():
-            new_kwargs = {k: v.get() for k, v in stringvars.items()}
-            print('Heckya')         # TODO: Finish dis
-            # config.routine.update_component(i, new_kwargs)
+            pt_selects = self.parent.parent.components.listbox.curselection()
+            if len(pt_selects) > 0:
+                index = int(pt_selects[0])
+                new_kwargs = {k: v.get() for k, v in stringvars.items()}
+                config.routine.update_command(index, i, new_kwargs)
             self.parent.parent.parent.editor.create_edit(arr, i, self.update_obj)
         return f
+
+    def update_display(self):
+        pt_selects = self.parent.parent.components.listbox.curselection()
+        if len(pt_selects) > 0:
+            index = int(pt_selects[0])
+            obj = config.routine[index]
+            if isinstance(obj, Point):
+                self.parent.parent.commands_var.set([c.id for c in obj.commands])
 
     def clear_selection(self):
         self.listbox.selection_clear(0, 'end')
 
     def clear_contents(self):
         self.parent.parent.commands_var.set([])
+
+    def select(self, i):
+        self.listbox.selection_clear(0, 'end')
+        self.listbox.selection_set(i)
+        self.listbox.activate(i)
+        self.listbox.see(i)
 
 
 class Minimap(LabelFrame):
@@ -257,7 +322,7 @@ class Status(LabelFrame):
 
 class Record(LabelFrame):
     def __init__(self, parent, **kwargs):
-        super().__init__(parent, 'Recorded Points', **kwargs)
+        super().__init__(parent, 'Recorded Locations', **kwargs)
 
         self.scroll = tk.Scrollbar(self)
         self.scroll.pack(side=tk.RIGHT, fill='y', pady=(0, 5))
