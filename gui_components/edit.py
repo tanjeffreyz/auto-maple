@@ -88,7 +88,7 @@ class Editor(LabelFrame):
 
     def create_edit(self, arr, i, func):
         """
-        Callback that Creates a UI to edit existing routine Components.
+        Creates a UI to edit existing routine Components.
         :param arr:     List of Components to choose from.
         :param i:       The index to choose.
         :param func:    When called, creates a function that can be bound to the button.
@@ -148,7 +148,7 @@ class Controls(Frame):
         self.down_arrow = tk.Button(self, text='▼', width=6, command=self.move_down)
         self.down_arrow.grid(row=0, column=1, padx=(5, 0))
 
-        self.delete = tk.Button(self, text=u'\U00002715', width=3)
+        self.delete = tk.Button(self, text=u'\U00002715', width=3, command=self.delete)
         self.delete.grid(row=0, column=2, padx=(5, 0))
 
     def move_up(self):
@@ -173,6 +173,17 @@ class Controls(Frame):
             else:
                 config.routine.move_component_down(p_index)
 
+    def delete(self):
+        components = self.parent.components.listbox.curselection()
+        commands = self.parent.commands.listbox.curselection()
+        if len(components) > 0:
+            p_index = int(components[0])
+            if len(commands) > 0:
+                c_index = int(commands[0])
+                config.routine.delete_command(p_index, c_index)
+            else:
+                config.routine.delete_component(p_index)
+
 
 class Components(Frame):
     def __init__(self, parent, **kwargs):
@@ -187,6 +198,7 @@ class Components(Frame):
         self.listbox = tk.Listbox(self, width=25,
                                   listvariable=config.gui.routine_var,
                                   exportselection=False,
+                                  activestyle='none',
                                   yscrollcommand=self.scroll.set)
         # self.listbox.bind('<Up>', lambda e: 'break')
         # self.listbox.bind('<Down>', lambda e: 'break')
@@ -228,8 +240,10 @@ class Components(Frame):
     def select(self, i):
         self.listbox.selection_clear(0, 'end')
         self.listbox.selection_set(i)
-        self.listbox.activate(i)
         self.listbox.see(i)
+
+    def clear_selection(self):
+        self.listbox.selection_clear(0, 'end')
 
 
 class Commands(Frame):
@@ -245,6 +259,7 @@ class Commands(Frame):
         self.listbox = tk.Listbox(self, width=25,
                                   listvariable=parent.parent.commands_var,
                                   exportselection=False,
+                                  activestyle='none',
                                   yscrollcommand=self.scroll.set)
         # self.listbox.bind('<Up>', lambda e: 'break')
         # self.listbox.bind('<Down>', lambda e: 'break')
@@ -293,7 +308,6 @@ class Commands(Frame):
     def select(self, i):
         self.listbox.selection_clear(0, 'end')
         self.listbox.selection_set(i)
-        self.listbox.activate(i)
         self.listbox.see(i)
 
 
@@ -330,6 +344,7 @@ class Record(LabelFrame):
         self.listbox = tk.Listbox(self, width=25,
                                   # listvariable=config.gui.routine_var,
                                   exportselection=False,
+                                  activestyle='none',
                                   yscrollcommand=self.scroll.set)
         self.listbox.bind('<Up>', lambda e: 'break')
         self.listbox.bind('<Down>', lambda e: 'break')

@@ -9,11 +9,15 @@ from layout import Layout
 
 
 def update(func):           # TODO: routine keep track of display sequence, don't O(n) every time
-    """Decorator function that updates CONFIG.ROUTINE_VAR for all mutative Routine operations."""
+    """
+    Decorator function that updates both the displayed routine and details
+    for all mutative Routine operations.
+    """
 
     def f(self, *args, **kwargs):
         result = func(self, *args, **kwargs)
         config.gui.set_routine(self.display)
+        config.gui.view.details.update_details()
         return result
     return f
 
@@ -42,7 +46,7 @@ class Routine:
 
     @update
     def move_component_up(self, i):
-        """Moves the component at index I upward if possible and returns its new index."""
+        """Moves the component at index I upward if possible."""
 
         if i > 0:
             temp_s = self.sequence[i-1]
@@ -55,8 +59,6 @@ class Routine:
 
     @update
     def move_component_down(self, i):
-        """Moves the component at index I upward if possible and returns its new index."""
-
         if i < len(self) - 1:
             temp_s = self.sequence[i+1]
             temp_d = self.display[i+1]
@@ -66,10 +68,11 @@ class Routine:
             self.display[i] = temp_d
             config.gui.edit.routine.components.select(i+1)
 
+    @update
     def move_command_up(self, i, j):
         """
         Within the Point at routine index I, moves the Command at index J upward
-        if possible and returns its new index.
+        if possible and updates the Edit UI.
         """
 
         point = self.sequence[i]
@@ -77,22 +80,45 @@ class Routine:
             temp = point.commands[j-1]
             point.commands[j-1] = point.commands[j]
             point.commands[j] = temp
-            config.gui.edit.routine.commands.update_display()
-            config.gui.edit.routine.commands.select(j-1)
 
+            edit = config.gui.edit
+            edit.routine.commands.update_display()
+            edit.routine.commands.select(j-1)
+
+    @update
     def move_command_down(self, i, j):
-        """
-        Within the Point at routine index I, moves the Command at index J upward
-        if possible and returns its new index.
-        """
-
         point = self.sequence[i]
         if j < len(point.commands) - 1:
             temp = point.commands[j+1]
             point.commands[j+1] = point.commands[j]
             point.commands[j] = temp
-            config.gui.edit.routine.commands.update_display()
-            config.gui.edit.routine.commands.select(j+1)
+
+            edit = config.gui.edit
+            edit.routine.commands.update_display()
+            edit.routine.commands.select(j+1)
+
+    @update
+    def delete_component(self, i):
+        """Deletes the Component at index I."""
+
+        self.sequence.pop(i)
+        self.display.pop(i)
+
+        edit = config.gui.edit
+        edit.routine.components.clear_selection()
+        edit.editor.reset()
+
+    @update
+    def delete_command(self, i, j):
+        """Within the Point at routine index I, deletes the Command at index J."""
+
+        point = self.sequence[i]
+        point.commands.pop(j)
+
+        edit = config.gui.edit
+        edit.routine.commands.update_display()
+        edit.routine.commands.clear_selection()
+        edit.editor.create_edit(self.sequence, i, edit.routine.components.update_obj)
 
     @update
     def update_component(self, i, new_kwargs):

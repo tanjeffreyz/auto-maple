@@ -144,13 +144,20 @@ class Details(LabelFrame):
 
         self.scroll.config(command=self.text.yview)
 
-    def update_details(self, e):
+    def show_details(self, e):
         """Callback for updating the Details section everytime Listbox selection changes."""
 
         selections = e.widget.curselection()
         if len(selections) > 0:
             index = int(selections[0])
             self.display_info(index)
+
+    def update_details(self):
+        """Updates Details to show info about the current selection."""
+
+        selects = self.parent.routine.listbox.curselection()
+        if len(selects) > 0:
+            self.display_info(int(selects[0]))
 
     def display_info(self, index):
         """Updates the Details section to show info about the Component at position INDEX."""
@@ -184,12 +191,13 @@ class Routine(LabelFrame):
         self.listbox = tk.Listbox(self, width=25,
                                   listvariable=config.gui.routine_var,
                                   exportselection=False,
+                                  activestyle='none',
                                   yscrollcommand=self.scroll.set)
         self.listbox.bind('<Up>', lambda e: 'break')
         self.listbox.bind('<Down>', lambda e: 'break')
         self.listbox.bind('<Left>', lambda e: 'break')
         self.listbox.bind('<Right>', lambda e: 'break')
-        self.listbox.bind('<<ListboxSelect>>', parent.details.update_details)
+        self.listbox.bind('<<ListboxSelect>>', parent.details.show_details)
         self.listbox.pack(side=tk.LEFT, expand=True, fill='both', padx=(5, 0), pady=5)
 
         self.scroll.config(command=self.listbox.yview)
@@ -197,5 +205,4 @@ class Routine(LabelFrame):
     def select(self, i):
         self.listbox.selection_clear(0, 'end')
         self.listbox.selection_set(i)
-        self.listbox.activate(i)
         self.listbox.see(i)
