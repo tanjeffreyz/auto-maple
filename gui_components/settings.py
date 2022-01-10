@@ -2,12 +2,12 @@
 
 import config
 import utils
-import vkeys
 import tkinter as tk
-from gui_components.interfaces import Page, Frame, LabelFrame
+import keyboard as kb
+from gui_components.interfaces import Tab, Frame, LabelFrame
 
 
-class Settings(Page):
+class Settings(Tab):
     def __init__(self, parent, **kwargs):
         super().__init__(parent, 'Settings', **kwargs)
 
@@ -25,17 +25,21 @@ class KeyBindings(LabelFrame):
         self.columnconfigure(0, minsize=300)
 
         self.vars = {}
+        self.used = set()
         self.contents = None
         self.create_edit_ui()
 
     def create_edit_ui(self):
         self.vars = {}
+        self.used = set()
         self.contents = Frame(self)
         self.contents.grid(row=0, column=0, sticky=tk.NSEW, padx=5, pady=5)
 
         if config.listener is not None:         # For when running GUI only
             for key, value in config.listener.key_bindings.items():
+                self.used.add(value)
                 self.create_entry(key, value)
+            self.focus()
         else:
             self.create_disabled_entry()
 
@@ -53,7 +57,7 @@ class KeyBindings(LabelFrame):
         failures = 0
         for key, var in self.vars.items():
             value = var.get().lower()
-            if value in vkeys.KEY_MAP:
+            if value in vkeys.KEY_MAP:          # TODO: verify using kb not vkeys
                 config.listener.key_bindings[key] = value
             else:
                 print(f" !  Error while binding '{key}': '{value}' is not a valid key.")
@@ -64,18 +68,6 @@ class KeyBindings(LabelFrame):
         else:
             print(f'[~] Found {failures} errors, successfully saved the rest.')
         self.create_edit_ui()
-
-    def create_disabled_entry(self):
-        row = Frame(self.contents, highlightthickness=0)
-        row.pack(expand=True, fill='x')
-
-        label = tk.Entry(row)
-        label.pack(side=tk.LEFT, expand=True, fill='x')
-        label.config(state=tk.DISABLED)
-
-        entry = tk.Entry(row)
-        entry.pack(side=tk.RIGHT, expand=True, fill='x')
-        entry.config(state=tk.DISABLED)
 
     def create_entry(self, key, value):
         """
@@ -93,6 +85,24 @@ class KeyBindings(LabelFrame):
         label.insert(0, key)
         label.config(state=tk.DISABLED)
 
+        def on_key(_):
+            k = kb.read_key()
+            entry.delete(0, 'end')
+            entry.insert(0, k)
+
         entry = tk.Entry(row, textvariable=self.vars[key])
         entry.pack(side=tk.RIGHT, expand=True, fill='x')
-        entry.bind('<FocusIn>', lambda _: entry.selection_range(0, 'end'))
+        entry.bind('<KeyPress>', on_key)
+
+
+    def create_disabled_entry(self):
+        row = Frame(self.contents, highlightthickness=0)
+        row.pack(expand=True, fill='x')
+
+        label = tk.Entry(row)
+        label.pack(side=tk.LEFT, expand=True, fill='x')
+        label.config(state=tk.DISABLED)
+
+        entry = tk.Entry(row)
+        entry.pack(side=tk.RIGHT, expand=True, fill='x')
+        entry.config(state=tk.DISABLED)

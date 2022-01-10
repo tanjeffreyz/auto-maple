@@ -53,7 +53,9 @@ class GUI:
         """Callback to resize entire Tkinter window every time a new Page is selected."""
 
         nav = e.widget
-        page = nav.tab(nav.select(), 'text')
+        curr_id = nav.select()
+        nav.nametowidget(curr_id).focus()      # Focus the current Tab
+        page = nav.tab(curr_id, 'text')
         if self.root.state() != 'zoomed':
             if page in GUI.RESOLUTIONS:
                 self.root.geometry(GUI.RESOLUTIONS[page])

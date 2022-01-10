@@ -18,7 +18,7 @@ class LabelFrame(ttk.LabelFrame):
         self.parent = parent
 
 
-class Page(Frame):
+class Tab(Frame):
     def __init__(self, parent, name, **kwargs):
         super().__init__(parent, **kwargs)
         parent.add(self, text=name)

@@ -4,12 +4,12 @@ import config
 import utils
 import cv2
 import tkinter as tk
-from gui_components.interfaces import LabelFrame, Page
+from gui_components.interfaces import LabelFrame, Tab
 from capture import Capture
 from PIL import Image, ImageTk
 
 
-class View(Page):
+class View(Tab):
     def __init__(self, parent, **kwargs):
         super().__init__(parent, 'View', **kwargs)
 

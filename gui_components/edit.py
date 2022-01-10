@@ -4,10 +4,10 @@ import config
 import inspect
 import tkinter as tk
 from routine import Component, Point, Command
-from gui_components.interfaces import Page, Frame, LabelFrame
+from gui_components.interfaces import Tab, Frame, LabelFrame
 
 
-class Edit(Page):
+class Edit(Tab):
     def __init__(self, parent, **kwargs):
         super().__init__(parent, 'Edit', **kwargs)
 
