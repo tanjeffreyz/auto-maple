@@ -243,7 +243,7 @@ class Editor(LabelFrame):
         controls = Frame(self.contents)
         controls.pack(expand=True, fill='x')
 
-        cancel_button = tk.Button(controls, text='Cancel', command=self.cancel)
+        cancel_button = tk.Button(controls, text='Cancel', command=self.cancel, takefocus=0)
         cancel_button.pack(side=tk.LEFT, pady=5)
 
         add_button = tk.Button(controls, text='Add', command=self.add(component))
