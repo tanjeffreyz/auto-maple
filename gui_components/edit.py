@@ -2,8 +2,8 @@
 
 import config
 import tkinter as tk
-from gui_components.interfaces import Page, Frame, LabelFrame
 from routine import Component, Point
+from gui_components.interfaces import Page, Frame, LabelFrame
 
 
 class Edit(Page):
@@ -89,7 +89,7 @@ class Editor(LabelFrame):
         entry = tk.Entry(row, textvariable=self.vars[key])
         entry.pack(side=tk.RIGHT, expand=True, fill='x')
 
-    def create_edit(self, arr, i, func):
+    def create_edit_ui(self, arr, i, func):
         """
         Creates a UI to edit existing routine Components.
         :param arr:     List of Components to choose from.
@@ -105,7 +105,7 @@ class Editor(LabelFrame):
 
         title = tk.Entry(self.contents, justify=tk.CENTER)
         title.pack(expand=True, fill='x', pady=(5, 2))
-        title.insert(0, f"Edit {arr[i].__class__.__name__}")
+        title.insert(0, f"Editing {arr[i].__class__.__name__}")
         title.config(state=tk.DISABLED)
 
         if len(arr[i].kwargs) > 0:
@@ -124,7 +124,63 @@ class Editor(LabelFrame):
         self.contents = Frame(self)
         self.contents.grid(row=0, column=0, sticky=tk.EW, padx=5)
 
-        
+        title = tk.Entry(self.contents, justify=tk.CENTER)
+        title.pack(expand=True, fill='x', pady=(5, 2))
+        title.insert(0, f"Creating new ...")
+        title.config(state=tk.DISABLED)
+
+        options = config.routine.get_all_components()
+        var = tk.StringVar(value=tuple(options.keys()))
+
+        def update_search(e):
+            value = e.widget.get().strip().lower()
+            if value == '':
+                var.set(tuple(options.keys()))
+            else:
+                new_options = []
+                for key in options:
+                    if key.lower().startswith(value):
+                        new_options.append(key)
+                var.set(new_options)
+
+        def on_return(e):
+            value = e.widget.get().strip().lower()
+            if value in options:
+                print('Moving to create')       # TODO: create new ui
+            else:
+                print(f"\n[!] '{value}' is not a valid Component.")
+
+        def on_double_click(e):
+            w = e.widget
+            selects = w.curselection()
+            if len(selects) > 0:
+                key = w.get(int(selects[0]))
+                if key in options:
+                    print('Moving to crreaatttttaaaaaee')       # TODO: create new ui
+
+        # Search bar
+        user_input = tk.Entry(self.contents)
+        user_input.pack(expand=True, fill='x')
+        user_input.insert(0, 'Search for a component')
+        user_input.bind('<FocusIn>', lambda _: user_input.selection_range(0, 'end'))
+        user_input.bind('<Return>', on_return)
+        user_input.bind('<KeyPress>', update_search)
+        user_input.bind('<KeyRelease>', update_search)
+
+        # Display search results
+        results = Frame(self.contents)
+        results.pack(expand=True, fill='both', pady=(1, 0))
+
+        scroll = tk.Scrollbar(results)
+        scroll.pack(side=tk.RIGHT, fill='both')
+
+        display = tk.Listbox(results, listvariable=var,
+                             activestyle='none',
+                             yscrollcommand=scroll.set)
+        display.bind('<Double-1>', on_double_click)
+        display.pack(side=tk.LEFT, expand=True, fill='both')
+
+        scroll.config(command=display.yview)
 
 
 class Routine(LabelFrame):
@@ -160,8 +216,11 @@ class Controls(Frame):
         self.down_arrow = tk.Button(self, text='▼', width=6, command=self.move_down)
         self.down_arrow.grid(row=0, column=1, padx=(5, 0))
 
-        self.delete = tk.Button(self, text=u'\U00002715', width=3, command=self.delete)
+        self.delete = tk.Button(self, text='\U00002715', width=3, command=self.delete)
         self.delete.grid(row=0, column=2, padx=(5, 0))
+
+        self.new = tk.Button(self, text='\U00002795', width=6, command=self.new)
+        self.new.grid(row=0, column=3, padx=(5, 0))
 
     def move_up(self):
         components = self.parent.components.listbox.curselection()
@@ -195,6 +254,9 @@ class Controls(Frame):
                 config.routine.delete_command(p_index, c_index)
             else:
                 config.routine.delete_component(p_index)
+
+    def new(self):
+        self.parent.parent.editor.create_new_prompt()
 
 
 class Components(Frame):
@@ -235,7 +297,7 @@ class Components(Frame):
                 self.parent.parent.commands_var.set([])
 
             if isinstance(obj, Component):
-                self.parent.parent.parent.editor.create_edit(config.routine, index, self.update_obj)
+                self.parent.parent.parent.editor.create_edit_ui(config.routine, index, self.update_obj)
             else:
                 self.parent.parent.parent.editor.reset()
         else:
@@ -246,7 +308,7 @@ class Components(Frame):
         def f():
             new_kwargs = {k: v.get() for k, v in stringvars.items()}
             config.routine.update_component(i, new_kwargs)
-            self.parent.parent.parent.editor.create_edit(arr, i, self.update_obj)
+            self.parent.parent.parent.editor.create_edit_ui(arr, i, self.update_obj)
         return f
 
     def select(self, i):
@@ -288,8 +350,8 @@ class Commands(Frame):
         if len(selections) > 0 and len(pt_selects) > 0:
             c_index = int(selections[0])
             pt_index = int(pt_selects[0])
-            self.parent.parent.parent.editor.create_edit(config.routine[pt_index].commands,
-                                                         c_index, self.update_obj)
+            self.parent.parent.parent.editor.create_edit_ui(config.routine[pt_index].commands,
+                                                            c_index, self.update_obj)
         else:
             self.parent.parent.parent.editor.reset()
 
@@ -300,7 +362,7 @@ class Commands(Frame):
                 index = int(pt_selects[0])
                 new_kwargs = {k: v.get() for k, v in stringvars.items()}
                 config.routine.update_command(index, i, new_kwargs)
-            self.parent.parent.parent.editor.create_edit(arr, i, self.update_obj)
+            self.parent.parent.parent.editor.create_edit_ui(arr, i, self.update_obj)
         return f
 
     def update_display(self):

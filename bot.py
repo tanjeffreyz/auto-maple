@@ -168,11 +168,10 @@ class Bot:
         # Generate a command book using the selected module
         module_name = splitext(basename(file))[0]
         module = __import__(f'command_books.{module_name}', fromlist=[''])
-        new_cb = {
-            'wait': commands.Wait,
-            'walk': commands.Walk,
-            'fall': commands.Fall
-        }
+        new_cb = {}
+        for c in (commands.Wait, commands.Walk, commands.Fall):
+            new_cb[c.__name__.lower()] = c
+
         for name, command in inspect.getmembers(module, inspect.isclass):
             name = name.lower()
             new_cb[name] = command

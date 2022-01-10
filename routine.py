@@ -118,7 +118,7 @@ class Routine:
         edit = config.gui.edit
         edit.routine.commands.update_display()
         edit.routine.commands.clear_selection()
-        edit.editor.create_edit(self.sequence, i, edit.routine.components.update_obj)
+        edit.editor.create_edit_ui(self.sequence, i, edit.routine.components.update_obj)
 
     @update
     def update_component(self, i, new_kwargs):
@@ -239,6 +239,15 @@ class Routine:
             except (ValueError, TypeError) as e:
                 print(line_error + f"Found invalid arguments for '{c.__name__}':")
                 print(f"{' ' * 4} -  {e}")
+
+    @staticmethod
+    def get_all_components():
+        """Returns a dictionary mapping all creatable Components to their names."""
+
+        options = config.command_book.copy()
+        for e in (Point, Label, Jump, Setting):
+            options[e.__name__.lower()] = e
+        return options
 
     def __getitem__(self, i):
         return self.sequence[i]
