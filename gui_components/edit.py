@@ -34,7 +34,7 @@ class Editor(LabelFrame):
     def __init__(self, parent, **kwargs):
         super().__init__(parent, 'Editor', **kwargs)
 
-        self.columnconfigure(0, minsize=300)
+        self.columnconfigure(0, minsize=350)
 
         self.vars = {}
         self.contents = None

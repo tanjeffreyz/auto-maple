@@ -76,5 +76,8 @@ routine = None
 # Stores the Layout object associated with the current routine
 layout = None
 
+# Shares the keyboard listener to all modules
+listener = None
+
 # Shares the gui to all modules
 gui = None

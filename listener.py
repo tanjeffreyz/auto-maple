@@ -5,13 +5,26 @@ import time
 import utils
 import threading
 import winsound
+import pickle
 import keyboard as kb
+from os.path import isfile
 from bot import Bot
 
 
 class Listener:
+    TARGET = '.settings'
+    key_bindings = {
+        'Start/stop': 'insert',
+        'Reload routine': 'F6',
+        'Record location': 'F7'
+    }
+
     def __init__(self):
         """Initializes this Listener object's main thread."""
+
+        config.listener = self
+
+        self.load_keybindings()
 
         self.ready = False
         self.thread = threading.Thread(target=self._main)
@@ -46,7 +59,9 @@ class Listener:
                     config.calibrated = False
                     while not config.calibrated:
                         time.sleep(0.01)
+
                     config.routine.load(config.routine.path)
+
                     winsound.Beep(523, 200)     # C5
                     winsound.Beep(659, 200)     # E5
                     winsound.Beep(784, 200)     # G5
@@ -60,3 +75,14 @@ class Listener:
                     print(f'Current position: ({displayed_pos[0]}, {displayed_pos[1]})')
                     time.sleep(1)
             time.sleep(0.01)
+
+    def load_keybindings(self):
+        if isfile(Listener.TARGET):
+            with open(Listener.TARGET, 'rb') as file:
+                self.key_bindings = pickle.load(file)
+        else:
+            self.save_keybindings()
+
+    def save_keybindings(self):
+        with open(Listener.TARGET, 'wb') as file:
+            pickle.dump(self.key_bindings, file)

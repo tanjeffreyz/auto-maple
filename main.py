@@ -7,8 +7,6 @@ from bot import Bot
 from gui import GUI
 
 
-gui = GUI()
-
 cap = Capture()
 cap.start()
 while not cap.ready:
@@ -26,4 +24,5 @@ while not listener.ready:
 
 print('\n[~] Successfully initialized Auto Maple.')
 
+gui = GUI()
 gui.start()

@@ -23,7 +23,7 @@ KEYEVENTF_SCANCODE = 0x0008
 MAPVK_VK_TO_VSC = 0
 
 # https://docs.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes?redirectedfrom=MSDN
-key_map = {'tab': 0x09,     # Special Keys
+KEY_MAP = {'tab': 0x09,  # Special Keys
            'alt': 0x12,
            'space': 0x20,
            'lshift': 0xA0,
@@ -33,12 +33,12 @@ key_map = {'tab': 0x09,     # Special Keys
            'pgup': 0x21,
            'pgdown': 0x22,
 
-           'left': 0x25,    # Arrow keys
+           'left': 0x25,  # Arrow keys
            'up': 0x26,
            'right': 0x27,
            'down': 0x28,
 
-           '0': 0x30,       # Numbers
+           '0': 0x30,  # Numbers
            '1': 0x31,
            '2': 0x32,
            '3': 0x33,
@@ -49,7 +49,7 @@ key_map = {'tab': 0x09,     # Special Keys
            '8': 0x38,
            '9': 0x39,
 
-           'f1': 0x70,      # Function keys
+           'f1': 0x70,  # Function keys
            'f2': 0x71,
            'f3': 0x72,
            'f4': 0x73,
@@ -62,7 +62,7 @@ key_map = {'tab': 0x09,     # Special Keys
            'f11': 0x7A,
            'f12': 0x7B,
 
-           'a': 0x41,       # Letters
+           'a': 0x41,  # Letters
            'b': 0x42,
            'c': 0x43,
            'd': 0x44,
@@ -161,10 +161,10 @@ def key_down(key):
     """
 
     key = key.lower()
-    if key not in key_map.keys():
+    if key not in KEY_MAP.keys():
         print(f"Invalid keyboard input: '{key}'.")
     else:
-        x = Input(type=INPUT_KEYBOARD, ki=KeyboardInput(wVk=key_map[key]))
+        x = Input(type=INPUT_KEYBOARD, ki=KeyboardInput(wVk=KEY_MAP[key]))
         user32.SendInput(1, ctypes.byref(x), ctypes.sizeof(x))
 
 
@@ -177,10 +177,10 @@ def key_up(key):
     """
 
     key = key.lower()
-    if key not in key_map.keys():
+    if key not in KEY_MAP.keys():
         print(f"Invalid keyboard input: '{key}'.")
     else:
-        x = Input(type=INPUT_KEYBOARD, ki=KeyboardInput(wVk=key_map[key], dwFlags=KEYEVENTF_KEYUP))
+        x = Input(type=INPUT_KEYBOARD, ki=KeyboardInput(wVk=KEY_MAP[key], dwFlags=KEYEVENTF_KEYUP))
         user32.SendInput(1, ctypes.byref(x), ctypes.sizeof(x))
 
 
