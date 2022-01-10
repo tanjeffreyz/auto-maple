@@ -95,3 +95,4 @@ class KeyBindings(LabelFrame):
 
         entry = tk.Entry(row, textvariable=self.vars[key])
         entry.pack(side=tk.RIGHT, expand=True, fill='x')
+        entry.bind('<FocusIn>', lambda _: entry.selection_range(0, 'end'))

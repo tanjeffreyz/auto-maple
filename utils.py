@@ -6,7 +6,6 @@ import queue
 import cv2
 import threading
 import numpy as np
-import settings
 from random import random
 
 
@@ -38,18 +37,6 @@ def run_if_disabled(message=''):
                 print(message)
         return helper
     return decorator
-
-
-def reset_settings():
-    """
-    Resets all settings to their default values.
-    :return:    None
-    """
-
-    settings.move_tolerance = 0.1
-    settings.adjust_tolerance = 0.01
-    settings.record_layout = False
-    settings.buff_cooldown = 180
 
 
 def distance(a, b):

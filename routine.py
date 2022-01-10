@@ -8,7 +8,7 @@ from os.path import splitext, basename
 from layout import Layout
 
 
-def update(func):           # TODO: routine keep track of display sequence, don't O(n) every time
+def update(func):
     """
     Decorator function that updates both the displayed routine and details
     for all mutative Routine operations.
@@ -16,6 +16,7 @@ def update(func):           # TODO: routine keep track of display sequence, don'
 
     def f(self, *args, **kwargs):
         result = func(self, *args, **kwargs)
+        self.dirty = True
         config.gui.set_routine(self.display)
         config.gui.view.details.update_details()
         return result
@@ -29,7 +30,7 @@ class Routine:
     index = 0
 
     def __init__(self):
-        self.dirty = False          # TODO: Implement dirty bit
+        self.dirty = False
         self.path = ''
         self.sequence = []
         self.display = []       # Updated alongside sequence
@@ -148,7 +149,7 @@ class Routine:
             print(f"\n[!] Found invalid arguments for '{target.__class__.__name__}':")
             print(f"{' ' * 4} -  {e}")
 
-    def save(self, file_path):          # TODO: Set Dirty bit to false
+    def save(self, file_path):
         """Encodes and saves the current Routine at location PATH."""
 
         result = []
@@ -161,11 +162,26 @@ class Routine:
 
         with open(file_path, 'w') as file:
             file.write('\n'.join(result))
+        self.dirty = False
 
         utils.print_separator()
         print(f"[~] Saved routine to '{basename(file_path)}'.")
 
-    def load(self, file=None):      # TODO: dirty bit warn if not saved, same for load command book
+    def clear(self):
+        self.set([])
+        Routine.index = 0
+        self.dirty = False
+        settings.reset()
+        config.layout = None
+
+        config.gui.clear_routine_info()
+        config.gui.view.status.update_routine('')
+
+        edit = config.gui.edit
+        edit.routine.commands.update_display()
+        edit.editor.update_display()
+
+    def load(self, file=None):
         """
         Attempts to load FILE into a sequence of Components. If no file path is provided, attempts to
         load the previous routine file.
@@ -189,9 +205,10 @@ class Routine:
             print(f" !  '{ext}' is not a supported file extension.")
             return False
 
-        self.set([])
-        Routine.index = 0
-        utils.reset_settings()
+        # self.set([])
+        # Routine.index = 0
+        # settings.reset()
+        self.clear()
 
         # Compile and Link
         self.compile(file)
@@ -199,8 +216,9 @@ class Routine:
             if isinstance(c, Jump):
                 c.bind()
 
+        self.dirty = False
         self.path = file
-        config.gui.clear_routine_info()
+        # config.gui.clear_routine_info()
         config.gui.view.status.update_routine(basename(file))
         config.layout = Layout.load(file)
         print(f"[~] Finished loading routine '{basename(splitext(file)[0])}'.")

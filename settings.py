@@ -10,6 +10,17 @@ SETTING_VALIDATORS = {
     'buff_cooldown': utils.validate_nonnegative_int
 }
 
+
+def reset():
+    """Resets all settings to their default values."""
+
+    global move_tolerance, adjust_tolerance, record_layout, buff_cooldown
+    move_tolerance = 0.1
+    adjust_tolerance = 0.01
+    record_layout = False
+    buff_cooldown = 180
+
+
 # The allowed error from the destination when moving towards a Point
 move_tolerance = 0.1
 

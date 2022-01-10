@@ -186,10 +186,7 @@ class Bot:
             Bot.buff = new_cb['buff']()
 
             # Clear the current routine and Layout because command book changed
-            config.gui.clear_routine_info()
-            config.routine.set([])
-            config.gui.view.status.update_routine('')
-            config.layout = None
+            config.routine.clear()
 
             print(f"[~] Successfully loaded command book '{module_name}'.")
         else:

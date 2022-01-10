@@ -133,8 +133,8 @@ class Editor(LabelFrame):
         options = config.routine.get_all_components()
         var = tk.StringVar(value=tuple(options.keys()))
 
-        def update_search(e):
-            value = e.widget.get().strip().lower()
+        def update_search(*_):
+            value = input_var.get().strip().lower()
             if value == '':
                 var.set(tuple(options.keys()))
             else:
@@ -144,14 +144,18 @@ class Editor(LabelFrame):
                         new_options.append(key)
                 var.set(new_options)
 
-        def on_return(e):
+        def on_entry_return(e):
             value = e.widget.get().strip().lower()
             if value in options:
                 self.create_add_ui(options[value])
             else:
                 print(f"\n[!] '{value}' is not a valid Component.")
 
-        def on_double_click(e):
+        def on_entry_down(_):
+            display.focus()
+            display.selection_set(0)
+
+        def on_display_submit(e):
             w = e.widget
             selects = w.curselection()
             if len(selects) > 0:
@@ -159,14 +163,21 @@ class Editor(LabelFrame):
                 if value in options:
                     self.create_add_ui(options[value])
 
+        def on_display_up(e):
+            selects = e.widget.curselection()
+            if len(selects) > 0 and int(selects[0]) == 0:
+                user_input.focus()
+
         # Search bar
-        user_input = tk.Entry(self.contents)
+        input_var = tk.StringVar()
+        user_input = tk.Entry(self.contents, textvariable=input_var)
         user_input.pack(expand=True, fill='x')
         user_input.insert(0, 'Search for a component')
         user_input.bind('<FocusIn>', lambda _: user_input.selection_range(0, 'end'))
-        user_input.bind('<Return>', on_return)
-        user_input.bind('<KeyPress>', update_search)
-        user_input.bind('<KeyRelease>', update_search)
+        user_input.bind('<Return>', on_entry_return)
+        user_input.bind('<Down>', on_entry_down)
+        input_var.trace('w', update_search)         # Show filtered results in real time
+        user_input.focus()
 
         # Display search results
         results = Frame(self.contents)
@@ -178,7 +189,9 @@ class Editor(LabelFrame):
         display = tk.Listbox(results, listvariable=var,
                              activestyle='none',
                              yscrollcommand=scroll.set)
-        display.bind('<Double-1>', on_double_click)
+        display.bind('<Double-1>', on_display_submit)
+        display.bind('<Return>', on_display_submit)
+        display.bind('<Up>', on_display_up)
         display.pack(side=tk.LEFT, expand=True, fill='both')
 
         scroll.config(command=display.yview)
@@ -242,7 +255,7 @@ class Editor(LabelFrame):
         routine = self.parent.routine
         routine.components.bind_select()
         routine.commands.bind_select()
-        self.display_current()
+        self.update_display()
 
     def add(self, component):
         """Returns a Button callback that appends the current Component to the routine."""
@@ -271,7 +284,7 @@ class Editor(LabelFrame):
                 print(f"{' ' * 4} -  {e}")
         return f
 
-    def display_current(self):
+    def update_display(self):
         """
         Displays an edit UI for the currently selected Command if there is one, otherwise
         displays an edit UI for the current Component. If nothing is selected, displays the

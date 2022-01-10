@@ -158,6 +158,8 @@ class Details(LabelFrame):
         selects = self.parent.routine.listbox.curselection()
         if len(selects) > 0:
             self.display_info(int(selects[0]))
+        else:
+            self.clear_info()
 
     def display_info(self, index):
         """Updates the Details section to show info about the Component at position INDEX."""
