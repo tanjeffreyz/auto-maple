@@ -30,14 +30,11 @@ class Bot:
         Bot.alert = pygame.mixer.music
         Bot.alert.load('./assets/alert.mp3')
 
-        config.command_book = {
-            'wait': commands.Wait,
-            'walk': commands.Walk,
-            'fall': commands.Fall,
-            'move': commands.DefaultMove,
-            'adjust': commands.DefaultAdjust,
-            'buff': commands.DefaultBuff
-        }
+        config.command_book = {}
+        for c in (commands.Wait, commands.Walk, commands.Fall,
+                  commands.DefaultMove, commands.DefaultAdjust, commands.DefaultBuff):
+            config.command_book[c.__name__.lower()] = c
+
         config.routine = Routine()
 
         self.ready = False

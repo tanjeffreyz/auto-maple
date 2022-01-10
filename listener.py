@@ -44,6 +44,8 @@ class Listener:
                     time.sleep(0.267)
                 elif kb.is_pressed('F6'):
                     config.calibrated = False
+                    while not config.calibrated:
+                        time.sleep(0.01)
                     config.routine.load(config.routine.path)
                     winsound.Beep(523, 200)     # C5
                     winsound.Beep(659, 200)     # E5

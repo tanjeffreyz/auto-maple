@@ -40,9 +40,17 @@ class Routine:
         self.display = [str(x) for x in arr]
 
     @update
-    def append(self, p):
+    def append_component(self, p):
         self.sequence.append(p)
         self.display.append(str(p))
+
+    @update
+    def append_command(self, i, c):
+        """Appends Command object C to the Point at index I in the sequence."""
+
+        target = self.sequence[i]
+        target.commands.append(c)
+        config.gui.edit.routine.commands.update_display()
 
     @update
     def move_component_up(self, i):
@@ -211,7 +219,7 @@ class Routine:
                         if curr_point:
                             curr_point.commands.append(result)
                     else:
-                        self.append(result)
+                        self.append_component(result)
                         if isinstance(result, Point):
                             curr_point = result
                 line += 1
@@ -263,11 +271,17 @@ class Component:
     id = 'Routine Component'
     PRIMITIVES = {int, str, bool, float}
 
-    def __init__(self, args=None):
-        if args is None:
+    def __init__(self, *args, **kwargs):
+        if len(args) > 1:
+            raise TypeError('Component superclass __init__ only accepts 1 (optional) argument: LOCALS.')
+        if len(kwargs) != 0:
+            raise TypeError('Component superclass __init__ does not accept any keyword arguments.')
+        if len(args) == 0:
             self.kwargs = {}
+        elif type(args[0]) != dict:
+            raise TypeError("Component superclass __init__ only accepts arguments of type 'dict'.")
         else:
-            self.kwargs = args.copy()
+            self.kwargs = args[0].copy()
             self.kwargs.pop('__class__')
             self.kwargs.pop('self')
 
@@ -305,8 +319,8 @@ class Component:
 class Command(Component):
     id = 'Command Superclass'
 
-    def __init__(self, args=None):
-        super().__init__(args)
+    def __init__(self, *args):
+        super().__init__(*args)
         self.id = self.__class__.__name__
 
     def __str__(self):
