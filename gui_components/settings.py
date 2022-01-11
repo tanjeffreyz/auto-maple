@@ -24,21 +24,27 @@ class KeyBindings(LabelFrame):
 
         self.columnconfigure(0, minsize=300)
 
-        # self.vars = {}
-        self.forward = {}
-        self.backward = {}
+        self.displays = {}          # Holds each action's display variable
+        self.forward = {}           # Maps actions to keys
+        self.backward = {}          # Maps keys to actions
+        self.prev_a = ''
+        self.prev_k = ''
+
         self.contents = None
         self.create_edit_ui()
 
     def create_edit_ui(self):
-        # self.vars = {}
+        self.displays = {}
         self.forward = {}
         self.backward = {}
+        self.prev_a = ''
+        self.prev_k = ''
+
         self.contents = Frame(self)
         self.contents.grid(row=0, column=0, sticky=tk.NSEW, padx=5, pady=5)
 
         if config.listener is not None:         # For when running GUI only
-            for action, key in config.listener.key_bindings.items():
+            for action, key in config.listener.key_binds.items():
                 self.forward[action] = key
                 self.backward[key] = action
                 self.create_entry(action, key)
@@ -46,73 +52,80 @@ class KeyBindings(LabelFrame):
         else:
             self.create_disabled_entry()
 
-        button = tk.Button(self.contents, text='Save', command=self.save)
+        button = tk.Button(self.contents, text='Save', command=self.save, takefocus=False)
         button.pack(pady=5)
 
     def refresh_edit_ui(self):
         self.contents.destroy()
         self.create_edit_ui()
 
+    @utils.run_if_disabled('\n[!] Cannot save key bindings while Auto Maple is enabled.')
     def save(self):
         utils.print_separator()
         print('[~] Saving key bindings...')
 
         failures = 0
-        for key, var in self.vars.items():
-            value = var.get().lower()
-            if value in vkeys.KEY_MAP:          # TODO: verify using kb not vkeys
-                config.listener.key_bindings[key] = value
+        for action, key in self.forward.items():
+            if key != '':
+                config.listener.key_binds[action] = key
             else:
-                print(f" !  Error while binding '{key}': '{value}' is not a valid key.")
+                print(f" !  Action '{action}' was not bound to a key.")
                 failures += 1
 
+        config.listener.save_keybindings()
         if failures == 0:
             print('[~] Successfully saved all key bindings.')
         else:
-            print(f'[~] Found {failures} errors, successfully saved the rest.')
+            print(f'[~] Successfully saved all except for {failures} key bindings.')
         self.create_edit_ui()
 
-    def create_entry(self, key, value):
+    def create_entry(self, action, key):
         """
         Creates an input row for a single key bind. KEY is the name of its action
         while VALUE is its currently assigned key.
         """
 
-
-        # self.vars[key] = new_var
+        display_var = tk.StringVar(value=key)
+        self.displays[action] = display_var
 
         row = Frame(self.contents, highlightthickness=0)
         row.pack(expand=True, fill='x')
 
         label = tk.Entry(row)
         label.grid(row=0, column=0, sticky=tk.EW)
-        label.insert(0, key)
+        label.insert(0, action)
         label.config(state=tk.DISABLED)
 
-        def on_click(_):
-            bottom.delete(0, 'end')
-            bottom.insert(0, '<Press any key>')
-
-        def validate(text):
-            print('validated')
+        def on_key_press(_):
             k = kb.read_key()
-            # # entry.delete(0, 'end')
-            # # entry.insert(0, k)
-            display_var.set(k)
-            # try:
-            #     float(text)
-            # except:
-            #     return False
-            # return True
-            return False
+            if action != self.prev_a:
+                self.prev_k = ''
+                self.prev_a = action
+            if k != self.prev_k:
+                prev_key = self.forward[action]
+                self.backward.pop(prev_key, None)
+                if k in self.backward:
+                    prev_action = self.backward[k]
+                    self.forward[prev_action] = ''
+                    self.displays[prev_action].set('')
+                display_var.set(k)
+                self.forward[action] = k
+                self.backward[k] = action
+                self.prev_k = k
 
-        reg = self.register(validate)
-        display_var = tk.StringVar(value=value)
-        bottom = tk.Entry(row, textvariable=display_var)
-        bottom.insert(0, value)
-        # entry.bind('<1>', on_click)
-        bottom.config(validate='key', validatecommand=(reg, '%P'))
-        bottom.grid(row=0, column=1, sticky=tk.EW)
+        def validate(d):
+            """Blocks user insertion, but allows StringVar set()."""
+
+            if d == '1':
+                return False
+            return True
+
+        reg = (self.register(validate), '%d')
+        entry = tk.Entry(row, textvariable=display_var,
+                         validate='key', validatecommand=reg,
+                         takefocus=False)
+        entry.bind('<KeyPress>', on_key_press)
+        entry.grid(row=0, column=1, sticky=tk.EW)
 
     def create_disabled_entry(self):
         row = Frame(self.contents, highlightthickness=0)

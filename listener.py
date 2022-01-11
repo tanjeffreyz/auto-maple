@@ -12,11 +12,11 @@ from bot import Bot
 
 
 class Listener:
-    TARGET = '.settings'
-    key_bindings = {
+    TARGET = '.keybinds'
+    DEFAULT_KEYBINDS = {
         'Start/stop': 'insert',
-        'Reload routine': 'F6',
-        'Record location': 'F7'
+        'Reload routine': 'f6',
+        'Record location': 'f7'
     }
 
     def __init__(self):
@@ -24,6 +24,7 @@ class Listener:
 
         config.listener = self
 
+        self.key_binds = Listener.DEFAULT_KEYBINDS.copy()
         self.load_keybindings()
 
         self.ready = False
@@ -48,14 +49,14 @@ class Listener:
         self.ready = True
         while True:
             if config.listening:
-                if kb.is_pressed('insert'):
+                if kb.is_pressed(self.key_binds['Start/stop']):
                     Bot.toggle_enabled()
                     if config.enabled:
                         winsound.Beep(784, 333)     # G5
                     else:
                         winsound.Beep(523, 333)     # C5
                     time.sleep(0.267)
-                elif kb.is_pressed('F6'):
+                elif kb.is_pressed(self.key_binds['Reload routine']):
                     config.calibrated = False
                     while not config.calibrated:
                         time.sleep(0.01)
@@ -65,24 +66,20 @@ class Listener:
                     winsound.Beep(523, 200)     # C5
                     winsound.Beep(659, 200)     # E5
                     winsound.Beep(784, 200)     # G5
-                elif kb.is_pressed('F7'):
-                    pass            # TODO: update listener
-                    # Bot.load_commands()
-                    # Bot.load_routine()
-                elif kb.is_pressed('F8'):
+                elif kb.is_pressed(self.key_binds['Record location']):      # TODO: add to recorded locations
                     displayed_pos = tuple('{:.3f}'.format(round(i, 3)) for i in config.player_pos)
                     utils.print_separator()
                     print(f'Current position: ({displayed_pos[0]}, {displayed_pos[1]})')
-                    time.sleep(1)
+                    time.sleep(0.6)
             time.sleep(0.01)
 
     def load_keybindings(self):
         if isfile(Listener.TARGET):
             with open(Listener.TARGET, 'rb') as file:
-                self.key_bindings = pickle.load(file)
+                self.key_binds = pickle.load(file)
         else:
             self.save_keybindings()
 
     def save_keybindings(self):
         with open(Listener.TARGET, 'wb') as file:
-            pickle.dump(self.key_bindings, file)
+            pickle.dump(self.key_binds, file)
