@@ -382,6 +382,7 @@ class Controls(Frame):
                 config.routine.delete_command(p_index, c_index)
             else:
                 config.routine.delete_component(p_index)
+                self.parent.parent.minimap.redraw()
 
     def new(self):
         self.parent.parent.editor.create_add_prompt()
@@ -423,31 +424,35 @@ class Components(Frame):
         self.listbox.bind('<<ListboxSelect>>', callback)
 
     def on_select(self, e):
-        self.parent.parent.commands.clear_selection()
-        selections = e.widget.curselection()
+        routine = self.parent.parent
+        edit = self.parent.parent.parent
 
+        routine.commands.clear_selection()
+        selections = e.widget.curselection()
         if len(selections) > 0:
             index = int(selections[0])
             obj = config.routine[index]
 
             if isinstance(obj, Point):
-                self.parent.parent.commands_var.set([c.id for c in obj.commands])
+                routine.commands_var.set([c.id for c in obj.commands])
+                edit.minimap.draw_point(obj.location)
             else:
-                self.parent.parent.commands_var.set([])
+                routine.commands_var.set([])
+                edit.minimap.draw_default()
 
-            if isinstance(obj, Component):
-                self.parent.parent.parent.editor.create_edit_ui(config.routine, index, self.update_obj)
-            else:
-                self.parent.parent.parent.editor.reset()
+            edit.editor.create_edit_ui(config.routine, index, self.update_obj)
         else:
-            self.parent.parent.commands_var.set([])
-            self.parent.parent.parent.editor.reset()
+            routine.commands_var.set([])
+            edit.editor.reset()
 
     def update_obj(self, arr, i, stringvars):
         def f():
             new_kwargs = {k: v.get() for k, v in stringvars.items()}
             config.routine.update_component(i, new_kwargs)
-            self.parent.parent.parent.editor.create_edit_ui(arr, i, self.update_obj)
+
+            edit = self.parent.parent.parent
+            edit.minimap.redraw()
+            edit.editor.create_edit_ui(arr, i, self.update_obj)
         return f
 
     def select(self, i):
@@ -490,15 +495,17 @@ class Commands(Frame):
         self.listbox.bind('<<ListboxSelect>>', lambda e: 'break')
 
     def on_select(self, e):
+        routine = self.parent.parent
+
         selections = e.widget.curselection()
-        pt_selects = self.parent.parent.components.listbox.curselection()
+        pt_selects = routine.components.listbox.curselection()
         if len(selections) > 0 and len(pt_selects) > 0:
             c_index = int(selections[0])
             pt_index = int(pt_selects[0])
-            self.parent.parent.parent.editor.create_edit_ui(config.routine[pt_index].commands,
-                                                            c_index, self.update_obj)
+            routine.parent.editor.create_edit_ui(config.routine[pt_index].commands,
+                                                 c_index, self.update_obj)
         else:
-            self.parent.parent.parent.editor.reset()
+            routine.parent.editor.reset()
 
     def update_obj(self, arr, i, stringvars):
         def f():
@@ -549,20 +556,15 @@ class Minimap(LabelFrame):
         self.current = None
         self.draw_default()
 
-    def draw_point(self, i):
+    def draw_point(self, location):
+        """Draws a circle representing a Point centered at LOCATION."""
+
         if config.minimap_sample is not None:
             minimap = cv2.cvtColor(config.minimap_sample, cv2.COLOR_BGR2RGB)
             img = self.resize_to_fit(minimap)
 
-            # Draw the Component's location on the minimap only if it is a Point
-            component = config.routine[i]
-            if isinstance(component, Point):
-                utils.draw_location(img, component.location, (0, 255, 0))
-                self.current = component.location
-
-            # Display the current Layout
-            if config.layout:
-                config.layout.draw(img)
+            utils.draw_location(img, location, (0, 255, 0))
+            self.current = location
 
             self.draw(img)
 
@@ -578,10 +580,16 @@ class Minimap(LabelFrame):
     def redraw(self):
         """Re-draws the current point if it exists, otherwise resets to the default state."""
 
-        if self.current is None:
-            self.draw_default()
+        selects = self.parent.routine.components.listbox.curselection()
+        if len(selects) > 0:
+            index = int(selects[0])
+            obj = config.routine[index]
+            if isinstance(obj, Point):
+                self.draw_point(obj.location)
+            else:
+                self.draw_default()
         else:
-            self.draw_point(self.current)
+            self.draw_default()
 
     def resize_to_fit(self, img):
         """Returns a copy of IMG resized to fit the Canvas."""
@@ -596,6 +604,9 @@ class Minimap(LabelFrame):
 
     def draw(self, img):
         """Draws IMG onto the Canvas."""
+
+        if config.layout:
+            config.layout.draw(img)     # Display the current Layout
 
         img = ImageTk.PhotoImage(Image.fromarray(img))
         self.canvas.create_image(self.WIDTH // 2,

@@ -360,7 +360,8 @@ class Point(Component):
         self.frequency = settings.validate_nonnegative_int(frequency)
         self.counter = int(settings.validate_boolean(skip))
         self.adjust = settings.validate_boolean(adjust)
-        self.commands = []
+        if not hasattr(self, 'commands'):       # Updating object should not clear commands
+            self.commands = []
 
     def main(self):
         """Executes the set of actions associated with this Point."""

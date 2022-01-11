@@ -66,7 +66,8 @@ class Listener:
         config.rune_active = False
         config.alert_active = False
 
-        Listener.recalibrate_minimap()
+        if not config.enabled:
+            Listener.recalibrate_minimap()      # Recalibrate only when being enabled.
 
         config.enabled = not config.enabled
         utils.print_state()
