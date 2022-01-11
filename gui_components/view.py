@@ -6,7 +6,6 @@ import cv2
 import tkinter as tk
 from gui_components.interfaces import LabelFrame, Tab
 from routine import Point
-from capture import Capture
 from PIL import Image, ImageTk
 
 
@@ -77,9 +76,9 @@ class Minimap(LabelFrame):
             # Draw each Point in the routine as a circle
             for p in config.routine.sequence:
                 if isinstance(p, Point):
-                    utils.draw_point(img,
-                                     p,
-                                     (0, 255, 0) if config.enabled else (255, 0, 0))
+                    utils.draw_location(img,
+                                        p.location,
+                                        (0, 255, 0) if config.enabled else (255, 0, 0))
 
             # Display the current Layout
             if config.layout:

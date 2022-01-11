@@ -1,11 +1,11 @@
 """Allows the user to edit routines while viewing each Point's location on the minimap."""
 
 import config
+import utils
 import inspect
 import cv2
 import tkinter as tk
 from PIL import Image, ImageTk
-from capture import Capture
 from routine import Component, Point, Command
 from gui_components.interfaces import Tab, Frame, LabelFrame
 
@@ -543,6 +543,56 @@ class Minimap(LabelFrame):
                                 width=400, height=300,
                                 borderwidth=0, highlightthickness=0)
         self.canvas.pack(expand=True, fill='both', padx=5, pady=5)
+        self.draw_default()
+
+    def resize_to_fit(self, img):
+        """Returns a copy of IMG resized to fit the Canvas."""
+
+        height, width, _ = img.shape
+        c_height, c_width = self.canvas.winfo_height(), self.canvas.winfo_width()
+
+        ratio = min(c_width / width, c_height / height)
+        new_width = int(width * ratio)
+        new_height = int(height * ratio)
+        if new_height * new_width > 0:
+            img = cv2.resize(img, (new_width, new_height), interpolation=cv2.INTER_AREA)
+        return img
+
+    def draw(self, img):
+        """Draws IMG onto the Canvas."""
+
+        height, width, _ = img.shape
+        c_height, c_width = self.canvas.winfo_height(), self.canvas.winfo_width()
+
+        img = ImageTk.PhotoImage(Image.fromarray(img))
+        self.canvas.create_image(c_width // 2,
+                                 c_height // 2,
+                                 image=img, anchor=tk.CENTER)
+        self._img = img                 # Prevent garbage collection
+
+    def draw_point(self, i):
+        if config.minimap_sample is not None:
+            minimap = cv2.cvtColor(config.minimap_sample, cv2.COLOR_BGR2RGB)
+            img = self.resize_to_fit(minimap)
+
+            # Draw the Component's location on the minimap only if it is a Point
+            component = config.routine[i]
+            if isinstance(component, Point):
+                utils.draw_location(img, component.location, (0, 255, 0))
+
+            # Display the current Layout
+            if config.layout:
+                config.layout.draw(img)
+
+            self.draw(img)
+
+    def draw_default(self):
+        """Displays just the minimap sample without any markings."""
+
+        if config.minimap_sample is not None:
+            minimap = cv2.cvtColor(config.minimap_sample, cv2.COLOR_BGR2RGB)
+            img = self.resize_to_fit(minimap)
+            self.draw(img)
 
 
 class Record(LabelFrame):

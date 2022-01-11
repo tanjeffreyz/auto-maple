@@ -140,17 +140,17 @@ def convert_to_absolute(point, frame):
     return x, y
 
 
-def draw_point(minimap, point, color):
+def draw_location(minimap, pos, color):
     """
     Draws a visual representation of POINT onto MINIMAP. The radius of the circle represents
     the allowed error when moving towards POINT.
     :param minimap:     The image on which to draw.
-    :param point:       The location of the Point object to depict.
+    :param pos:         The location (as a tuple) to depict.
     :param color:       The color of the circle.
     :return:            None
     """
 
-    center = convert_to_absolute(point.location, minimap)
+    center = convert_to_absolute(pos, minimap)
     cv2.circle(minimap,
                center,
                round(minimap.shape[1] * settings.move_tolerance),
