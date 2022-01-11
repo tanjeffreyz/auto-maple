@@ -52,8 +52,11 @@ class KeyBindings(LabelFrame):
         else:
             self.create_disabled_entry()
 
-        button = tk.Button(self.contents, text='Save', command=self.save, takefocus=False)
-        button.pack(pady=5)
+        reset = tk.Button(self.contents, text='Reset', command=self.refresh_edit_ui, takefocus=False)
+        reset.pack(side=tk.LEFT, pady=5)
+
+        save = tk.Button(self.contents, text='Save', command=self.save, takefocus=False)
+        save.pack(side=tk.RIGHT, pady=5)
 
     def refresh_edit_ui(self):
         self.contents.destroy()
@@ -116,9 +119,9 @@ class KeyBindings(LabelFrame):
         def validate(d):
             """Blocks user insertion, but allows StringVar set()."""
 
-            if d == '1':
-                return False
-            return True
+            if d == '-1':
+                return True
+            return False
 
         reg = (self.register(validate), '%d')
         entry = tk.Entry(row, textvariable=display_var,
