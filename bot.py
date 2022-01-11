@@ -192,20 +192,3 @@ class Bot:
         else:
             print(f"[!] Command book '{module_name}' was not loaded.")
         return success
-
-    @staticmethod
-    def toggle_enabled():
-        """
-        Resumes or pauses the current routine. Plays a sound and prints a message to notify
-        the user.
-        :return:    None
-        """
-
-        config.rune_active = False
-        config.alert_active = False
-        config.calibrated = False
-        while not config.calibrated:
-            time.sleep(0.01)
-
-        config.enabled = not config.enabled
-        utils.print_state()

@@ -539,36 +539,15 @@ class Minimap(LabelFrame):
     def __init__(self, parent, **kwargs):
         super().__init__(parent, 'Minimap', **kwargs)
 
+        self.WIDTH = 400
+        self.HEIGHT = 300
         self.canvas = tk.Canvas(self, bg='black',
-                                width=400, height=300,
+                                width=self.WIDTH, height=self.HEIGHT,
                                 borderwidth=0, highlightthickness=0)
         self.canvas.pack(expand=True, fill='both', padx=5, pady=5)
+
+        self.current = None
         self.draw_default()
-
-    def resize_to_fit(self, img):
-        """Returns a copy of IMG resized to fit the Canvas."""
-
-        height, width, _ = img.shape
-        c_height, c_width = self.canvas.winfo_height(), self.canvas.winfo_width()
-
-        ratio = min(c_width / width, c_height / height)
-        new_width = int(width * ratio)
-        new_height = int(height * ratio)
-        if new_height * new_width > 0:
-            img = cv2.resize(img, (new_width, new_height), interpolation=cv2.INTER_AREA)
-        return img
-
-    def draw(self, img):
-        """Draws IMG onto the Canvas."""
-
-        height, width, _ = img.shape
-        c_height, c_width = self.canvas.winfo_height(), self.canvas.winfo_width()
-
-        img = ImageTk.PhotoImage(Image.fromarray(img))
-        self.canvas.create_image(c_width // 2,
-                                 c_height // 2,
-                                 image=img, anchor=tk.CENTER)
-        self._img = img                 # Prevent garbage collection
 
     def draw_point(self, i):
         if config.minimap_sample is not None:
@@ -579,6 +558,7 @@ class Minimap(LabelFrame):
             component = config.routine[i]
             if isinstance(component, Point):
                 utils.draw_location(img, component.location, (0, 255, 0))
+                self.current = component.location
 
             # Display the current Layout
             if config.layout:
@@ -593,6 +573,35 @@ class Minimap(LabelFrame):
             minimap = cv2.cvtColor(config.minimap_sample, cv2.COLOR_BGR2RGB)
             img = self.resize_to_fit(minimap)
             self.draw(img)
+            self.current = None
+
+    def redraw(self):
+        """Re-draws the current point if it exists, otherwise resets to the default state."""
+
+        if self.current is None:
+            self.draw_default()
+        else:
+            self.draw_point(self.current)
+
+    def resize_to_fit(self, img):
+        """Returns a copy of IMG resized to fit the Canvas."""
+
+        height, width, _ = img.shape
+        ratio = min(self.WIDTH / width, self.HEIGHT / height)
+        new_width = int(width * ratio)
+        new_height = int(height * ratio)
+        if new_height * new_width > 0:
+            img = cv2.resize(img, (new_width, new_height), interpolation=cv2.INTER_AREA)
+        return img
+
+    def draw(self, img):
+        """Draws IMG onto the Canvas."""
+
+        img = ImageTk.PhotoImage(Image.fromarray(img))
+        self.canvas.create_image(self.WIDTH // 2,
+                                 self.HEIGHT // 2,
+                                 image=img, anchor=tk.CENTER)
+        self._img = img                 # Prevent garbage collection
 
 
 class Record(LabelFrame):

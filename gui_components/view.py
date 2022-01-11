@@ -33,8 +33,10 @@ class Minimap(LabelFrame):
     def __init__(self, parent, **kwargs):
         super().__init__(parent, 'Minimap', **kwargs)
 
+        self.WIDTH = 400
+        self.HEIGHT = 300
         self.canvas = tk.Canvas(self, bg='black',
-                                width=400, height=300,
+                                width=self.WIDTH, height=self.HEIGHT,
                                 borderwidth=0, highlightthickness=0)
         self.canvas.pack(expand=True, fill='both', padx=5, pady=5)
 
@@ -49,10 +51,9 @@ class Minimap(LabelFrame):
 
             img = cv2.cvtColor(config.minimap['minimap'], cv2.COLOR_BGR2RGB)
             height, width, _ = img.shape
-            c_height, c_width = self.canvas.winfo_height(), self.canvas.winfo_width()
 
             # Resize minimap to fit the Canvas
-            ratio = min(c_width / width, c_height / height)
+            ratio = min(self.WIDTH / width, self.HEIGHT / height)
             new_width = int(width * ratio)
             new_height = int(height * ratio)
             if new_height * new_width > 0:
@@ -93,8 +94,8 @@ class Minimap(LabelFrame):
 
             # Display the minimap in the Canvas
             img = ImageTk.PhotoImage(Image.fromarray(img))
-            self.canvas.create_image(c_width // 2,
-                                     c_height // 2,
+            self.canvas.create_image(self.WIDTH // 2,
+                                     self.HEIGHT // 2,
                                      image=img, anchor=tk.CENTER)
             self._img = img                 # Prevent garbage collection
         self.after(33, self.display_minimap)
