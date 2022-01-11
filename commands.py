@@ -27,7 +27,7 @@ class Walk(Command):
 
     def __init__(self, direction, duration):
         super().__init__(locals())
-        self.direction = utils.validate_horizontal_arrows(direction)
+        self.direction = settings.validate_horizontal_arrows(direction)
         self.duration = float(duration)
 
     def main(self):

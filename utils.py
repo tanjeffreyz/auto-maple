@@ -1,6 +1,7 @@
 """A collection of functions and classes used across multiple modules."""
 
 import config
+import settings
 import math
 import queue
 import cv2
@@ -139,6 +140,24 @@ def convert_to_absolute(point, frame):
     return x, y
 
 
+def draw_point(minimap, point, color):
+    """
+    Draws a visual representation of POINT onto MINIMAP. The radius of the circle represents
+    the allowed error when moving towards POINT.
+    :param minimap:     The image on which to draw.
+    :param point:       The location of the Point object to depict.
+    :param color:       The color of the circle.
+    :return:            None
+    """
+
+    center = convert_to_absolute(point.location, minimap)
+    cv2.circle(minimap,
+               center,
+               round(minimap.shape[1] * settings.move_tolerance),
+               color,
+               1)
+
+
 def print_separator():
     """Prints a 3 blank lines for visual clarity."""
 
@@ -209,61 +228,3 @@ def async_callback(context, function, *args, **kwargs):
         task.start()
         context.after(100, task.process_queue(context))
     return f
-
-
-#################################
-#      Validator Functions      #
-#################################
-def validate_arrows(key):
-    """
-    Checks whether string KEY is an arrow key.
-    :param key:     The key to check.
-    :return:        KEY in lowercase if it is a valid arrow key.
-    """
-
-    if isinstance(key, str):
-        key = key.lower()
-        if key in ['up', 'down', 'left', 'right']:
-            return key
-    raise ValueError(f"'{key}' is not a valid arrow key.")
-
-
-def validate_horizontal_arrows(key):
-    """
-    Checks whether string KEY is either a left or right arrow key.
-    :param key:     The key to check.
-    :return:        KEY in lowercase if it is a valid horizontal arrow key.
-    """
-
-    if isinstance(key, str):
-        key = key.lower()
-        if key in ['left', 'right']:
-            return key
-    raise ValueError(f"'{key}' is not a valid horizontal arrow key.")
-
-
-def validate_nonnegative_int(value):
-    """
-    Checks whether VALUE can be a valid non-negative integer.
-    :param value:   The string to check.
-    :return:        VALUE as an integer.
-    """
-
-    if int(value) >= 1:
-        return int(value)
-    raise ValueError(f"'{value}' is not a valid non-negative integer.")
-
-
-def validate_boolean(value):
-    """
-    Checks whether VALUE is a valid Python boolean.
-    :param value:   The string to check.
-    :return:        VALUE as a boolean
-    """
-
-    value = value.lower()
-    if value in {'true', 'false'}:
-        return True if value == 'true' else False
-    elif int(value) in {0, 1}:
-        return bool(int(value))
-    raise ValueError(f"'{value}' is not a valid boolean.")

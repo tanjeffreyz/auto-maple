@@ -2,7 +2,10 @@
 
 import config
 import inspect
+import cv2
 import tkinter as tk
+from PIL import Image, ImageTk
+from capture import Capture
 from routine import Component, Point, Command
 from gui_components.interfaces import Tab, Frame, LabelFrame
 
@@ -542,19 +545,6 @@ class Minimap(LabelFrame):
         self.canvas.pack(expand=True, fill='both', padx=5, pady=5)
 
 
-class Status(LabelFrame):
-    def __init__(self, parent, **kwargs):
-        super().__init__(parent, 'Status', **kwargs)
-
-        self.grid_columnconfigure(0, weight=1)
-        self.grid_columnconfigure(3, weight=1)
-
-        self.cb_label = tk.Label(self, text='Command Book:')
-        self.cb_label.grid(row=0, column=1, padx=5, pady=5, sticky=tk.E)
-        self.cb_entry = tk.Entry(self, textvariable=config.gui.view.status.curr_cb, state=tk.DISABLED)
-        self.cb_entry.grid(row=0, column=2, padx=(0, 5), pady=5, sticky=tk.EW)
-
-
 class Record(LabelFrame):
     def __init__(self, parent, **kwargs):
         super().__init__(parent, 'Recorded Locations', **kwargs)
@@ -574,3 +564,16 @@ class Record(LabelFrame):
         self.listbox.pack(side=tk.LEFT, expand=True, fill='both', padx=(5, 0), pady=(0, 5))
 
         self.scroll.config(command=self.listbox.yview)
+
+
+class Status(LabelFrame):
+    def __init__(self, parent, **kwargs):
+        super().__init__(parent, 'Status', **kwargs)
+
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_columnconfigure(3, weight=1)
+
+        self.cb_label = tk.Label(self, text='Command Book:')
+        self.cb_label.grid(row=0, column=1, padx=5, pady=5, sticky=tk.E)
+        self.cb_entry = tk.Entry(self, textvariable=config.gui.view.status.curr_cb, state=tk.DISABLED)
+        self.cb_entry.grid(row=0, column=2, padx=(0, 5), pady=5, sticky=tk.EW)

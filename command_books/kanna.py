@@ -15,7 +15,7 @@ class Move(Command):
     def __init__(self, x, y, max_steps=15):
         super().__init__(locals())
         self.target = (float(x), float(y))
-        self.max_steps = utils.validate_nonnegative_int(max_steps)
+        self.max_steps = settings.validate_nonnegative_int(max_steps)
 
     def main(self):
         counter = self.max_steps
@@ -61,7 +61,7 @@ class Adjust(Command):
     def __init__(self, x, y, max_steps=5):
         super().__init__(locals())
         self.target = (float(x), float(y))
-        self.max_steps = utils.validate_nonnegative_int(max_steps)
+        self.max_steps = settings.validate_nonnegative_int(max_steps)
 
     def main(self):
         counter = self.max_steps
@@ -133,8 +133,8 @@ class Teleport(Command):
 
     def __init__(self, direction, jump='False'):
         super().__init__(locals())
-        self.direction = utils.validate_arrows(direction)
-        self.jump = utils.validate_boolean(jump)
+        self.direction = settings.validate_arrows(direction)
+        self.jump = settings.validate_boolean(jump)
 
     def main(self):
         num_presses = 3
@@ -163,7 +163,7 @@ class Shikigami(Command):
 
     def __init__(self, direction, attacks=2, repetitions=1):
         super().__init__(locals())
-        self.direction = utils.validate_horizontal_arrows(direction)
+        self.direction = settings.validate_horizontal_arrows(direction)
         self.attacks = int(attacks)
         self.repetitions = int(repetitions)
 
@@ -198,7 +198,7 @@ class Yaksha(Command):
         if direction is None:
             self.direction = direction
         else:
-            self.direction = utils.validate_horizontal_arrows(direction)
+            self.direction = settings.validate_horizontal_arrows(direction)
 
     def main(self):
         if self.direction:
@@ -240,7 +240,7 @@ class Exorcist(Command):
 
     def __init__(self, jump='False'):
         super().__init__(locals())
-        self.jump = utils.validate_boolean(jump)
+        self.jump = settings.validate_boolean(jump)
 
     def main(self):
         if self.jump:

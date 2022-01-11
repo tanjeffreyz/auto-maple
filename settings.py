@@ -1,13 +1,76 @@
-"""A list of user-defined settings that can be changed by routines."""
+"""
+A list of user-defined settings that can be changed by routines. Also contains a collection
+of validator functions that can be used to enforce parameter types.
+"""
 
-import utils
 
+#################################
+#      Validator Functions      #
+#################################
+def validate_nonnegative_int(value):
+    """
+    Checks whether VALUE can be a valid non-negative integer.
+    :param value:   The string to check.
+    :return:        VALUE as an integer.
+    """
+
+    if int(value) >= 1:
+        return int(value)
+    raise ValueError(f"'{value}' is not a valid non-negative integer.")
+
+
+def validate_boolean(value):
+    """
+    Checks whether VALUE is a valid Python boolean.
+    :param value:   The string to check.
+    :return:        VALUE as a boolean
+    """
+
+    value = value.lower()
+    if value in {'true', 'false'}:
+        return True if value == 'true' else False
+    elif int(value) in {0, 1}:
+        return bool(int(value))
+    raise ValueError(f"'{value}' is not a valid boolean.")
+
+
+def validate_arrows(key):
+    """
+    Checks whether string KEY is an arrow key.
+    :param key:     The key to check.
+    :return:        KEY in lowercase if it is a valid arrow key.
+    """
+
+    if isinstance(key, str):
+        key = key.lower()
+        if key in ['up', 'down', 'left', 'right']:
+            return key
+    raise ValueError(f"'{key}' is not a valid arrow key.")
+
+
+def validate_horizontal_arrows(key):
+    """
+    Checks whether string KEY is either a left or right arrow key.
+    :param key:     The key to check.
+    :return:        KEY in lowercase if it is a valid horizontal arrow key.
+    """
+
+    if isinstance(key, str):
+        key = key.lower()
+        if key in ['left', 'right']:
+            return key
+    raise ValueError(f"'{key}' is not a valid horizontal arrow key.")
+
+
+#########################
+#       Settings        #
+#########################
 # A dictionary that maps each setting to its validator function
 SETTING_VALIDATORS = {
     'move_tolerance': float,
     'adjust_tolerance': float,
-    'record_layout': utils.validate_boolean,
-    'buff_cooldown': utils.validate_nonnegative_int
+    'record_layout': validate_boolean,
+    'buff_cooldown': validate_nonnegative_int
 }
 
 

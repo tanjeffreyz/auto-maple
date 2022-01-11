@@ -7,7 +7,6 @@ import time
 import cv2
 import threading
 import numpy as np
-import settings
 import utils
 from routine import Point
 
@@ -139,35 +138,3 @@ class Capture:
         if isinstance(point, Point):
             return utils.distance(config.rune_pos, point.location)
         return float('inf')
-
-    @staticmethod
-    def draw_point(minimap, point, color):
-        """
-        Draws a visual representation of POINT onto MINIMAP. The radius of the circle represents
-        the allowed error when moving towards POINT.
-        :param minimap:     The image on which to draw.
-        :param point:       The location of the Point object to depict.
-        :param color:       The color of the circle.
-        :return:            None
-        """
-
-        if isinstance(point, Point):
-            center = utils.convert_to_absolute(point.location, minimap)
-            cv2.circle(minimap,
-                       center,
-                       round(minimap.shape[1] * settings.move_tolerance),
-                       color,
-                       1)
-
-    @staticmethod
-    def _rescale_frame(frame, percent=1.0):
-        """
-        Proportionally rescales the width and height of FRAME by PERCENT.
-        :param frame:       The image to rescale.
-        :param percent:     The percentage by which to rescale.
-        :return:            The resized image.
-        """
-
-        width = int(frame.shape[1] * percent)
-        height = int(frame.shape[0] * percent)
-        return cv2.resize(frame, (width, height), interpolation=cv2.INTER_AREA)

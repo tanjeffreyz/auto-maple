@@ -357,9 +357,9 @@ class Point(Component):
         self.x = float(x)
         self.y = float(y)
         self.location = (self.x, self.y)
-        self.frequency = utils.validate_nonnegative_int(frequency)
-        self.counter = int(utils.validate_boolean(skip))
-        self.adjust = utils.validate_boolean(adjust)
+        self.frequency = settings.validate_nonnegative_int(frequency)
+        self.counter = int(settings.validate_boolean(skip))
+        self.adjust = settings.validate_boolean(adjust)
         self.commands = []
 
     def main(self):
@@ -429,8 +429,8 @@ class Jump(Component):
     def __init__(self, label, frequency=1, skip='False'):
         super().__init__(locals())
         self.label = str(label)
-        self.frequency = utils.validate_nonnegative_int(frequency)
-        self.counter = int(utils.validate_boolean(skip))
+        self.frequency = settings.validate_nonnegative_int(frequency)
+        self.counter = int(settings.validate_boolean(skip))
         self.link = None
 
     def main(self):

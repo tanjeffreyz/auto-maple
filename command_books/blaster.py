@@ -15,7 +15,7 @@ class Move(Command):
     def __init__(self, x, y, max_steps=15):
         super().__init__(locals())
         self.target = (float(x), float(y))
-        self.max_steps = utils.validate_nonnegative_int(max_steps)
+        self.max_steps = settings.validate_nonnegative_int(max_steps)
 
     def main(self):
         counter = self.max_steps
@@ -62,7 +62,7 @@ class Adjust(Command):
     def __init__(self, x, y, max_steps=5):
         super().__init__(locals())
         self.target = (float(x), float(y))
-        self.max_steps = utils.validate_nonnegative_int(max_steps)
+        self.max_steps = settings.validate_nonnegative_int(max_steps)
 
     def main(self):
         counter = self.max_steps
@@ -128,7 +128,7 @@ class Jump(Command):
 
     def __init__(self, direction):
         super().__init__(locals())
-        self.direction = utils.validate_arrows(direction)
+        self.direction = settings.validate_arrows(direction)
 
     def main(self):
         key_down(self.direction)
@@ -147,7 +147,7 @@ class MagnumPunch(Command):
 
     def __init__(self, direction):
         super().__init__(locals())
-        self.direction = utils.validate_arrows(direction)
+        self.direction = settings.validate_arrows(direction)
 
     def main(self):
         key_down(self.direction)
