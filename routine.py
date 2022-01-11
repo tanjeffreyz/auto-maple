@@ -168,18 +168,13 @@ class Routine:
         print(f"[~] Saved routine to '{basename(file_path)}'.")
 
     def clear(self):
-        self.set([])
         Routine.index = 0
+        self.set([])
         self.dirty = False
-        settings.reset()
         config.layout = None
+        settings.reset()
 
         config.gui.clear_routine_info()
-        config.gui.view.status.update_routine('')
-
-        edit = config.gui.edit
-        edit.routine.commands.update_display()
-        edit.editor.update_display()
 
     def load(self, file=None):
         """

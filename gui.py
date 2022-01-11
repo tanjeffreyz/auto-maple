@@ -46,7 +46,10 @@ class GUI:
         """
 
         self.view.details.clear_info()
+        self.view.status.update_routine('')
+
         self.edit.routine.commands.clear_contents()
+        self.edit.routine.commands.update_display()
         self.edit.editor.reset()
 
     def _resize_window(self, e):
