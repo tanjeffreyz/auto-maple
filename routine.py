@@ -16,9 +16,18 @@ def update(func):
 
     def f(self, *args, **kwargs):
         result = func(self, *args, **kwargs)
-        self.dirty = True
         config.gui.set_routine(self.display)
         config.gui.view.details.update_details()
+        return result
+    return f
+
+
+def dirty(func):
+    """Decorator function that sets the dirty bit for mutative Routine operations."""
+
+    def f(self, *args, **kwargs):
+        result = func(self, *args, **kwargs)
+        self.dirty = True
         return result
     return f
 
@@ -35,16 +44,19 @@ class Routine:
         self.sequence = []
         self.display = []       # Updated alongside sequence
 
+    @dirty
     @update
     def set(self, arr):
         self.sequence = arr
         self.display = [str(x) for x in arr]
 
+    @dirty
     @update
     def append_component(self, p):
         self.sequence.append(p)
         self.display.append(str(p))
 
+    @dirty
     @update
     def append_command(self, i, c):
         """Appends Command object C to the Point at index I in the sequence."""
@@ -53,6 +65,7 @@ class Routine:
         target.commands.append(c)
         config.gui.edit.routine.commands.update_display()
 
+    @dirty
     @update
     def move_component_up(self, i):
         """Moves the component at index I upward if possible."""
@@ -66,6 +79,7 @@ class Routine:
             self.display[i] = temp_d
             config.gui.edit.routine.components.select(i-1)
 
+    @dirty
     @update
     def move_component_down(self, i):
         if i < len(self) - 1:
@@ -77,6 +91,7 @@ class Routine:
             self.display[i] = temp_d
             config.gui.edit.routine.components.select(i+1)
 
+    @dirty
     @update
     def move_command_up(self, i, j):
         """
@@ -94,6 +109,7 @@ class Routine:
             edit.routine.commands.update_display()
             edit.routine.commands.select(j-1)
 
+    @dirty
     @update
     def move_command_down(self, i, j):
         point = self.sequence[i]
@@ -106,6 +122,7 @@ class Routine:
             edit.routine.commands.update_display()
             edit.routine.commands.select(j+1)
 
+    @dirty
     @update
     def delete_component(self, i):
         """Deletes the Component at index I."""
@@ -117,6 +134,7 @@ class Routine:
         edit.routine.components.clear_selection()
         edit.editor.reset()
 
+    @dirty
     @update
     def delete_command(self, i, j):
         """Within the Point at routine index I, deletes the Command at index J."""
@@ -135,6 +153,7 @@ class Routine:
         try:
             target.update(**new_kwargs)
             self.display[i] = str(target)
+            self.dirty = True
         except (ValueError, TypeError) as e:
             print(f"\n[!] Found invalid arguments for '{target.__class__.__name__}':")
             print(f"{' ' * 4} -  {e}")
@@ -145,6 +164,7 @@ class Routine:
         try:
             target.update(**new_kwargs)
             self.display[i] = str(self.sequence[i])
+            self.dirty = True
         except (ValueError, TypeError) as e:
             print(f"\n[!] Found invalid arguments for '{target.__class__.__name__}':")
             print(f"{' ' * 4} -  {e}")
@@ -200,9 +220,6 @@ class Routine:
             print(f" !  '{ext}' is not a supported file extension.")
             return False
 
-        # self.set([])
-        # Routine.index = 0
-        # settings.reset()
         self.clear()
 
         # Compile and Link
@@ -213,11 +230,10 @@ class Routine:
 
         self.dirty = False
         self.path = file
-        # config.gui.clear_routine_info()
-        config.gui.view.status.update_routine(basename(file))
         config.layout = Layout.load(file)
+        config.gui.view.status.set_routine(basename(file))
+        config.gui.edit.minimap.draw_default()
         print(f"[~] Finished loading routine '{basename(splitext(file)[0])}'.")
-        return True
 
     def compile(self, file):
         Routine.labels = {}
@@ -360,7 +376,7 @@ class Point(Component):
         self.frequency = settings.validate_nonnegative_int(frequency)
         self.counter = int(settings.validate_boolean(skip))
         self.adjust = settings.validate_boolean(adjust)
-        if not hasattr(self, 'commands'):       # Updating object should not clear commands
+        if not hasattr(self, 'commands'):       # Updating Point should not clear commands
             self.commands = []
 
     def main(self):

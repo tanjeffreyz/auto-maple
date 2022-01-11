@@ -46,8 +46,9 @@ class GUI:
         """
 
         self.view.details.clear_info()
-        self.view.status.update_routine('')
+        self.view.status.set_routine('')
 
+        self.edit.minimap.redraw()
         self.edit.routine.commands.clear_contents()
         self.edit.routine.commands.update_display()
         self.edit.editor.reset()

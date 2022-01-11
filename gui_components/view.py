@@ -121,10 +121,10 @@ class Status(LabelFrame):
         self.r_entry = tk.Entry(self, textvariable=self.curr_routine, state=tk.DISABLED)
         self.r_entry.grid(row=1, column=2, padx=(0, 5), pady=(0, 5), sticky=tk.EW)
 
-    def update_cb(self, string):
+    def set_cb(self, string):
         self.curr_cb.set(string)
 
-    def update_routine(self, string):
+    def set_routine(self, string):
         self.curr_routine.set(string)
 
 

@@ -182,7 +182,7 @@ class Bot:
 
         if success:
             config.command_book = new_cb
-            config.gui.view.status.update_cb(basename(file))
+            config.gui.view.status.set_cb(basename(file))
             Bot.buff = new_cb['buff']()
 
             # Clear the current routine and Layout because command book changed

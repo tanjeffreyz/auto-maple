@@ -552,8 +552,6 @@ class Minimap(LabelFrame):
                                 width=self.WIDTH, height=self.HEIGHT,
                                 borderwidth=0, highlightthickness=0)
         self.canvas.pack(expand=True, fill='both', padx=5, pady=5)
-
-        self.current = None
         self.draw_default()
 
     def draw_point(self, location):
@@ -562,10 +560,7 @@ class Minimap(LabelFrame):
         if config.minimap_sample is not None:
             minimap = cv2.cvtColor(config.minimap_sample, cv2.COLOR_BGR2RGB)
             img = self.resize_to_fit(minimap)
-
             utils.draw_location(img, location, (0, 255, 0))
-            self.current = location
-
             self.draw(img)
 
     def draw_default(self):
@@ -575,7 +570,6 @@ class Minimap(LabelFrame):
             minimap = cv2.cvtColor(config.minimap_sample, cv2.COLOR_BGR2RGB)
             img = self.resize_to_fit(minimap)
             self.draw(img)
-            self.current = None
 
     def redraw(self):
         """Re-draws the current point if it exists, otherwise resets to the default state."""
