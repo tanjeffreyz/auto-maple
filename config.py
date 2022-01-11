@@ -50,7 +50,10 @@ listening = False
 minimap = {}
 
 # The ratio of the minimap's width divided by its height
-mm_ratio = 1
+minimap_ratio = 1
+
+# A frame of the minimap sampled from the latest calibration procedure
+minimap_sample = None
 
 # Describes whether a rune has appeared in the game
 rune_active = False

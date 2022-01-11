@@ -53,7 +53,8 @@ class Capture:
                                                config.MINIMAP_TEMPLATE)
                     mm_tl = (config.MINIMAP_BOTTOM_BORDER, config.MINIMAP_TOP_BORDER)
                     mm_br = tuple(max(75, a - config.MINIMAP_BOTTOM_BORDER) for a in br)
-                    config.mm_ratio = (mm_br[0] - mm_tl[0]) / (mm_br[1] - mm_tl[1])
+                    config.minimap_ratio = (mm_br[0] - mm_tl[0]) / (mm_br[1] - mm_tl[1])
+                    config.minimap_sample = frame[mm_tl[1]:mm_br[1], mm_tl[0]:mm_br[0]]
                     config.calibrated = True
 
                 # frame = np.array(sct.grab(config.MONITOR))
@@ -75,6 +76,8 @@ class Capture:
 
                 # Crop the frame to only show the minimap
                 minimap = frame[mm_tl[1]:mm_br[1], mm_tl[0]:mm_br[0]]
+
+                # Determine the player's position
                 player = utils.multi_match(minimap, config.PLAYER_TEMPLATE, threshold=0.8)
                 if player:
                     config.player_pos = utils.convert_to_relative(player[0], minimap)
