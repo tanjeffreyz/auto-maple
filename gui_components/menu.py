@@ -78,8 +78,3 @@ class Menu(tk.Menu):
                                     filetypes=[('*.py', '*.py')])
         if file_path:
             Bot.load_commands(file_path)
-
-
-
-
-
