@@ -150,7 +150,7 @@ class Editor(LabelFrame):
         def on_entry_return(e):
             value = e.widget.get().strip().lower()
             if value in options:
-                self.create_add_ui(options[value])
+                self.create_add_ui(options[value], sticky=True)
             else:
                 print(f"\n[!] '{value}' is not a valid Component.")
 
@@ -164,7 +164,7 @@ class Editor(LabelFrame):
             if len(selects) > 0:
                 value = w.get(int(selects[0]))
                 if value in options:
-                    self.create_add_ui(options[value])
+                    self.create_add_ui(options[value], sticky=True)
 
         def on_display_up(e):
             selects = e.widget.curselection()
@@ -199,17 +199,21 @@ class Editor(LabelFrame):
 
         scroll.config(command=display.yview)
 
-    def create_add_ui(self, component, kwargs=None):
+    def create_add_ui(self, component, sticky=False, kwargs=None):
         """
         Creates a UI that edits the parameters of a new COMPONENT instance, and allows
         the user to add this newly created Component to the current routine.
+        :param component:   The class to create an instance of.
+        :param sticky:      If True, prevents other UI elements from overwriting this one.
+        :param kwargs:      Custom arguments for the new object.
+        :return:            None
         """
 
         # Prevent Components and Commands from overwriting this UI
-        routine = self.parent.routine
-        routine.components.unbind_select()
-        routine.commands.unbind_select()
-        self.parent.record.unbind_select()
+        if sticky:
+            routine = self.parent.routine
+            routine.components.unbind_select()
+            routine.commands.unbind_select()
 
         self.contents.destroy()
         self.vars = {}
@@ -231,7 +235,8 @@ class Editor(LabelFrame):
         if kwargs is None:
             kwargs = {}
         for i in range(diff):
-            if sig.args[i] != 'self':
+            arg = sig.args[i]
+            if arg != 'self' and arg not in kwargs:
                 kwargs[sig.args[i]] = ''
 
         # Populate kwargs
@@ -247,11 +252,13 @@ class Editor(LabelFrame):
         controls = Frame(self.contents)
         controls.pack(expand=True, fill='x')
 
-        cancel_button = tk.Button(controls, text='Cancel', command=self.cancel, takefocus=False)
-        cancel_button.pack(side=tk.LEFT, pady=5)
-
         add_button = tk.Button(controls, text='Add', command=self.add(component))
-        add_button.pack(side=tk.RIGHT, pady=5)
+        if sticky:          # Only create 'cancel' button if stickied
+            add_button.pack(side=tk.RIGHT, pady=5)
+            cancel_button = tk.Button(controls, text='Cancel', command=self.cancel, takefocus=False)
+            cancel_button.pack(side=tk.LEFT, pady=5)
+        else:
+            add_button.pack(pady=5)
 
     def cancel(self):
         """Button callback that exits the current Component creation UI."""
@@ -259,7 +266,6 @@ class Editor(LabelFrame):
         routine = self.parent.routine
         routine.components.bind_select()
         routine.commands.bind_select()
-        self.parent.record.bind_select()
         self.update_display()
 
     def add(self, component):
@@ -624,7 +630,7 @@ class Record(LabelFrame):
         self.display_var = tk.StringVar()
 
         self.scroll = tk.Scrollbar(self)
-        self.scroll.pack(side=tk.RIGHT, fill='y', pady=(0, 5))
+        self.scroll.pack(side=tk.RIGHT, fill='y', pady=5)
 
         self.listbox = tk.Listbox(self, width=25,
                                   listvariable=self.display_var,
@@ -635,40 +641,37 @@ class Record(LabelFrame):
         self.listbox.bind('<Down>', lambda e: 'break')
         self.listbox.bind('<Left>', lambda e: 'break')
         self.listbox.bind('<Right>', lambda e: 'break')
-        self.bind_select()
-        self.listbox.pack(side=tk.LEFT, expand=True, fill='both', padx=(5, 0), pady=(0, 5))
+        self.listbox.bind('<<ListboxSelect>>', self.on_select)
+        self.listbox.pack(side=tk.LEFT, expand=True, fill='both', padx=(5, 0), pady=5)
 
         self.scroll.config(command=self.listbox.yview)
 
-    def bind_select(self):
-        self.listbox.bind('<<ListboxSelect>>', self.get_on_select())
-
-    def unbind_select(self):
-        self.listbox.bind('<<ListboxSelect>>', self.get_on_select(reset=False))
-
     def add_entry(self, time, location):
+        """
+        Adds a new recorded location to the Listbox. Pops the oldest entry if
+        Record.MAX_SIZE has been reached.
+        """
+
         if len(self.entries) > Record.MAX_SIZE:
             self.entries.pop()
         self.entries.insert(0, (time, location))
         self.display_var.set(tuple(f'{x[0]}  -  ({x[1][0]}, {x[1][1]})' for x in self.entries))
         self.listbox.see(0)
 
-    def get_on_select(self, reset=True):
-        def f(e):
-            selects = e.widget.curselection()
-            if len(selects) > 0:
-                index = int(selects[0])
-                pos = self.entries[index][1]
-                self.parent.minimap.draw_point(tuple(float(x) for x in pos))
+    def on_select(self, e):
+        selects = e.widget.curselection()
+        if len(selects) > 0:
+            index = int(selects[0])
+            pos = self.entries[index][1]
+            self.parent.minimap.draw_point(tuple(float(x) for x in pos))
 
-                routine = self.parent.routine
-                routine.components.clear_selection()
-                routine.commands.clear_selection()
-                routine.commands.clear_contents()
+            routine = self.parent.routine
+            routine.components.clear_selection()
+            routine.commands.clear_selection()
+            routine.commands.clear_contents()
 
-                if reset:
-                    self.parent.editor.reset()
-        return f
+            kwargs = {'x': pos[0], 'y': pos[1]}
+            self.parent.editor.create_add_ui(Point, kwargs=kwargs)
 
     def clear_selection(self):
         self.listbox.selection_clear(0, 'end')
