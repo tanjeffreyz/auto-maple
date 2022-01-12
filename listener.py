@@ -53,7 +53,7 @@ class Listener:
                     Listener.toggle_enabled()
                 elif kb.is_pressed(self.key_binds['Reload routine']):
                     Listener.reload_routine()
-                elif kb.is_pressed(self.key_binds['Record position']):      # TODO: add to recorded locations
+                elif kb.is_pressed(self.key_binds['Record position']):
                     Listener.record_position()
             time.sleep(0.01)
 
