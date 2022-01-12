@@ -6,7 +6,7 @@ import inspect
 import cv2
 import tkinter as tk
 from PIL import Image, ImageTk
-from routine import Component, Point, Command
+from routine import Point, Command
 from gui_components.interfaces import Tab, Frame, LabelFrame
 
 
@@ -17,14 +17,14 @@ class Edit(Tab):
         self.columnconfigure(0, weight=1)
         self.columnconfigure(4, weight=1)
 
+        self.record = Record(self)
+        self.record.grid(row=2, column=3, sticky=tk.NSEW, padx=10, pady=10)
+
         self.minimap = Minimap(self)
         self.minimap.grid(row=0, column=3, sticky=tk.NSEW, padx=10, pady=10)
 
         self.status = Status(self)
         self.status.grid(row=1, column=3, sticky=tk.NSEW, padx=10, pady=10)
-
-        self.record = Record(self)
-        self.record.grid(row=2, column=3, sticky=tk.NSEW, padx=10, pady=10)
 
         self.routine = Routine(self)
         self.routine.grid(row=0, column=1, rowspan=3, sticky=tk.NSEW, padx=10, pady=10)
@@ -209,6 +209,7 @@ class Editor(LabelFrame):
         routine = self.parent.routine
         routine.components.unbind_select()
         routine.commands.unbind_select()
+        self.parent.record.unbind_select()
 
         self.contents.destroy()
         self.vars = {}
@@ -258,6 +259,7 @@ class Editor(LabelFrame):
         routine = self.parent.routine
         routine.components.bind_select()
         routine.commands.bind_select()
+        self.parent.record.bind_select()
         self.update_display()
 
     def add(self, component):
@@ -278,7 +280,7 @@ class Editor(LabelFrame):
                         else:
                             print(f"\n[!] Error while adding Command: currently selected Component is not a Point.")
                     else:
-                        print(f"\n[!] Error while adding Command: nothing is currently selected.")
+                        print(f"\n[!] Error while adding Command: no Point is currently selected.")
                 else:
                     config.routine.append_component(obj)
                     self.cancel()
@@ -420,6 +422,7 @@ class Components(Frame):
             commands = self.parent.parent.commands
             commands.clear_selection()
             commands.update_display()
+            self.parent.parent.parent.record.clear_selection()
 
         self.listbox.bind('<<ListboxSelect>>', callback)
 
@@ -439,6 +442,7 @@ class Components(Frame):
             else:
                 routine.commands_var.set([])
                 edit.minimap.draw_default()
+            edit.record.clear_selection()
 
             edit.editor.create_edit_ui(config.routine, index, self.update_obj)
         else:
@@ -580,6 +584,7 @@ class Minimap(LabelFrame):
             obj = config.routine[index]
             if isinstance(obj, Point):
                 self.draw_point(obj.location)
+                self.parent.record.clear_selection()
             else:
                 self.draw_default()
         else:
@@ -610,14 +615,19 @@ class Minimap(LabelFrame):
 
 
 class Record(LabelFrame):
+    MAX_SIZE = 20
+
     def __init__(self, parent, **kwargs):
         super().__init__(parent, 'Recorded Locations', **kwargs)
+
+        self.entries = []
+        self.display_var = tk.StringVar()
 
         self.scroll = tk.Scrollbar(self)
         self.scroll.pack(side=tk.RIGHT, fill='y', pady=(0, 5))
 
         self.listbox = tk.Listbox(self, width=25,
-                                  # listvariable=config.gui.routine_var,
+                                  listvariable=self.display_var,
                                   exportselection=False,
                                   activestyle='none',
                                   yscrollcommand=self.scroll.set)
@@ -625,9 +635,43 @@ class Record(LabelFrame):
         self.listbox.bind('<Down>', lambda e: 'break')
         self.listbox.bind('<Left>', lambda e: 'break')
         self.listbox.bind('<Right>', lambda e: 'break')
+        self.bind_select()
         self.listbox.pack(side=tk.LEFT, expand=True, fill='both', padx=(5, 0), pady=(0, 5))
 
         self.scroll.config(command=self.listbox.yview)
+
+    def bind_select(self):
+        self.listbox.bind('<<ListboxSelect>>', self.get_on_select())
+
+    def unbind_select(self):
+        self.listbox.bind('<<ListboxSelect>>', self.get_on_select(reset=False))
+
+    def add_entry(self, time, location):
+        if len(self.entries) > Record.MAX_SIZE:
+            self.entries.pop()
+        self.entries.insert(0, (time, location))
+        self.display_var.set(tuple(f'{x[0]}  -  ({x[1][0]}, {x[1][1]})' for x in self.entries))
+        self.listbox.see(0)
+
+    def get_on_select(self, reset=True):
+        def f(e):
+            selects = e.widget.curselection()
+            if len(selects) > 0:
+                index = int(selects[0])
+                pos = self.entries[index][1]
+                self.parent.minimap.draw_point(tuple(float(x) for x in pos))
+
+                routine = self.parent.routine
+                routine.components.clear_selection()
+                routine.commands.clear_selection()
+                routine.commands.clear_contents()
+
+                if reset:
+                    self.parent.editor.reset()
+        return f
+
+    def clear_selection(self):
+        self.listbox.selection_clear(0, 'end')
 
 
 class Status(LabelFrame):

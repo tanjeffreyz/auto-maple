@@ -8,6 +8,7 @@ import winsound
 import pickle
 import keyboard as kb
 from os.path import isfile
+from datetime import datetime
 
 
 class Listener:
@@ -15,7 +16,7 @@ class Listener:
     DEFAULT_KEYBINDS = {
         'Start/stop': 'insert',
         'Reload routine': 'f6',
-        'Record location': 'f7'
+        'Record position': 'f7'
     }
 
     def __init__(self):
@@ -52,11 +53,8 @@ class Listener:
                     Listener.toggle_enabled()
                 elif kb.is_pressed(self.key_binds['Reload routine']):
                     Listener.reload_routine()
-                elif kb.is_pressed(self.key_binds['Record location']):      # TODO: add to recorded locations
-                    displayed_pos = tuple('{:.3f}'.format(round(i, 3)) for i in config.player_pos)
-                    utils.print_separator()
-                    print(f'Current position: ({displayed_pos[0]}, {displayed_pos[1]})')
-                    time.sleep(0.6)
+                elif kb.is_pressed(self.key_binds['Record position']):      # TODO: add to recorded locations
+                    Listener.record_position()
             time.sleep(0.01)
 
     @staticmethod
@@ -94,6 +92,14 @@ class Listener:
         while not config.calibrated:
             time.sleep(0.01)
         config.gui.edit.minimap.redraw()
+
+    @staticmethod
+    def record_position():
+        pos = tuple('{:.3f}'.format(round(i, 3)) for i in config.player_pos)
+        now = datetime.now().strftime('%I:%M:%S %p')
+        config.gui.edit.record.add_entry(now, pos)
+        print(f'\n[~] Recorded position {pos} at {now}.')
+        time.sleep(0.6)
 
     def load_keybindings(self):
         if isfile(Listener.TARGET):
