@@ -624,7 +624,7 @@ class Record(LabelFrame):
     MAX_SIZE = 20
 
     def __init__(self, parent, **kwargs):
-        super().__init__(parent, 'Recorded Locations', **kwargs)
+        super().__init__(parent, 'Recorded Positions', **kwargs)
 
         self.entries = []
         self.display_var = tk.StringVar()

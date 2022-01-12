@@ -1,8 +1,0 @@
-*, 0.808, 0.128
-    shikigami, direction=left
-*, 0.536, 0.136
-    shikigami, direction=left
-*, 0.504, 0.280
-    shikigami, direction=right
-*, 0.800, 0.320, adjust=True
-    shikigami, direction=left
