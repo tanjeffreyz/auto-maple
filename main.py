@@ -7,14 +7,14 @@ from bot import Bot
 from gui import GUI
 
 
-cap = Capture()
-cap.start()
-while not cap.ready:
-    time.sleep(0.01)
-
 bot = Bot()
 bot.start()
 while not bot.ready:
+    time.sleep(0.01)
+
+cap = Capture()
+cap.start()
+while not cap.ready:
     time.sleep(0.01)
 
 listener = Listener()

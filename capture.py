@@ -103,7 +103,7 @@ class Capture:
 
                 if not self.ready:
                     self.ready = True
-                time.sleep(0.005)
+                time.sleep(0.001)
 
     @staticmethod
     def _count(frame, threshold):
