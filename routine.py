@@ -191,6 +191,7 @@ class Routine:
         Routine.index = 0
         self.set([])
         self.dirty = False
+        self.path = ''
         config.layout = None
         settings.reset()
 

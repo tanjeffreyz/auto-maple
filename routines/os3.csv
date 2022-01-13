@@ -1,0 +1,11 @@
+$, target=move_tolerance, value=0.08
+
+@, label=kishin
+*, x=0.360, y=0.257, frequency=1, skip=False, adjust=False
+    Kishin
+*, x=0.543, y=0.257, frequency=1, skip=False, adjust=False
+    Shikigami, direction=right, attacks=2, repetitions=1
+*, x=0.754, y=0.257, frequency=1, skip=False, adjust=True
+    Shikigami, direction=right, attacks=2, repetitions=1
+*, x=0.754, y=0.183, frequency=1, skip=False, adjust=False
+*, x=0.509, y=0.160, frequency=1, skip=False, adjust=False
