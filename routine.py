@@ -77,7 +77,11 @@ class Routine:
             self.display[i-1] = self.display[i]
             self.sequence[i] = temp_s
             self.display[i] = temp_d
-            config.gui.edit.routine.components.select(i-1)
+
+            edit = config.gui.edit
+            components = config.gui.edit.routine.components
+            components.select(i-1)
+            edit.editor.create_edit_ui(self.sequence, i-1, components.update_obj)
 
     @dirty
     @update
@@ -89,7 +93,11 @@ class Routine:
             self.display[i+1] = self.display[i]
             self.sequence[i] = temp_s
             self.display[i] = temp_d
-            config.gui.edit.routine.components.select(i+1)
+
+            edit = config.gui.edit
+            components = config.gui.edit.routine.components
+            components.select(i+1)
+            edit.editor.create_edit_ui(self.sequence, i+1, components.update_obj)
 
     @dirty
     @update
@@ -106,8 +114,10 @@ class Routine:
             point.commands[j] = temp
 
             edit = config.gui.edit
-            edit.routine.commands.update_display()
-            edit.routine.commands.select(j-1)
+            commands = edit.routine.commands
+            commands.update_display()
+            commands.select(j-1)
+            edit.editor.create_edit_ui(point.commands, j-1, commands.update_obj)
 
     @dirty
     @update
@@ -119,8 +129,10 @@ class Routine:
             point.commands[j] = temp
 
             edit = config.gui.edit
-            edit.routine.commands.update_display()
-            edit.routine.commands.select(j+1)
+            commands = edit.routine.commands
+            commands.update_display()
+            commands.select(j+1)
+            edit.editor.create_edit_ui(point.commands, j+1, commands.update_obj)
 
     @dirty
     @update
@@ -132,6 +144,7 @@ class Routine:
 
         edit = config.gui.edit
         edit.routine.components.clear_selection()
+        edit.routine.commands_var.set([])
         edit.editor.reset()
 
     @dirty

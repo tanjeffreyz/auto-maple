@@ -390,7 +390,9 @@ class Controls(Frame):
                 config.routine.delete_command(p_index, c_index)
             else:
                 config.routine.delete_component(p_index)
-                self.parent.parent.minimap.redraw()
+                edit = self.parent.parent
+                edit.minimap.redraw()
+                # edit.routine.commands_var.set([])
 
     def new(self):
         self.parent.parent.editor.create_add_prompt()
@@ -421,39 +423,38 @@ class Components(Frame):
         self.scroll.config(command=self.listbox.yview)
 
     def bind_select(self):
-        self.listbox.bind('<<ListboxSelect>>', self.on_select)
+        self.listbox.bind('<<ListboxSelect>>', self.on_select(create_ui=True))
 
     def unbind_select(self):
-        def callback(_):
-            commands = self.parent.parent.commands
-            commands.clear_selection()
-            commands.update_display()
-            self.parent.parent.parent.record.clear_selection()
+        self.listbox.bind('<<ListboxSelect>>', self.on_select(create_ui=False))
 
-        self.listbox.bind('<<ListboxSelect>>', callback)
+    def on_select(self, create_ui=True):
+        """
+        Returns an on-select callback for the Components Listbox. If CREATE_UI
+        is set to True, the callback will overwrite the existing Editor UI.
+        """
 
-    def on_select(self, e):
-        routine = self.parent.parent
-        edit = self.parent.parent.parent
+        def callback(e):
+            routine = self.parent.parent
+            edit = self.parent.parent.parent
 
-        routine.commands.clear_selection()
-        selections = e.widget.curselection()
-        if len(selections) > 0:
-            index = int(selections[0])
-            obj = config.routine[index]
+            routine.commands.clear_selection()
+            selections = e.widget.curselection()
+            if len(selections) > 0:
+                index = int(selections[0])
+                obj = config.routine[index]
 
-            if isinstance(obj, Point):
-                routine.commands_var.set([c.id for c in obj.commands])
-                edit.minimap.draw_point(obj.location)
-            else:
-                routine.commands_var.set([])
-                edit.minimap.draw_default()
-            edit.record.clear_selection()
+                if isinstance(obj, Point):
+                    routine.commands_var.set([c.id for c in obj.commands])
+                    edit.minimap.draw_point(obj.location)
+                else:
+                    routine.commands_var.set([])
+                    edit.minimap.draw_default()
+                edit.record.clear_selection()
 
-            edit.editor.create_edit_ui(config.routine, index, self.update_obj)
-        else:
-            routine.commands_var.set([])
-            edit.editor.reset()
+                if create_ui:
+                    edit.editor.create_edit_ui(config.routine, index, self.update_obj)
+        return callback
 
     def update_obj(self, arr, i, stringvars):
         def f():

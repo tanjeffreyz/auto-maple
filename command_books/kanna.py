@@ -252,14 +252,14 @@ class Domain(Command):
     """Uses 'Spirit's Domain' once."""
 
     def main(self):
-        press('v', 3)
+        press('z', 3)
 
 
 class Legion(Command):
     """Uses 'Ghost Yaksha: Great Oni Lord's Legion' once."""
 
     def main(self):
-        press('z', 2, down_time=0.1)
+        press('5', 2, down_time=0.1)
 
 
 class BlossomBarrier(Command):
