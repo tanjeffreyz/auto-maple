@@ -39,6 +39,7 @@ class Minimap(LabelFrame):
                                 width=self.WIDTH, height=self.HEIGHT,
                                 borderwidth=0, highlightthickness=0)
         self.canvas.pack(expand=True, fill='both', padx=5, pady=5)
+        self.container = None
 
     def display_minimap(self):
         """Updates the Main page with the current minimap."""
@@ -94,9 +95,12 @@ class Minimap(LabelFrame):
 
             # Display the minimap in the Canvas
             img = ImageTk.PhotoImage(Image.fromarray(img))
-            self.canvas.create_image(self.WIDTH // 2,
-                                     self.HEIGHT // 2,
-                                     image=img, anchor=tk.CENTER)
+            if self.container is None:
+                self.container = self.canvas.create_image(self.WIDTH // 2,
+                                                          self.HEIGHT // 2,
+                                                          image=img, anchor=tk.CENTER)
+            else:
+                self.canvas.itemconfig(self.container, image=img)
             self._img = img                 # Prevent garbage collection
         self.after(33, self.display_minimap)
 

@@ -562,6 +562,8 @@ class Minimap(LabelFrame):
                                 width=self.WIDTH, height=self.HEIGHT,
                                 borderwidth=0, highlightthickness=0)
         self.canvas.pack(expand=True, fill='both', padx=5, pady=5)
+        self.container = None
+
         self.draw_default()
 
     def draw_point(self, location):
@@ -614,9 +616,12 @@ class Minimap(LabelFrame):
             config.layout.draw(img)     # Display the current Layout
 
         img = ImageTk.PhotoImage(Image.fromarray(img))
-        self.canvas.create_image(self.WIDTH // 2,
-                                 self.HEIGHT // 2,
-                                 image=img, anchor=tk.CENTER)
+        if self.container is None:
+            self.container = self.canvas.create_image(self.WIDTH // 2,
+                                                      self.HEIGHT // 2,
+                                                      image=img, anchor=tk.CENTER)
+        else:
+            self.canvas.itemconfig(self.container, image=img)
         self._img = img                 # Prevent garbage collection
 
 
