@@ -63,7 +63,6 @@ class Routine:
 
         target = self.sequence[i]
         target.commands.append(c)
-        config.gui.edit.routine.commands.update_display()
 
     @dirty
     @update
@@ -77,27 +76,21 @@ class Routine:
             self.display[i-1] = self.display[i]
             self.sequence[i] = temp_s
             self.display[i] = temp_d
-
-            edit = config.gui.edit
-            components = config.gui.edit.routine.components
-            components.select(i-1)
-            edit.editor.create_edit_ui(self.sequence, i-1, components.update_obj)
+            return i - 1
+        return i
 
     @dirty
     @update
     def move_component_down(self, i):
-        if i < len(self) - 1:
+        if i < len(self.sequence) - 1:
             temp_s = self.sequence[i+1]
             temp_d = self.display[i+1]
             self.sequence[i+1] = self.sequence[i]
             self.display[i+1] = self.display[i]
             self.sequence[i] = temp_s
             self.display[i] = temp_d
-
-            edit = config.gui.edit
-            components = config.gui.edit.routine.components
-            components.select(i+1)
-            edit.editor.create_edit_ui(self.sequence, i+1, components.update_obj)
+            return i + 1
+        return i
 
     @dirty
     @update
@@ -112,12 +105,8 @@ class Routine:
             temp = point.commands[j-1]
             point.commands[j-1] = point.commands[j]
             point.commands[j] = temp
-
-            edit = config.gui.edit
-            commands = edit.routine.commands
-            commands.update_display()
-            commands.select(j-1)
-            edit.editor.create_edit_ui(point.commands, j-1, commands.update_obj)
+            return j - 1
+        return j
 
     @dirty
     @update
@@ -127,12 +116,8 @@ class Routine:
             temp = point.commands[j+1]
             point.commands[j+1] = point.commands[j]
             point.commands[j] = temp
-
-            edit = config.gui.edit
-            commands = edit.routine.commands
-            commands.update_display()
-            commands.select(j+1)
-            edit.editor.create_edit_ui(point.commands, j+1, commands.update_obj)
+            return j + 1
+        return j
 
     @dirty
     @update
@@ -142,11 +127,6 @@ class Routine:
         self.sequence.pop(i)
         self.display.pop(i)
 
-        edit = config.gui.edit
-        edit.routine.components.clear_selection()
-        edit.routine.commands_var.set([])
-        edit.editor.reset()
-
     @dirty
     @update
     def delete_command(self, i, j):
@@ -154,11 +134,6 @@ class Routine:
 
         point = self.sequence[i]
         point.commands.pop(j)
-
-        edit = config.gui.edit
-        edit.routine.commands.update_display()
-        edit.routine.commands.clear_selection()
-        edit.editor.create_edit_ui(self.sequence, i, edit.routine.components.update_obj)
 
     @update
     def update_component(self, i, new_kwargs):
