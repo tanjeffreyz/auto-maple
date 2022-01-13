@@ -1,9 +1,9 @@
 """The central program that ties all the modules together."""
 
 import time
+from bot import Bot
 from capture import Capture
 from listener import Listener
-from bot import Bot
 from gui import GUI
 
 
