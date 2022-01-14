@@ -5,7 +5,7 @@ import time
 import math
 import settings
 import utils
-from routine import Command
+from components import Command
 from vkeys import press, key_down, key_up
 
 

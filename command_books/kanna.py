@@ -5,54 +5,80 @@ import time
 import math
 import settings
 import utils
-from routine import Command
+from components import Command
 from vkeys import press, key_down, key_up
 
 
-class Move(Command):
-    """Moves to a given position using the shortest path based on the current Layout."""
+# class Move(Command):
+#     """Moves to a given position using the shortest path based on the current Layout."""
+#
+#     def __init__(self, x, y, max_steps=15):
+#         super().__init__(locals())
+#         self.target = (float(x), float(y))
+#         self.max_steps = settings.validate_nonnegative_int(max_steps)
+#
+#     def main(self):
+#         counter = self.max_steps
+#         path = config.layout.shortest_path(config.player_pos, self.target)
+#
+#         for point in path:
+#             toggle = True
+#             local_error = utils.distance(config.player_pos, point)
+#             global_error = utils.distance(config.player_pos, self.target)
+#             while config.enabled and counter > 0 and \
+#                     local_error > settings.move_tolerance and \
+#                     global_error > settings.move_tolerance:
+#                 if toggle:
+#                     d_x = point[0] - config.player_pos[0]
+#                     if abs(d_x) > settings.move_tolerance / math.sqrt(2):
+#                         if d_x < 0:
+#                             Teleport('left').main()
+#                         else:
+#                             Teleport('right').main()
+#                         counter -= 1
+#                 else:
+#                     d_y = point[1] - config.player_pos[1]
+#                     if abs(d_y) > settings.move_tolerance / math.sqrt(2):
+#                         jump = str(abs(d_y) > settings.move_tolerance * 1.5)
+#                         if d_y < 0:
+#                             Teleport('up', jump=jump).main()
+#                         else:
+#                             Teleport('down', jump=jump).main()
+#                         counter -= 1
+#                 local_error = utils.distance(config.player_pos, point)
+#                 global_error = utils.distance(config.player_pos, self.target)
+#                 toggle = not toggle
 
-    def __init__(self, x, y, max_steps=15):
+
+class Step(Command):
+    """
+    Performs one movement step in the given direction towards TARGET.
+    Should not press any arrow keys as that is handled by Auto Maple.
+    """
+
+    def __init__(self, direction, target):
         super().__init__(locals())
-        self.target = (float(x), float(y))
-        self.max_steps = settings.validate_nonnegative_int(max_steps)
+        self.direction = settings.validate_arrows(direction)
+        self.target = tuple(target)         # TODO: validate coordinates func in settings
 
     def main(self):
-        counter = self.max_steps
-        path = config.layout.shortest_path(config.player_pos, self.target)
-        for point in path:
-            counter = self._step(point, counter)
-
-    @utils.run_if_enabled
-    def _step(self, target, counter):
-        toggle = True
-        local_error = utils.distance(config.player_pos, target)
-        global_error = utils.distance(config.player_pos, self.target)
-        while config.enabled and \
-                counter > 0 and \
-                local_error > settings.move_tolerance and \
-                global_error > settings.move_tolerance:
-            if toggle:
-                d_x = target[0] - config.player_pos[0]
-                if abs(d_x) > settings.move_tolerance / math.sqrt(2):
-                    if d_x < 0:
-                        Teleport('left').main()
-                    else:
-                        Teleport('right').main()
-                    counter -= 1
+        num_presses = 2
+        if self.direction == 'up' or self.direction == 'down':
+            num_presses = 1
+        # if self.direction != 'up':
+        #     key_down(self.direction)
+        #     time.sleep(0.05)
+        d_y = self.target[1] - config.player_pos[1]
+        if abs(d_y) > settings.move_tolerance * 1.5:
+            if self.direction == 'down':
+                press('space', 3)
             else:
-                d_y = target[1] - config.player_pos[1]
-                if abs(d_y) > settings.move_tolerance / math.sqrt(2):
-                    jump = str(abs(d_y) > settings.move_tolerance * 1.5)
-                    if d_y < 0:
-                        Teleport('up', jump=jump).main()
-                    else:
-                        Teleport('down', jump=jump).main()
-                    counter -= 1
-            local_error = utils.distance(config.player_pos, target)
-            global_error = utils.distance(config.player_pos, self.target)
-            toggle = not toggle
-        return counter
+                press('space', 1)
+        # if self.direction == 'up':
+        #     key_down(self.direction)
+        #     time.sleep(0.05)
+        press('e', num_presses)
+        # key_up(self.direction)
 
 
 class Adjust(Command):

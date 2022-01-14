@@ -9,11 +9,12 @@ import mss.windows
 import utils
 import pygame
 import inspect
-import commands
+import components
 import keyboard as kb
 import numpy as np
 from os.path import splitext, basename
-from routine import Point, Routine
+from routine import Routine
+from components import Point
 from vkeys import press, click
 
 
@@ -21,7 +22,7 @@ class Bot:
     """A class that interprets and executes user-defined routines."""
 
     alert = None
-    buff = commands.DefaultBuff()
+    buff = components.DefaultBuff()
 
     def __init__(self):
         """Loads a user-defined routine on start up and initializes this Bot's main thread."""
@@ -31,8 +32,8 @@ class Bot:
         Bot.alert.load('./assets/alert.mp3')
 
         config.command_book = {}
-        for c in (commands.Wait, commands.Walk, commands.Fall,
-                  commands.DefaultMove, commands.DefaultAdjust, commands.DefaultBuff):
+        for c in (components.Wait, components.Walk, components.Fall,
+                  components.DefaultStep, components.DefaultAdjust, components.DefaultBuff):
             config.command_book[c.__name__.lower()] = c
 
         config.routine = Routine()
@@ -71,11 +72,11 @@ class Bot:
                     Bot.buff.main()
 
                     # Highlight the current Point
-                    config.gui.view.routine.select(Routine.index)
-                    config.gui.view.details.display_info(Routine.index)
+                    config.gui.view.routine.select(config.routine.index)
+                    config.gui.view.details.display_info(config.routine.index)
 
                     # Execute next Point in the routine
-                    element = config.routine[Routine.index]
+                    element = config.routine[config.routine.index]
                     element.execute()
                     if config.rune_active and isinstance(element, Point) \
                             and element.location == config.rune_closest_pos:
@@ -94,9 +95,9 @@ class Bot:
         :return:        None
         """
 
-        move = config.command_book.get('move')
+        move = config.command_book['move']
         move(*config.rune_pos).execute()
-        adjust = config.command_book.get('adjust')
+        adjust = config.command_book['adjust']
         adjust(*config.rune_pos).execute()
         time.sleep(0.2)
         press('y', 1, down_time=0.2)        # Press 'y' to interact with rune in-game
@@ -148,7 +149,7 @@ class Bot:
     def _step():
         """Increments config.seq_index and wraps back to 0 at the end of config.sequence."""
 
-        Routine.index = (Routine.index + 1) % len(config.routine)
+        config.routine.index = (config.routine.index + 1) % len(config.routine)
 
     @staticmethod
     def load_commands(file):
@@ -166,7 +167,7 @@ class Bot:
         module_name = splitext(basename(file))[0]
         module = __import__(f'command_books.{module_name}', fromlist=[''])
         new_cb = {}
-        for c in (commands.Wait, commands.Walk, commands.Fall):
+        for c in (components.Wait, components.Walk, components.Fall):
             new_cb[c.__name__.lower()] = c
 
         for name, command in inspect.getmembers(module, inspect.isclass):
@@ -175,7 +176,7 @@ class Bot:
 
         # Check if required commands have been implemented
         success = True
-        for command in ['move', 'adjust', 'buff']:      # TODO: change move to step
+        for command in ['step', 'adjust', 'buff']:      # TODO: change move to step
             if command not in new_cb:
                 success = False
                 print(f" !  Error: Must implement '{command}' command.")

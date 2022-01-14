@@ -6,7 +6,7 @@ import inspect
 import cv2
 import tkinter as tk
 from PIL import Image, ImageTk
-from routine import Point, Command
+from components import Point, Command
 from gui_components.interfaces import Tab, Frame, LabelFrame
 
 

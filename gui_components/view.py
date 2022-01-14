@@ -5,7 +5,7 @@ import utils
 import cv2
 import tkinter as tk
 from gui_components.interfaces import LabelFrame, Tab
-from routine import Point
+from components import Point
 from PIL import Image, ImageTk
 
 

@@ -8,7 +8,7 @@ import cv2
 import threading
 import numpy as np
 import utils
-from routine import Point
+from components import Point
 
 
 class Capture:

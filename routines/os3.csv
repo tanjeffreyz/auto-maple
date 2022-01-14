@@ -75,7 +75,7 @@ $, target=move_tolerance, value=0.075
     Shikigami, direction=left, attacks=3, repetitions=1
     Shikigami, direction=left, attacks=2, repetitions=1
     Teleport, direction=down, jump=False
->, label=boss2, frequency=4, skip=True
+>, label=boss2, frequency=5, skip=True
 >, label=main2, frequency=1, skip=False
 
 @, label=boss2
