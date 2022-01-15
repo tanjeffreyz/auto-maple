@@ -1,4 +1,4 @@
-"""A collection of Commands shared across all command books."""
+"""A collection of classes used to execute a Routine."""
 
 import config
 import settings
@@ -80,9 +80,10 @@ class Point(Component):
         """Executes the set of actions associated with this Point."""
 
         if self.counter == 0:
-            Move(*self.location).execute()
+            move = config.bot.command_book['move']
+            move(*self.location).execute()
             if self.adjust:
-                adjust = config.command_book.get('adjust')      # TODO: adjust using step('up')?
+                adjust = config.bot.command_book.get('adjust')      # TODO: adjust using step('up')?
                 adjust(*self.location).execute()
             for command in self.commands:
                 command.execute()
@@ -245,7 +246,7 @@ class Move(Command):
     def main(self):
         counter = self.max_steps
         path = config.layout.shortest_path(config.player_pos, self.target)
-        for point in path:
+        for i, point in enumerate(path):
             toggle = True
             self.prev_direction = ''
             local_error = utils.distance(config.player_pos, point)
@@ -261,9 +262,10 @@ class Move(Command):
                         else:
                             key = 'right'
                         self._new_direction(key)
-                        config.command_book['step'](key, point).main()
+                        step(key, point)
                         counter -= 1
-                        time.sleep(0.15)
+                        if i < len(path) - 1:
+                            time.sleep(0.15)
                 else:
                     d_y = point[1] - config.player_pos[1]
                     if abs(d_y) > settings.move_tolerance / math.sqrt(2):
@@ -272,14 +274,36 @@ class Move(Command):
                         else:
                             key = 'down'
                         self._new_direction(key)
-                        config.command_book['step'](key, point).main()
+                        step(key, point)
                         counter -= 1
-                        time.sleep(0.15)
+                        if i < len(path) - 1:
+                            time.sleep(0.05)
                 local_error = utils.distance(config.player_pos, point)
                 global_error = utils.distance(config.player_pos, self.target)
                 toggle = not toggle
             if self.prev_direction:
                 key_up(self.prev_direction)
+
+
+class Adjust(Command):
+    """Fine-tunes player position using small movements."""
+
+    def __init__(self, x, y, max_steps=5):
+        super().__init__(locals())
+        self.target = (float(x), float(y))
+        self.max_steps = settings.validate_nonnegative_int(max_steps)
+
+
+def step(direction, target):
+    """
+    The default 'step' function. If not overridden, immediately stops the bot.
+    :param direction:   The direction in which to move.
+    :param target:      The target location to step towards.
+    :return:            None
+    """
+
+    print("\n[!] 'step' function not implemented in current command book, aborting process.")
+    config.enabled = False
 
 
 class Wait(Command):
@@ -332,32 +356,7 @@ class Fall(Command):
         time.sleep(0.1)
 
 
-#################################
-#       Default Commands        #
-#################################
-class DefaultStep(Command):
-    """Undefined 'step' command for the default command book."""
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(locals())
-
-    def main(self):
-        print("\n[!] 'Step' command not implemented in current command book, aborting process.")
-        config.enabled = False
-
-
-class DefaultAdjust(Command):
-    """Undefined 'adjust' command for the default command book."""
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(locals())
-
-    def main(self):
-        print("\n[!] 'Adjust' command not implemented in current command book, aborting process.")
-        config.enabled = False
-
-
-class DefaultBuff(Command):
+class Buff(Command):
     """Undefined 'buff' command for the default command book."""
 
     def main(self):

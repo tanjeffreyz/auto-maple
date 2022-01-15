@@ -39,11 +39,14 @@ $, target=move_tolerance, value=0.075
 @, label=loot_domain
 *, x=0.754, y=0.183, frequency=1, skip=False, adjust=False
     Exorcist, jump=False
+    Wait, duration=0.6
 *, x=0.754, y=0.257, frequency=1, skip=False, adjust=True
-    Wait, duration=0.75
     Domain
 *, x=0.846, y=0.257, frequency=1, skip=False, adjust=False
     Shikigami, direction=right, attacks=3, repetitions=1
+*, x=0.869, y=0.177, frequency=1, skip=False, adjust=False
+    Shikigami, direction=right, attacks=3, repetitions=1
+    Shikigami, direction=right, attacks=2, repetitions=1
 *, x=0.846, y=0.097, frequency=1, skip=False, adjust=False
     Shikigami, direction=right, attacks=3, repetitions=1
     Shikigami, direction=left, attacks=2, repetitions=1

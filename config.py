@@ -70,16 +70,20 @@ alert_active = False
 # Represents the current shortest path that the bot is taking
 path = []
 
-# Stores a map of all available commands that can be used by routines
-command_book = {}
 
+#############################
+#       Shared Modules      #
+#############################
 # A Routine object that manages the 'machine code' of the current routine
 routine = None
 
 # Stores the Layout object associated with the current routine
 layout = None
 
-# Shares the keyboard listener to all modules
+# Shares the main bot loop
+bot = None
+
+# Shares the keyboard listener
 listener = None
 
 # Shares the gui to all modules

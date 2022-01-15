@@ -157,6 +157,12 @@ class Routine:
             print(f"\n[!] Found invalid arguments for '{target.__class__.__name__}':")
             print(f"{' ' * 4} -  {e}")
 
+    @utils.run_if_enabled
+    def step(self):
+        """Increments config.seq_index and wraps back to 0 at the end of config.sequence."""
+
+        self.index = (self.index + 1) % len(self.sequence)
+
     def save(self, file_path):
         """Encodes and saves the current Routine at location PATH."""
 
@@ -250,8 +256,8 @@ class Routine:
 
             if first in SYMBOLS:
                 c = SYMBOLS[first]
-            elif first in config.command_book:
-                c = config.command_book[first]
+            elif first in config.bot.command_book:
+                c = config.bot.command_book[first]
             else:
                 print(line_error + f"Command '{first}' does not exist.")
                 return
@@ -270,7 +276,7 @@ class Routine:
     def get_all_components():
         """Returns a dictionary mapping all creatable Components to their names."""
 
-        options = config.command_book.copy()
+        options = config.bot.command_book.copy()
         for e in (Point, Label, Jump, Setting):
             options[e.__name__.lower()] = e
         return options

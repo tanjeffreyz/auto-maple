@@ -50,35 +50,48 @@ from vkeys import press, key_down, key_up
 #                 toggle = not toggle
 
 
-class Step(Command):
-    """
-    Performs one movement step in the given direction towards TARGET.
-    Should not press any arrow keys as that is handled by Auto Maple.
-    """
+# class Step(Command):
+#     """
+#     Performs one movement step in the given direction towards TARGET.
+#     Should not press any arrow keys as that is handled by Auto Maple.
+#     """
+#
+#     def __init__(self, direction, target):
+#         super().__init__(locals())
+#         self.direction = settings.validate_arrows(direction)
+#         self.target = tuple(target)         # TODO: validate coordinates func in settings
+#
+#     def main(self):
+#         num_presses = 2
+#         if self.direction == 'up' or self.direction == 'down':
+#             num_presses = 1
+#         # if self.direction != 'up':
+#         #     key_down(self.direction)
+#         #     time.sleep(0.05)
+#         d_y = self.target[1] - config.player_pos[1]
+#         if abs(d_y) > settings.move_tolerance * 1.5:
+#             if self.direction == 'down':
+#                 press('space', 3)
+#             elif self.direction == 'up':
+#                 press('space', 1)
+#         # if self.direction == 'up':
+#         #     key_down(self.direction)
+#         #     time.sleep(0.05)
+#         press('e', num_presses)
+#         # key_up(self.direction)
 
-    def __init__(self, direction, target):
-        super().__init__(locals())
-        self.direction = settings.validate_arrows(direction)
-        self.target = tuple(target)         # TODO: validate coordinates func in settings
 
-    def main(self):
-        num_presses = 2
-        if self.direction == 'up' or self.direction == 'down':
-            num_presses = 1
-        # if self.direction != 'up':
-        #     key_down(self.direction)
-        #     time.sleep(0.05)
-        d_y = self.target[1] - config.player_pos[1]
-        if abs(d_y) > settings.move_tolerance * 1.5:
-            if self.direction == 'down':
-                press('space', 3)
-            else:
-                press('space', 1)
-        # if self.direction == 'up':
-        #     key_down(self.direction)
-        #     time.sleep(0.05)
-        press('e', num_presses)
-        # key_up(self.direction)
+def step(direction, target):
+    num_presses = 2
+    if direction == 'up' or direction == 'down':
+        num_presses = 1
+    d_y = target[1] - config.player_pos[1]
+    if abs(d_y) > settings.move_tolerance * 1.5:
+        if direction == 'down':
+            press('space', 3)
+        elif direction == 'up':
+            press('space', 1)
+    press('e', num_presses)
 
 
 class Adjust(Command):
@@ -163,7 +176,7 @@ class Teleport(Command):
         self.jump = settings.validate_boolean(jump)
 
     def main(self):
-        num_presses = 3
+        num_presses = 2
         time.sleep(0.05)
         if self.direction in ['up', 'down']:
             num_presses = 2
@@ -178,7 +191,7 @@ class Teleport(Command):
         if self.direction == 'up':
             key_down(self.direction)
             time.sleep(0.05)
-        press('e', num_presses)
+        press('e', num_presses, up_time=0.05)
         key_up(self.direction)
         if settings.record_layout:
             config.layout.add(*config.player_pos)

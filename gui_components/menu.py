@@ -77,4 +77,4 @@ class Menu(tk.Menu):
                                     title='Select a command book',
                                     filetypes=[('*.py', '*.py')])
         if file_path:
-            Bot.load_commands(file_path)
+            config.bot.load_commands(file_path)

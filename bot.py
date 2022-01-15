@@ -21,20 +21,20 @@ from vkeys import press, click
 class Bot:
     """A class that interprets and executes user-defined routines."""
 
-    alert = None
-    buff = components.DefaultBuff()
-
     def __init__(self):
         """Loads a user-defined routine on start up and initializes this Bot's main thread."""
 
-        pygame.mixer.init()
-        Bot.alert = pygame.mixer.music
-        Bot.alert.load('./assets/alert.mp3')
+        config.bot = self
 
-        config.command_book = {}
+        pygame.mixer.init()
+        self.alert = pygame.mixer.music
+        self.alert.load('./assets/alert.mp3')
+        self.buff = components.Buff()
+
+        self.command_book = {}
         for c in (components.Wait, components.Walk, components.Fall,
-                  components.DefaultStep, components.DefaultAdjust, components.DefaultBuff):
-            config.command_book[c.__name__.lower()] = c
+                  components.Move, components.Adjust, components.Buff):
+            self.command_book[c.__name__.lower()] = c
 
         config.routine = Routine()
 
@@ -67,9 +67,9 @@ class Bot:
             config.listening = True
             while True:
                 if config.alert_active:
-                    Bot._alert()
+                    self._alert()
                 if config.enabled and len(config.routine) > 0:
-                    Bot.buff.main()
+                    self.buff.main()
 
                     # Highlight the current Point
                     config.gui.view.routine.select(config.routine.index)
@@ -80,14 +80,13 @@ class Bot:
                     element.execute()
                     if config.rune_active and isinstance(element, Point) \
                             and element.location == config.rune_closest_pos:
-                        Bot._solve_rune(model, sct)
-                    Bot._step()
+                        self._solve_rune(model, sct)
+                    config.routine.step()
                 else:
                     time.sleep(0.01)
 
-    @staticmethod
     @utils.run_if_enabled
-    def _solve_rune(model, sct):
+    def _solve_rune(self, model, sct):
         """
         Moves to the position of the rune and solves the arrow-key puzzle.
         :param model:   The TensorFlow model to classify with.
@@ -95,9 +94,9 @@ class Bot:
         :return:        None
         """
 
-        move = config.command_book['move']
+        move = self.command_book['move']
         move(*config.rune_pos).execute()
-        adjust = config.command_book['adjust']
+        adjust = self.command_book['adjust']
         adjust(*config.rune_pos).execute()
         time.sleep(0.2)
         press('y', 1, down_time=0.2)        # Press 'y' to interact with rune in-game
@@ -127,8 +126,7 @@ class Bot:
                     inferences.append(solution)
         config.rune_active = False
 
-    @staticmethod
-    def _alert():
+    def _alert(self):
         """
         Plays an alert to notify user of a dangerous event. Stops the alert
         once 'insert' is pressed.
@@ -136,23 +134,15 @@ class Bot:
         """
 
         config.listening = False
-        Bot.alert.play(-1)
+        self.alert.play(-1)
         while not kb.is_pressed('insert'):
             time.sleep(0.1)
-        Bot.alert.stop()
+        self.alert.stop()
         config.alert_active = False
         time.sleep(1)
         config.listening = True
 
-    @staticmethod
-    @utils.run_if_enabled
-    def _step():
-        """Increments config.seq_index and wraps back to 0 at the end of config.sequence."""
-
-        config.routine.index = (config.routine.index + 1) % len(config.routine)
-
-    @staticmethod
-    def load_commands(file):
+    def load_commands(self, file):
         """Prompts the user to select a command module to import. Updates config's command book."""
 
         utils.print_separator()
@@ -161,35 +151,56 @@ class Bot:
         ext = splitext(file)[1]
         if ext != '.py':
             print(f" !  '{ext}' is not a supported file extension.")
-            return
+            return False
 
-        # Generate a command book using the selected module
-        module_name = splitext(basename(file))[0]
-        module = __import__(f'command_books.{module_name}', fromlist=[''])
+        new_step = components.step
         new_cb = {}
         for c in (components.Wait, components.Walk, components.Fall):
             new_cb[c.__name__.lower()] = c
 
+        # Import the desired command book file
+        module_name = splitext(basename(file))[0]
+        module = __import__(f'command_books.{module_name}', fromlist=[''])
+
+        # Check if the 'step' function has been implemented
+        step_found = False
+        for name, func in inspect.getmembers(module, inspect.isfunction):
+            if name.lower() == 'step':
+                step_found = True
+                new_step = func
+
+        # Populate the new command book
         for name, command in inspect.getmembers(module, inspect.isclass):
-            name = name.lower()
-            new_cb[name] = command
+            new_cb[name.lower()] = command
 
-        # Check if required commands have been implemented
-        success = True
-        for command in ['step', 'adjust', 'buff']:      # TODO: change move to step
-            if command not in new_cb:
-                success = False
-                print(f" !  Error: Must implement '{command}' command.")
+        # Check if required commands have been implemented and overridden
+        required_found = True
+        for command in [components.Buff]:
+            name = command.__name__.lower()
+            if name not in new_cb:
+                required_found = False
+                new_cb[name] = command
+                print(f" !  Error: Must implement required command '{name}'.")
 
-        if success:
-            config.command_book = new_cb
+        # Look for overridden movement commands
+        movement_found = True
+        for command in (components.Move, components.Adjust):
+            name = command.__name__.lower()
+            if name not in new_cb:
+                movement_found = False
+                new_cb[name] = command
+
+        if not step_found and not movement_found:
+            print(f" !  Error: Must either implement both the 'move' and 'adjust' commands, "
+                  f"or the function 'step'.")
+        if required_found and (step_found or movement_found):
+            self.command_book = new_cb
+            self.buff = new_cb['buff']()
+            components.step = new_step
             config.gui.view.status.set_cb(basename(file))
-            Bot.buff = new_cb['buff']()
-
-            # Clear the current routine and Layout because command book changed
             config.routine.clear()
-
             print(f"[~] Successfully loaded command book '{module_name}'.")
+            return True
         else:
             print(f"[!] Command book '{module_name}' was not loaded.")
-        return success
+            return False
