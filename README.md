@@ -173,9 +173,27 @@ until two inferences agree. Because of this preprocessing, Auto Maple is extreme
 
 
 
+<h2 align="center">
+  Setup
+</h2>
+
+<ol>
+  <li>
+    Download and install <a href="https://www.python.org/downloads/">Python3</a>.
+  </li>
+  <li>
+    Download and unzip the latest Auto Maple release.
+  </li>
+  <li>
+    Inside Auto Maple's main directory, open a command prompt and run <code>python -m pip install requirements.txt</code>.
+  </li>
+  <li>
+    Lastly, create a desktop shortcut by running <code>python setup.py</code>. This shortcut is created using absolute paths, so feel free to move it wherever you want.
+  </li>
+</ol>
 
 
-
+<br>
 
 
 <h2 align="center">
