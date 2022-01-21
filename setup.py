@@ -25,6 +25,6 @@ arr[0x15] = arr[0x15] | 0x20        # Set the 6th bit of 21st byte to 1
 
 with open(PATH, 'wb') as lnk:
     lnk.write(arr)
-    print(' ~  Enabled the "run as administrator" option.')
+    print(' ~  Enabled the "Run as Administrator" option.')
 
 print('[~] Successfully created Auto Maple shortcut.')
