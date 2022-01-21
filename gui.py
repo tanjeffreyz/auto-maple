@@ -18,6 +18,8 @@ class GUI:
 
         self.root = tk.Tk()
         self.root.title('Auto Maple')
+        icon = tk.PhotoImage(file='assets/icon.png')
+        self.root.iconphoto(False, icon)
         self.root.geometry(GUI.RESOLUTIONS['DEFAULT'])
 
         # Initialize GUI variables

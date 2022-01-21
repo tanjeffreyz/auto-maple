@@ -13,7 +13,7 @@ PATH = os.path.join(os.environ['USERPROFILE'], 'Desktop', 'Auto Maple.lnk')
 shell = client.Dispatch('WScript.Shell')
 shortcut = shell.CreateShortCut(PATH)
 shortcut.Targetpath = TARGET
-shortcut.Arguments = f'/k \"cd {CWD} & python main.py\"'
+shortcut.Arguments = f'/c \"cd {CWD} & python main.py\"'
 shortcut.IconLocation = os.path.join(CWD, 'assets', 'icon.ico')
 shortcut.save()
 
