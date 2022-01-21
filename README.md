@@ -20,7 +20,7 @@ Auto Maple is an intelligent Python program that plays MapleStory, a 2D side-scr
 <table align="center" border="0">
   <tr>
     <td>
-Auto Maple uses OpenCV template matching to determine the bounds of the minimap as well as the various elements within it, allowing it to accurately track the player's in-game position. If <code>record_layout</code> is set to <code>True</code> in the routine file, Auto Maple will record the player's previous positions in a quadtree-based Layout object, which is periodically saved to a file in the "layouts" directory. Every time a new routine is loaded, its corresponding layout file, if it exists, will also be loaded. This Layout object uses the A* search algorithm on its stored points to calculate the shortest path from the player to any target location, which can dramatically improve the accuracy and speed at which routines are executed.
+Auto Maple uses OpenCV template matching to determine the bounds of the minimap as well as the various elements within it, allowing it to accurately track the player's in-game position. If <code>record_layout</code> is set to <code>True</code>, Auto Maple will record the player's previous positions in a quadtree-based Layout object, which is periodically saved to a file in the "layouts" directory. Every time a new routine is loaded, its corresponding layout file, if it exists, will also be loaded. This Layout object uses the A* search algorithm on its stored points to calculate the shortest path from the player to any target location, which can dramatically improve the accuracy and speed at which routines are executed.
     </td>
     <td align="center" width="400px">
       <img align="center" src="https://user-images.githubusercontent.com/69165598/123177212-b16f0700-d439-11eb-8a21-8b414273f1e1.gif"/>
@@ -87,19 +87,33 @@ Designed with modularity in mind, Auto Maple can operate any character in the ga
       </p>
     </td>
     <td>
-      <p>
-A routine is a user-created CSV file that tells Auto Maple where to move and what commands to use at each location. A custom-made interpreter within Auto Maple parses through the selected routine and converts it into a list of objects that can then be executed by the program. An error message is printed for every line that contains invalid parameters, and those lines are ignored during the conversion.
-    
-**Points** are created using `*, <x position>, <y position>` <br>
-Each point stores the commands below it and will execute them in that order once the character reaches that point. There are also a couple optional keyword arguments:
-        <br>
-<sub>- **"adjust"**: Fine-tunes character position to be within `adjust_tolerance` (a routine setting). </sub>
-        <br>
-<sub>- **"frequency"**: How often to execute this point. </sub>
-        <br>
-<sub>- **"counter"**: Set's the initial value of this point's counter. The counter increments every cycle (wrapped back to 0 at `frequency`) and the point will only execute if its counter is 0. </sub>
-
-**Labels** are created using `@, <label name>` <br>
+A routine is a user-created CSV file that tells Auto Maple where to move and what commands to use at each location. A custom compiler within Auto Maple parses through the selected routine and converts it into a list of <code>Component</code> objects that can then be executed by the program. An error message is printed for every line that contains invalid parameters, and those lines are ignored during the conversion. 
+<br><br>
+Below is a summary of some of the most commonly used routine components:
+<ul>
+  <li>
+    <code>Point</code> stores the commands directly below it and will execute them in that order once the character reaches the given location. There are also a couple optional keyword arguments:
+    <ul>
+      <li>
+        <code>adjust</code> fine-tunes the character's position to be within <code>adjust_tolerance</code> of the target location.
+      </li>
+      <li>
+        <code>frequency</code> tells the Point how often to execute. If set to N, this Point will execute once every N iterations.
+      </li>
+      <li>
+        <code>skip</code> tells the Point whether to run on the first iteration or not. If set to True and frequency is N, this Point will execute on the N-1 iteration.
+      </li>
+    </ul>
+  </li>
+  <li>
+    <code>Label</code> acts as a reference point that can help organize the routine into sections as well as create loops.
+  </li>
+  <li>
+    <code>Jump</code> jumps to the given label from anywhere in the routine.
+  </li>
+  <li>
+    <code>Setting</code> updates the specified setting to the given value. It can be placed anywhere in the routine, so different parts of the same routine can have different settings.
+  
 They can be jumped to using the "goto" command, which allows users to create loops and organize routines into sections.
 
 **Commands** are created using `<command name>, <p1>, <p2>, ...` <br>
@@ -107,7 +121,6 @@ The `<command name>` corresponds with the class names inside command book files,
         
 **Settings** are updated using `s, <setting name>, <value>` <br>
 All the editable settings can be found at the bottom of [config.py](https://github.com/tanjeffreyz02/Auto-Maple/blob/version-2/config.py).
-    </p>
     </td>
   </tr>
 </table>
