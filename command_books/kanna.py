@@ -9,79 +9,12 @@ from components import Command
 from vkeys import press, key_down, key_up
 
 
-# class Move(Command):
-#     """Moves to a given position using the shortest path based on the current Layout."""
-#
-#     def __init__(self, x, y, max_steps=15):
-#         super().__init__(locals())
-#         self.target = (float(x), float(y))
-#         self.max_steps = settings.validate_nonnegative_int(max_steps)
-#
-#     def main(self):
-#         counter = self.max_steps
-#         path = config.layout.shortest_path(config.player_pos, self.target)
-#
-#         for point in path:
-#             toggle = True
-#             local_error = utils.distance(config.player_pos, point)
-#             global_error = utils.distance(config.player_pos, self.target)
-#             while config.enabled and counter > 0 and \
-#                     local_error > settings.move_tolerance and \
-#                     global_error > settings.move_tolerance:
-#                 if toggle:
-#                     d_x = point[0] - config.player_pos[0]
-#                     if abs(d_x) > settings.move_tolerance / math.sqrt(2):
-#                         if d_x < 0:
-#                             Teleport('left').main()
-#                         else:
-#                             Teleport('right').main()
-#                         counter -= 1
-#                 else:
-#                     d_y = point[1] - config.player_pos[1]
-#                     if abs(d_y) > settings.move_tolerance / math.sqrt(2):
-#                         jump = str(abs(d_y) > settings.move_tolerance * 1.5)
-#                         if d_y < 0:
-#                             Teleport('up', jump=jump).main()
-#                         else:
-#                             Teleport('down', jump=jump).main()
-#                         counter -= 1
-#                 local_error = utils.distance(config.player_pos, point)
-#                 global_error = utils.distance(config.player_pos, self.target)
-#                 toggle = not toggle
-
-
-# class Step(Command):
-#     """
-#     Performs one movement step in the given direction towards TARGET.
-#     Should not press any arrow keys as that is handled by Auto Maple.
-#     """
-#
-#     def __init__(self, direction, target):
-#         super().__init__(locals())
-#         self.direction = settings.validate_arrows(direction)
-#         self.target = tuple(target)         # TODO: validate coordinates func in settings
-#
-#     def main(self):
-#         num_presses = 2
-#         if self.direction == 'up' or self.direction == 'down':
-#             num_presses = 1
-#         # if self.direction != 'up':
-#         #     key_down(self.direction)
-#         #     time.sleep(0.05)
-#         d_y = self.target[1] - config.player_pos[1]
-#         if abs(d_y) > settings.move_tolerance * 1.5:
-#             if self.direction == 'down':
-#                 press('space', 3)
-#             elif self.direction == 'up':
-#                 press('space', 1)
-#         # if self.direction == 'up':
-#         #     key_down(self.direction)
-#         #     time.sleep(0.05)
-#         press('e', num_presses)
-#         # key_up(self.direction)
-
-
 def step(direction, target):
+    """
+    Performs one movement step in the given DIRECTION towards TARGET.
+    Should not press any arrow keys, as those are handled by Auto Maple.
+    """
+
     num_presses = 2
     if direction == 'up' or direction == 'down':
         num_presses = 1
@@ -176,7 +109,7 @@ class Teleport(Command):
         self.jump = settings.validate_boolean(jump)
 
     def main(self):
-        num_presses = 2
+        num_presses = 3
         time.sleep(0.05)
         if self.direction in ['up', 'down']:
             num_presses = 2
@@ -191,7 +124,7 @@ class Teleport(Command):
         if self.direction == 'up':
             key_down(self.direction)
             time.sleep(0.05)
-        press('e', num_presses, up_time=0.05)
+        press('e', num_presses)
         key_up(self.direction)
         if settings.record_layout:
             config.layout.add(*config.player_pos)
