@@ -20,7 +20,7 @@ Auto Maple is an intelligent Python program that plays MapleStory, a 2D side-scr
 <table align="center" border="0">
   <tr>
     <td>
-Auto Maple uses OpenCV template matching to determine the bounds of the minimap as well as the various elements within it, allowing it to accurately track the player's in-game position. If <code>record_layout</code> is set to <code>True</code> in the routine file, Auto Maple will record the player's previous positions in a quadtree-based Layout object, which is periodically saved to a file in the "layouts" directory. Every time a new routine is loaded, its corresponding layout file, if it exists, will also be loaded. This Layout object uses the A* search algorithm on its stored points to calculate the shortest path from the player to any target location, which can dramatically improve the accuracy and speed at which routines are executed.
+Auto Maple uses OpenCV template matching to determine the bounds of the minimap as well as the various elements within it, allowing it to accurately track the player's in-game position. If <code>record_layout</code> is set to <code>True</code>, Auto Maple will record the player's previous positions in a quadtree-based Layout object, which is periodically saved to a file in the "layouts" directory. Every time a new routine is loaded, its corresponding layout file, if it exists, will also be loaded. This Layout object uses the A* search algorithm on its stored points to calculate the shortest path from the player to any target location, which can dramatically improve the accuracy and speed at which routines are executed.
     </td>
     <td align="center" width="400px">
       <img align="center" src="https://user-images.githubusercontent.com/69165598/123177212-b16f0700-d439-11eb-8a21-8b414273f1e1.gif"/>
@@ -46,7 +46,7 @@ Auto Maple uses OpenCV template matching to determine the bounds of the minimap 
 </h2>
 
 <p align="center">
-  <img src="https://user-images.githubusercontent.com/69165598/123372905-502e5d00-d539-11eb-81c2-46b8bbf929cc.gif" width="900px"/>
+  <img src="https://user-images.githubusercontent.com/69165598/123372905-502e5d00-d539-11eb-81c2-46b8bbf929cc.gif" width="100%"/>
   <br>
   <sub>
     The above video shows Auto Maple consistently performing a mechanically advanced ability combination.
@@ -55,7 +55,7 @@ Auto Maple uses OpenCV template matching to determine the bounds of the minimap 
   
 <table align="center" border="0">
   <tr>
-    <td width="900px">
+    <td width="100%">
 Designed with modularity in mind, Auto Maple can operate any character in the game as long as it is provided with a list of in-game actions, or a "command book". A command book is a Python file that contains multiple classes, one for each in-game ability, that tells the program what keys it should press and when to press them. Once a command book is imported, its classes are automatically compiled into a dictionary that Auto Maple can then use to interpret commands within routines. Commands have access to all of Auto Maple's global variables, which can allow them to actively change their behavior based on the player's position and the state of the game.
     </td>
   </tr>
@@ -75,39 +75,44 @@ Designed with modularity in mind, Auto Maple can operate any character in the ga
 
 <table align="center" border="0">
   <tr>
-    <td width="300px">
+    <td width="350px">
       <p align="center">
-        <a href="https://user-images.githubusercontent.com/69165598/129115704-d702944d-fc6e-4bfb-919f-0d9328be8cd2.jpg">
-          <img src="https://user-images.githubusercontent.com/69165598/129115666-7e366738-0249-47ea-8cc1-6ce8a57593a5.jpg"/>
-        </a>
+        <img src="https://user-images.githubusercontent.com/69165598/150469699-d8a94ab4-7d70-49c3-8736-a9018996f39a.png"/>
         <br>
         <sub>
-          Click <a href="https://github.com/tanjeffreyz02/Auto-Maple/blob/version-2/routines/mts3.csv">here</a> to view the entire routine.
+          Click <a href="https://github.com/tanjeffreyz02/auto-maple/blob/f13d87c98e9344e0a4fa5c6f85ffb7e66860afc0/routines/dcup2.csv">here</a> to view the entire routine.
         </sub>
       </p>
     </td>
     <td>
-      <p>
-A routine is a user-created CSV file that tells Auto Maple where to move and what commands to use at each location. A custom-made interpreter within Auto Maple parses through the selected routine and converts it into a list of objects that can then be executed by the program. An error message is printed for every line that contains invalid parameters, and those lines are ignored during the conversion.
-    
-**Points** are created using `*, <x position>, <y position>` <br>
-Each point stores the commands below it and will execute them in that order once the character reaches that point. There are also a couple optional keyword arguments:
-        <br>
-<sub>- **"adjust"**: Fine-tunes character position to be within `adjust_tolerance` (a routine setting). </sub>
-        <br>
-<sub>- **"frequency"**: How often to execute this point. </sub>
-        <br>
-<sub>- **"counter"**: Set's the initial value of this point's counter. The counter increments every cycle (wrapped back to 0 at `frequency`) and the point will only execute if its counter is 0. </sub>
-
-**Labels** are created using `@, <label name>` <br>
-They can be jumped to using the "goto" command, which allows users to create loops and organize routines into sections.
-
-**Commands** are created using `<command name>, <p1>, <p2>, ...` <br>
-The `<command name>` corresponds with the class names inside command book files, and `<p1>, <p2>, ...` correspond with the class's `__init__` parameters. Keyword arguments are also supported.
-        
-**Settings** are updated using `s, <setting name>, <value>` <br>
-All the editable settings can be found at the bottom of [config.py](https://github.com/tanjeffreyz02/Auto-Maple/blob/version-2/config.py).
-    </p>
+A routine is a user-created CSV file that tells Auto Maple where to move and what commands to use at each location. A custom compiler within Auto Maple parses through the selected routine and converts it into a list of <code>Component</code> objects that can then be executed by the program. An error message is printed for every line that contains invalid parameters, and those lines are ignored during the conversion. 
+<br><br>
+Below is a summary of the most commonly used routine components:
+<ul>
+  <li>
+    <b><code>Point</code></b> stores the commands directly below it and will execute them in that order once the character is within <code>move_tolerance</code> of the specified location. There are also a couple optional keyword arguments:
+    <ul>
+      <li>
+        <code>adjust</code> fine-tunes the character's position to be within <code>adjust_tolerance</code> of the target location before executing any commands.
+      </li>
+      <li>
+        <code>frequency</code> tells the Point how often to execute. If set to N, this Point will execute once every N iterations.
+      </li>
+      <li>
+        <code>skip</code> tells the Point whether to run on the first iteration or not. If set to True and frequency is N, this Point will execute on the N-1th iteration.
+      </li>
+    </ul>
+  </li>
+  <li>
+    <b><code>Label</code></b> acts as a reference point that can help organize the routine into sections as well as create loops.
+  </li>
+  <li>
+    <b><code>Jump</code></b> jumps to the given label from anywhere in the routine.
+  </li>
+  <li>
+    <b><code>Setting</code></b> updates the specified setting to the given value. It can be placed anywhere in the routine, so different parts of the same routine can have different settings. All editable settings can be found at the bottom of <a href="https://github.com/tanjeffreyz02/auto-maple/blob/v2/settings.py">settings.py</a>.
+  </li>
+</ul>
     </td>
   </tr>
 </table>
@@ -126,12 +131,12 @@ All the editable settings can be found at the bottom of [config.py](https://gith
 </h2>
 
 <p align="center">
-  <img src="https://user-images.githubusercontent.com/69165598/123479558-f61fad00-d5b5-11eb-914c-8f002a96dd62.gif" width="900px"/>
+  <img src="https://user-images.githubusercontent.com/69165598/123479558-f61fad00-d5b5-11eb-914c-8f002a96dd62.gif" width="100%"/>
 </p>
 
 <table align="center" border="0">
   <tr>
-    <td width="900px">
+    <td width="100%">
 Auto Maple has the ability to automatically solve "runes", or in-game arrow key puzzles. It first uses OpenCV's color filtration and Canny edge detection algorithms to isolate the arrow keys and reduce as much background noise as possible. Then, it runs multiple inferences on the preprocessed frames using a custom-trained 
     <a href="https://drive.google.com/drive/folders/1SPdTNF4KZczoWyWTgfyTBRvLvy7WSGpu?usp=sharing">TensorFlow model</a>
 until two inferences agree. Because of this preprocessing, Auto Maple is extremely accurate at solving runes in all kinds of (often colorful and chaotic) environments.
@@ -168,9 +173,27 @@ until two inferences agree. Because of this preprocessing, Auto Maple is extreme
 
 
 
+<h2 align="center">
+  Setup
+</h2>
+
+<ol>
+  <li>
+    Download and install <a href="https://www.python.org/downloads/">Python3</a>.
+  </li>
+  <li>
+    Download and unzip the latest Auto Maple release.
+  </li>
+  <li>
+    Inside Auto Maple's main directory, open a command prompt and run <code>python -m pip install requirements.txt</code>.
+  </li>
+  <li>
+    Lastly, create a desktop shortcut by running <code>python setup.py</code>. This shortcut uses absolute paths, so feel free to move it wherever you want. However, if you move Auto Maple's main directory, you will need to run <code>setup.py</code> again to generate a new shortcut.
+  </li>
+</ol>
 
 
-
+<br>
 
 
 <h2 align="center">
