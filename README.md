@@ -90,27 +90,27 @@ A routine is a user-created CSV file that tells Auto Maple where to move and wha
 Below is a summary of the most commonly used routine components:
 <ul>
   <li>
-    <code>Point</code> stores the commands directly below it and will execute them in that order once the character reaches the given location. There are also a couple optional keyword arguments:
+    <b><code>Point</code></b> stores the commands directly below it and will execute them in that order once the character is within <code>move_tolerance</code> of the specified location. There are also a couple optional keyword arguments:
     <ul>
       <li>
-        <code>adjust</code> fine-tunes the character's position to be within <code>adjust_tolerance</code> of the target location.
+        <code>adjust</code> fine-tunes the character's position to be within <code>adjust_tolerance</code> of the target location before executing any commands.
       </li>
       <li>
         <code>frequency</code> tells the Point how often to execute. If set to N, this Point will execute once every N iterations.
       </li>
       <li>
-        <code>skip</code> tells the Point whether to run on the first iteration or not. If set to True and frequency is N, this Point will execute on the N-1 iteration.
+        <code>skip</code> tells the Point whether to run on the first iteration or not. If set to True and frequency is N, this Point will execute on the N-1th iteration.
       </li>
     </ul>
   </li>
   <li>
-    <code>Label</code> acts as a reference point that can help organize the routine into sections as well as create loops.
+    <b><code>Label</code></b> acts as a reference point that can help organize the routine into sections as well as create loops.
   </li>
   <li>
-    <code>Jump</code> jumps to the given label from anywhere in the routine.
+    <b><code>Jump</code></b> jumps to the given label from anywhere in the routine.
   </li>
   <li>
-    <code>Setting</code> updates the specified setting to the given value. It can be placed anywhere in the routine, so different parts of the same routine can have different settings. All editable settings can be found at the bottom of <a href="https://github.com/tanjeffreyz02/auto-maple/blob/v2/settings.py">settings.py</a>.
+    <b><code>Setting</code></b> updates the specified setting to the given value. It can be placed anywhere in the routine, so different parts of the same routine can have different settings. All editable settings can be found at the bottom of <a href="https://github.com/tanjeffreyz02/auto-maple/blob/v2/settings.py">settings.py</a>.
   </li>
 </ul>
     </td>
@@ -188,7 +188,7 @@ until two inferences agree. Because of this preprocessing, Auto Maple is extreme
     Inside Auto Maple's main directory, open a command prompt and run <code>python -m pip install requirements.txt</code>.
   </li>
   <li>
-    Lastly, create a desktop shortcut by running <code>python setup.py</code>. This shortcut is created using absolute paths, so feel free to move it wherever you want.
+    Lastly, create a desktop shortcut by running <code>python setup.py</code>. This shortcut uses absolute paths, so feel free to move it wherever you want. However, if you move Auto Maple's main directory, you will need to run <code>setup.py</code> again to generate a new shortcut.
   </li>
 </ol>
 
