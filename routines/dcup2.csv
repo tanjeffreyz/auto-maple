@@ -2,10 +2,10 @@ $, target=move_tolerance, value=0.075
 
 @, label=main
 *, x=0.873, y=0.083, frequency=1, skip=False, adjust=False
-    Shikigami, direction=left, attacks=2, repetitions=1
     Tengu
 *, x=0.873, y=0.200, frequency=1, skip=False, adjust=False
     Shikigami, direction=left, attacks=2, repetitions=1
+    Shikigami, direction=right, attacks=2, repetitions=1
 >, label=loot, frequency=4, skip=False
 *, x=0.873, y=0.200, frequency=1, skip=False, adjust=False
     Fall, distance=0.05
@@ -52,10 +52,10 @@ $, target=move_tolerance, value=0.075
 
 @, label=main2
 *, x=0.873, y=0.083, frequency=1, skip=False, adjust=False
-    Shikigami, direction=left, attacks=2, repetitions=1
     Tengu
 *, x=0.873, y=0.200, frequency=1, skip=False, adjust=False
     Shikigami, direction=left, attacks=2, repetitions=1
+    Shikigami, direction=right, attacks=2, repetitions=1
 >, label=boss2, frequency=5, skip=True
 *, x=0.873, y=0.200, frequency=1, skip=False, adjust=False
     Fall, distance=0.05

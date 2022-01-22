@@ -85,7 +85,7 @@ class Buff(Command):
         self.buff_time = 0
 
     def main(self):
-        buffs = ['f1']
+        buffs = ['f1', 'f2']
         now = time.time()
         if self.haku_time == 0 or now - self.haku_time > 490:
             press('f4', 2)
