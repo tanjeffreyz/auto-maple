@@ -64,7 +64,7 @@ class Minimap(LabelFrame):
             if rune_active:
                 cv2.circle(img,
                            utils.convert_to_absolute(rune_pos, img),
-                           5,
+                           3,
                            (128, 0, 128),
                            -1)
 
