@@ -4,6 +4,7 @@ import config
 import detection
 import threading
 import time
+import cv2
 import mss
 import mss.windows
 import utils
@@ -16,6 +17,10 @@ from os.path import splitext, basename
 from routine import Routine
 from components import Point
 from vkeys import press, click
+
+
+# The rune's buff icon
+RUNE_BUFF_TEMPLATE = cv2.imread('assets/rune_buff_template.jpg', 0)
 
 
 class Bot:
@@ -116,7 +121,7 @@ class Bot:
                         time.sleep(0.3)
                         frame = np.array(sct.grab(config.MONITOR))
                         rune_buff = utils.multi_match(frame[:frame.shape[0]//8, :],
-                                                      config.RUNE_BUFF_TEMPLATE,
+                                                      RUNE_BUFF_TEMPLATE,
                                                       threshold=0.9)
                         if rune_buff:
                             rune_buff_pos = min(rune_buff, key=lambda p: p[0])

@@ -140,6 +140,27 @@ def convert_to_absolute(point, frame):
     return x, y
 
 
+def filter_color(img, ranges):
+    """
+    Returns a filtered copy of IMG that only contains pixels within the given RANGES.
+    on the HSV scale.
+    :param img:     The image to filter.
+    :param ranges:  A list of tuples, each of which is a pair upper and lower HSV bounds.
+    :return:        A filtered copy of IMG.
+    """
+
+    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    mask = cv2.inRange(hsv, ranges[0][0], ranges[0][1])
+    for i in range(1, len(ranges)):
+        mask = cv2.bitwise_or(mask, cv2.inRange(hsv, ranges[i][0], ranges[i][1]))
+
+    # Mask the image
+    color_mask = mask > 0
+    result = np.zeros_like(img, np.uint8)
+    result[color_mask] = img[color_mask]
+    return result
+
+
 def draw_location(minimap, pos, color):
     """
     Draws a visual representation of POINT onto MINIMAP. The radius of the circle represents

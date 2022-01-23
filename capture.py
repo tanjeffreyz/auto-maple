@@ -11,6 +11,29 @@ import utils
 from components import Point
 
 
+# The distance between the top of the minimap and the top of the screen
+MINIMAP_TOP_BORDER = 21
+
+# The thickness of the other three borders of the minimap
+MINIMAP_BOTTOM_BORDER = 8
+
+# The bottom right corner of the minimap
+MINIMAP_TEMPLATE = cv2.imread('assets/minimap_template.jpg', 0)
+
+# The player's symbol on the minimap
+PLAYER_TEMPLATE = cv2.imread('assets/player_template.png', 0)
+
+# A rune's symbol on the minimap
+RUNE_RANGES = (
+    ((141, 148, 245), (146, 158, 255)),
+)
+rune_filtered = utils.filter_color(cv2.imread('assets/rune_template.png'), RUNE_RANGES)
+RUNE_TEMPLATE = cv2.cvtColor(rune_filtered, cv2.COLOR_BGR2GRAY)
+
+# The Elite Boss's warning sign
+ELITE_TEMPLATE = cv2.imread('assets/elite_template.jpg', 0)
+
+
 class Capture:
     """
     A class that tracks player position and various in-game events. It constantly updates
@@ -35,13 +58,11 @@ class Capture:
         self.thread.start()
 
     def _main(self):
-        """
-        Constantly monitors the player's position and in-game events.
-        :return:    None
-        """
+        """Constantly monitors the player's position and in-game events."""
 
         mss.windows.CAPTUREBLT = 0
         with mss.mss() as sct:
+            rune_counter = 0
             while True:
                 frame = np.array(sct.grab(config.MONITOR))
 
@@ -49,9 +70,9 @@ class Capture:
                     # Calibrate by finding the bottom right corner of the minimap
                     _, br = utils.single_match(frame[:round(frame.shape[0] / 4),
                                                      :round(frame.shape[1] / 3)],
-                                               config.MINIMAP_TEMPLATE)
-                    mm_tl = (config.MINIMAP_BOTTOM_BORDER, config.MINIMAP_TOP_BORDER)
-                    mm_br = tuple(max(75, a - config.MINIMAP_BOTTOM_BORDER) for a in br)
+                                               MINIMAP_TEMPLATE)
+                    mm_tl = (MINIMAP_BOTTOM_BORDER, MINIMAP_TOP_BORDER)
+                    mm_br = tuple(max(75, a - MINIMAP_BOTTOM_BORDER) for a in br)
                     config.minimap_ratio = (mm_br[0] - mm_tl[0]) / (mm_br[1] - mm_tl[1])
                     config.minimap_sample = frame[mm_tl[1]:mm_br[1], mm_tl[0]:mm_br[0]]
                     config.calibrated = True
@@ -68,7 +89,7 @@ class Capture:
 
                 # Check for elite warning
                 elite_frame = frame[height//4:3*height//4, width//4:3*width//4]
-                elite = utils.multi_match(elite_frame, config.ELITE_TEMPLATE, threshold=0.9)
+                elite = utils.multi_match(elite_frame, ELITE_TEMPLATE, threshold=0.9)
                 if config.enabled and not config.alert_active and elite:
                     config.alert_active = True
                     config.enabled = False
@@ -77,20 +98,22 @@ class Capture:
                 minimap = frame[mm_tl[1]:mm_br[1], mm_tl[0]:mm_br[0]]
 
                 # Determine the player's position
-                player = utils.multi_match(minimap, config.PLAYER_TEMPLATE, threshold=0.8)
+                player = utils.multi_match(minimap, PLAYER_TEMPLATE, threshold=0.8)
                 if player:
                     config.player_pos = utils.convert_to_relative(player[0], minimap)
 
                 # Check for a rune
-                if not config.rune_active:
-                    rune = utils.multi_match(minimap, config.RUNE_TEMPLATE, threshold=0.9)
-                    if rune and config.routine.sequence:
-                        abs_rune_pos = (rune[0][0] - 1, rune[0][1])
+                if rune_counter == 0 and not config.rune_active:
+                    filtered = utils.filter_color(minimap, RUNE_RANGES)
+                    matches = utils.multi_match(filtered, RUNE_TEMPLATE, threshold=0.9)
+                    if matches and config.routine.sequence:
+                        abs_rune_pos = (matches[0][0], matches[0][1])
                         config.rune_pos = utils.convert_to_relative(abs_rune_pos, minimap)
                         distances = list(map(Capture._distance_to_rune, config.routine.sequence))
                         index = np.argmin(distances)
                         config.rune_closest_pos = config.routine[index].location
                         config.rune_active = True
+                rune_counter = (rune_counter + 1) % 100
 
                 # Package display information to be polled by GUI
                 config.minimap = {
