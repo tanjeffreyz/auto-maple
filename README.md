@@ -137,9 +137,7 @@ Below is a summary of the most commonly used routine components:
 <table align="center" border="0">
   <tr>
     <td width="100%">
-Auto Maple has the ability to automatically solve "runes", or in-game arrow key puzzles. It first uses OpenCV's color filtration and Canny edge detection algorithms to isolate the arrow keys and reduce as much background noise as possible. Then, it runs multiple inferences on the preprocessed frames using a custom-trained 
-    <a href="https://drive.google.com/drive/folders/1SPdTNF4KZczoWyWTgfyTBRvLvy7WSGpu?usp=sharing">TensorFlow model</a>
-until two inferences agree. Because of this preprocessing, Auto Maple is extremely accurate at solving runes in all kinds of (often colorful and chaotic) environments.
+Auto Maple has the ability to automatically solve "runes", or in-game arrow key puzzles. It first uses OpenCV's color filtration and Canny edge detection algorithms to isolate the arrow keys and reduce as much background noise as possible. Then, it runs multiple inferences on the preprocessed frames using a custom-trained TensorFlow model until two inferences agree. Because of this preprocessing, Auto Maple is extremely accurate at solving runes in all kinds of (often colorful and chaotic) environments.
     </td>
   </tr>
 </table>
@@ -185,10 +183,13 @@ until two inferences agree. Because of this preprocessing, Auto Maple is extreme
     Download and unzip the latest Auto Maple release.
   </li>
   <li>
+    Download the <a href="https://drive.google.com/drive/folders/1SPdTNF4KZczoWyWTgfyTBRvLvy7WSGpu?usp=sharing">TensorFlow model</a> and unzip the "models" folder into Auto Maple's "assets" directory.
+  </li>
+  <li>
     Inside Auto Maple's main directory, open a command prompt and run <code>python -m pip install requirements.txt</code>.
   </li>
   <li>
-    Lastly, create a desktop shortcut by running <code>python setup.py</code>. This shortcut uses absolute paths, so feel free to move it wherever you want. However, if you move Auto Maple's main directory, you will need to run <code>setup.py</code> again to generate a new shortcut.
+    Lastly, create a desktop shortcut by running <code>python setup.py</code>. This shortcut uses absolute paths, so feel free to move it wherever you want. However, if you move Auto Maple's main directory, you will need to run <code>python setup.py</code> again to generate a new shortcut.
   </li>
 </ol>
 
