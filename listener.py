@@ -24,6 +24,7 @@ class Listener:
 
         config.listener = self
 
+        self.enabled = False
         self.key_binds = Listener.DEFAULT_KEYBINDS.copy()
         self.load_keybindings()
 
@@ -48,7 +49,7 @@ class Listener:
 
         self.ready = True
         while True:
-            if config.listening:
+            if self.enabled:
                 if kb.is_pressed(self.key_binds['Start/stop']):
                     Listener.toggle_enabled()
                 elif kb.is_pressed(self.key_binds['Reload routine']):
@@ -61,8 +62,8 @@ class Listener:
     def toggle_enabled():
         """Resumes or pauses the current routine. Plays a sound to notify the user."""
 
-        config.rune_active = False
-        config.alert_active = False
+        config.bot.rune_active = False
+        config.bot.alert_active = False
 
         if not config.enabled:
             Listener.recalibrate_minimap()      # Recalibrate only when being enabled.
@@ -88,8 +89,8 @@ class Listener:
 
     @staticmethod
     def recalibrate_minimap():
-        config.calibrated = False
-        while not config.calibrated:
+        config.capture.calibrated = False
+        while not config.capture.calibrated:
             time.sleep(0.01)
         config.gui.edit.minimap.redraw()
 

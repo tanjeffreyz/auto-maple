@@ -600,8 +600,8 @@ class Minimap(LabelFrame):
     def draw_point(self, location):
         """Draws a circle representing a Point centered at LOCATION."""
 
-        if config.minimap_sample is not None:
-            minimap = cv2.cvtColor(config.minimap_sample, cv2.COLOR_BGR2RGB)
+        if config.capture.minimap_sample is not None:
+            minimap = cv2.cvtColor(config.capture.minimap_sample, cv2.COLOR_BGR2RGB)
             img = self.resize_to_fit(minimap)
             utils.draw_location(img, location, (0, 255, 0))
             self.draw(img)
@@ -609,8 +609,8 @@ class Minimap(LabelFrame):
     def draw_default(self):
         """Displays just the minimap sample without any markings."""
 
-        if config.minimap_sample is not None:
-            minimap = cv2.cvtColor(config.minimap_sample, cv2.COLOR_BGR2RGB)
+        if config.capture.minimap_sample is not None:
+            minimap = cv2.cvtColor(config.capture.minimap_sample, cv2.COLOR_BGR2RGB)
             img = self.resize_to_fit(minimap)
             self.draw(img)
 

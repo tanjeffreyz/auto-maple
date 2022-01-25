@@ -121,7 +121,7 @@ def convert_to_relative(point, frame):
     """
 
     x = point[0] / frame.shape[1]
-    y = point[1] / config.minimap_ratio / frame.shape[0]
+    y = point[1] / config.capture.minimap_ratio / frame.shape[0]
     return x, y
 
 
@@ -136,7 +136,7 @@ def convert_to_absolute(point, frame):
     """
 
     x = int(round(point[0] * frame.shape[1]))
-    y = int(round(point[1] * config.minimap_ratio * frame.shape[0]))
+    y = int(round(point[1] * config.capture.minimap_ratio * frame.shape[0]))
     return x, y
 
 

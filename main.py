@@ -8,16 +8,17 @@ from gui import GUI
 
 
 bot = Bot()
+capture = Capture()
+listener = Listener()
+
 bot.start()
 while not bot.ready:
     time.sleep(0.01)
 
-cap = Capture()
-cap.start()
-while not cap.ready:
+capture.start()
+while not capture.ready:
     time.sleep(0.01)
 
-listener = Listener()
 listener.start()
 while not listener.ready:
     time.sleep(0.01)

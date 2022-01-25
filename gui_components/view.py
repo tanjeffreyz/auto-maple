@@ -44,13 +44,14 @@ class Minimap(LabelFrame):
     def display_minimap(self):
         """Updates the Main page with the current minimap."""
 
-        if config.minimap:
-            rune_active = config.minimap['rune_active']
-            rune_pos = config.minimap['rune_pos']
-            path = config.minimap['path']
-            player_pos = config.minimap['player_pos']
+        minimap = config.capture.minimap
+        if minimap:
+            rune_active = minimap['rune_active']
+            rune_pos = minimap['rune_pos']
+            path = minimap['path']
+            player_pos = minimap['player_pos']
 
-            img = cv2.cvtColor(config.minimap['minimap'], cv2.COLOR_BGR2RGB)
+            img = cv2.cvtColor(minimap['minimap'], cv2.COLOR_BGR2RGB)
             height, width, _ = img.shape
 
             # Resize minimap to fit the Canvas
@@ -102,7 +103,7 @@ class Minimap(LabelFrame):
             else:
                 self.canvas.itemconfig(self.container, image=img)
             self._img = img                 # Prevent garbage collection
-        self.after(33, self.display_minimap)
+        self.after(50, self.display_minimap)
 
 
 class Status(LabelFrame):

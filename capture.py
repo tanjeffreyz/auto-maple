@@ -44,7 +44,14 @@ class Capture:
     def __init__(self):
         """Initializes this Capture object's main thread."""
 
+        config.capture = self
+
         self.ready = False
+        self.calibrated = False
+        self.minimap = {}
+        self.minimap_ratio = 1
+        self.minimap_sample = None
+
         self.thread = threading.Thread(target=self._main)
         self.thread.daemon = True
 
@@ -66,32 +73,31 @@ class Capture:
             while True:
                 frame = np.array(sct.grab(config.MONITOR))
 
-                if not config.calibrated:
+                if not self.calibrated:
                     # Calibrate by finding the bottom right corner of the minimap
                     _, br = utils.single_match(frame[:round(frame.shape[0] / 4),
                                                      :round(frame.shape[1] / 3)],
                                                MINIMAP_TEMPLATE)
                     mm_tl = (MINIMAP_BOTTOM_BORDER, MINIMAP_TOP_BORDER)
                     mm_br = tuple(max(75, a - MINIMAP_BOTTOM_BORDER) for a in br)
-                    config.minimap_ratio = (mm_br[0] - mm_tl[0]) / (mm_br[1] - mm_tl[1])
-                    config.minimap_sample = frame[mm_tl[1]:mm_br[1], mm_tl[0]:mm_br[0]]
-                    config.calibrated = True
+                    self.minimap_ratio = (mm_br[0] - mm_tl[0]) / (mm_br[1] - mm_tl[1])
+                    self.minimap_sample = frame[mm_tl[1]:mm_br[1], mm_tl[0]:mm_br[0]]
+                    self.calibrated = True
 
-                # frame = np.array(sct.grab(config.MONITOR))
                 height, width, _ = frame.shape
 
                 # Check for unexpected black screen regardless of whether bot is enabled
                 gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-                if config.enabled and not config.alert_active \
+                if config.enabled and not config.bot.alert_active \
                         and np.count_nonzero(gray < 15) / height / width > 0.95:
-                    config.alert_active = True
+                    config.bot.alert_active = True
                     config.enabled = False
 
                 # Check for elite warning
                 elite_frame = frame[height//4:3*height//4, width//4:3*width//4]
                 elite = utils.multi_match(elite_frame, ELITE_TEMPLATE, threshold=0.9)
-                if config.enabled and not config.alert_active and elite:
-                    config.alert_active = True
+                if config.enabled and not config.bot.alert_active and elite:
+                    config.bot.alert_active = True
                     config.enabled = False
 
                 # Crop the frame to only show the minimap
@@ -103,23 +109,23 @@ class Capture:
                     config.player_pos = utils.convert_to_relative(player[0], minimap)
 
                 # Check for a rune
-                if rune_counter == 0 and not config.rune_active:
+                if rune_counter == 0 and not config.bot.rune_active:
                     filtered = utils.filter_color(minimap, RUNE_RANGES)
                     matches = utils.multi_match(filtered, RUNE_TEMPLATE, threshold=0.9)
                     if matches and config.routine.sequence:
                         abs_rune_pos = (matches[0][0], matches[0][1])
-                        config.rune_pos = utils.convert_to_relative(abs_rune_pos, minimap)
+                        config.bot.rune_pos = utils.convert_to_relative(abs_rune_pos, minimap)
                         distances = list(map(Capture._distance_to_rune, config.routine.sequence))
                         index = np.argmin(distances)
-                        config.rune_closest_pos = config.routine[index].location
-                        config.rune_active = True
+                        config.bot.rune_closest_pos = config.routine[index].location
+                        config.bot.rune_active = True
                 rune_counter = (rune_counter + 1) % 100
 
                 # Package display information to be polled by GUI
-                config.minimap = {
+                self.minimap = {
                     'minimap': minimap,
-                    'rune_active': config.rune_active,
-                    'rune_pos': config.rune_pos,
+                    'rune_active': config.bot.rune_active,
+                    'rune_pos': config.bot.rune_pos,
                     'path': config.path,
                     'player_pos': config.player_pos
                 }
@@ -159,5 +165,5 @@ class Capture:
         """
 
         if isinstance(point, Point):
-            return utils.distance(config.rune_pos, point.location)
+            return utils.distance(config.bot.rune_pos, point.location)
         return float('inf')

@@ -32,8 +32,12 @@ class Bot:
         config.bot = self
 
         pygame.mixer.init()
+        self.alert_active = False
         self.alert = pygame.mixer.music
         self.alert.load('./assets/alert.mp3')
+        self.rune_active = False
+        self.rune_pos = (0, 0)
+        self.rune_closest_pos = (0, 0)      # Location of the Point closest to rune
         self.buff = components.Buff()
 
         self.command_book = {}
@@ -69,9 +73,9 @@ class Bot:
         mss.windows.CAPTUREBLT = 0
         with mss.mss() as sct:
             self.ready = True
-            config.listening = True
+            config.listener.enabled = True
             while True:
-                if config.alert_active:
+                if self.alert_active:
                     self._alert()
                 if config.enabled and len(config.routine) > 0:
                     self.buff.main()
@@ -83,8 +87,8 @@ class Bot:
                     # Execute next Point in the routine
                     element = config.routine[config.routine.index]
                     element.execute()
-                    if config.rune_active and isinstance(element, Point) \
-                            and element.location == config.rune_closest_pos:
+                    if self.rune_active and isinstance(element, Point) \
+                            and element.location == self.rune_closest_pos:
                         self._solve_rune(model, sct)
                     config.routine.step()
                 else:
@@ -100,9 +104,9 @@ class Bot:
         """
 
         move = self.command_book['move']
-        move(*config.rune_pos).execute()
+        move(*self.rune_pos).execute()
         adjust = self.command_book['adjust']
-        adjust(*config.rune_pos).execute()
+        adjust(*self.rune_pos).execute()
         time.sleep(0.2)
         press('y', 1, down_time=0.2)        # Press 'y' to interact with rune in-game
         print('\nSolving rune:')
@@ -129,7 +133,7 @@ class Bot:
                     break
                 elif len(solution) == 4:
                     inferences.append(solution)
-        config.rune_active = False
+        self.rune_active = False
 
     def _alert(self):
         """
@@ -138,14 +142,14 @@ class Bot:
         :return:    None
         """
 
-        config.listening = False
+        config.listener.enabled = False
         self.alert.play(-1)
         while not kb.is_pressed('insert'):
             time.sleep(0.1)
         self.alert.stop()
-        config.alert_active = False
+        self.alert_active = False
         time.sleep(1)
-        config.listening = True
+        config.listener.enabled = True
 
     def load_commands(self, file):
         """Prompts the user to select a command module to import. Updates config's command book."""
