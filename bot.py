@@ -8,10 +8,8 @@ import cv2
 import mss
 import mss.windows
 import utils
-import pygame
 import inspect
 import components
-import keyboard as kb
 import numpy as np
 from os.path import splitext, basename
 from routine import Routine
@@ -31,10 +29,6 @@ class Bot:
 
         config.bot = self
 
-        pygame.mixer.init()
-        self.alert_active = False
-        self.alert = pygame.mixer.music
-        self.alert.load('./assets/alert.mp3')
         self.rune_active = False
         self.rune_pos = (0, 0)
         self.rune_closest_pos = (0, 0)      # Location of the Point closest to rune
@@ -75,8 +69,6 @@ class Bot:
             self.ready = True
             config.listener.enabled = True
             while True:
-                if self.alert_active:
-                    self._alert()
                 if config.enabled and len(config.routine) > 0:
                     self.buff.main()
 
@@ -134,22 +126,6 @@ class Bot:
                 elif len(solution) == 4:
                     inferences.append(solution)
         self.rune_active = False
-
-    def _alert(self):
-        """
-        Plays an alert to notify user of a dangerous event. Stops the alert
-        once 'insert' is pressed.
-        :return:    None
-        """
-
-        config.listener.enabled = False
-        self.alert.play(-1)
-        while not kb.is_pressed('insert'):
-            time.sleep(0.1)
-        self.alert.stop()
-        self.alert_active = False
-        time.sleep(1)
-        config.listener.enabled = True
 
     def load_commands(self, file):
         """Prompts the user to select a command module to import. Updates config's command book."""

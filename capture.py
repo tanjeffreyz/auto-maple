@@ -1,13 +1,13 @@
 """A module for tracking useful in-game information."""
 
 import config
+import utils
 import mss
 import mss.windows
 import time
 import cv2
 import threading
 import numpy as np
-import utils
 from components import Point
 
 
@@ -30,9 +30,6 @@ RUNE_RANGES = (
 rune_filtered = utils.filter_color(cv2.imread('assets/rune_template.png'), RUNE_RANGES)
 RUNE_TEMPLATE = cv2.cvtColor(rune_filtered, cv2.COLOR_BGR2GRAY)
 
-# The Elite Boss's warning sign
-ELITE_TEMPLATE = cv2.imread('assets/elite_template.jpg', 0)
-
 
 class Capture:
     """
@@ -46,20 +43,18 @@ class Capture:
 
         config.capture = self
 
-        self.ready = False
-        self.calibrated = False
+        self.frame = None
         self.minimap = {}
         self.minimap_ratio = 1
         self.minimap_sample = None
 
+        self.ready = False
+        self.calibrated = False
         self.thread = threading.Thread(target=self._main)
         self.thread.daemon = True
 
     def start(self):
-        """
-        Starts this Capture's thread.
-        :return:    None
-        """
+        """Starts this Capture's thread."""
 
         print('\n[~] Started video capture.')
         self.thread.start()
@@ -71,37 +66,21 @@ class Capture:
         with mss.mss() as sct:
             rune_counter = 0
             while True:
-                frame = np.array(sct.grab(config.MONITOR))
+                self.frame = np.array(sct.grab(config.MONITOR))
 
                 if not self.calibrated:
                     # Calibrate by finding the bottom right corner of the minimap
-                    _, br = utils.single_match(frame[:round(frame.shape[0] / 4),
-                                                     :round(frame.shape[1] / 3)],
+                    _, br = utils.single_match(self.frame[:round(self.frame.shape[0] / 4),
+                                               :round(self.frame.shape[1] / 3)],
                                                MINIMAP_TEMPLATE)
                     mm_tl = (MINIMAP_BOTTOM_BORDER, MINIMAP_TOP_BORDER)
                     mm_br = tuple(max(75, a - MINIMAP_BOTTOM_BORDER) for a in br)
                     self.minimap_ratio = (mm_br[0] - mm_tl[0]) / (mm_br[1] - mm_tl[1])
-                    self.minimap_sample = frame[mm_tl[1]:mm_br[1], mm_tl[0]:mm_br[0]]
+                    self.minimap_sample = self.frame[mm_tl[1]:mm_br[1], mm_tl[0]:mm_br[0]]
                     self.calibrated = True
 
-                height, width, _ = frame.shape
-
-                # Check for unexpected black screen regardless of whether bot is enabled
-                gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-                if config.enabled and not config.bot.alert_active \
-                        and np.count_nonzero(gray < 15) / height / width > 0.95:
-                    config.bot.alert_active = True
-                    config.enabled = False
-
-                # Check for elite warning
-                elite_frame = frame[height//4:3*height//4, width//4:3*width//4]
-                elite = utils.multi_match(elite_frame, ELITE_TEMPLATE, threshold=0.9)
-                if config.enabled and not config.bot.alert_active and elite:
-                    config.bot.alert_active = True
-                    config.enabled = False
-
                 # Crop the frame to only show the minimap
-                minimap = frame[mm_tl[1]:mm_br[1], mm_tl[0]:mm_br[0]]
+                minimap = self.frame[mm_tl[1]:mm_br[1], mm_tl[0]:mm_br[0]]
 
                 # Determine the player's position
                 player = utils.multi_match(minimap, PLAYER_TEMPLATE, threshold=0.8)
@@ -120,6 +99,12 @@ class Capture:
                         config.bot.rune_closest_pos = config.routine[index].location
                         config.bot.rune_active = True
                 rune_counter = (rune_counter + 1) % 100
+
+                # m = utils.multi_match(utils.filter_color(minimap, OTHER_RANGES),
+                #                       OTHER_TEMPLATE, threshold=0.7)
+                # test = utils.filter_color(minimap, OTHER_RANGES)
+                # for x in m:
+                #     cv2.circle(test, x, 1, (255, 0, 0), -1)
 
                 # Package display information to be polled by GUI
                 self.minimap = {
