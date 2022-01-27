@@ -90,4 +90,3 @@ class Notifier:
         self.mixer.load('./assets/ding.mp3')
         self.mixer.set_volume(0.50)
         self.mixer.play()
-        time.sleep(0.6)
