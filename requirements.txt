@@ -1,8 +1,8 @@
-keyboard==0.13.5
-mss==6.0.0
-numpy==1.18.4
-opencv_python_headless==4.1.2.30
-Pillow==9.0.0
-pygame==1.9.6
-pywin32==228
-tensorflow_gpu==2.3.1
+keyboard
+mss
+numpy
+opencv-python-headless
+Pillow
+pygame
+pywin32
+tensorflow-gpu
