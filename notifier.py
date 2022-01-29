@@ -8,7 +8,15 @@ import pygame
 import threading
 import numpy as np
 import keyboard as kb
+from components import Point
 
+
+# A rune's symbol on the minimap
+RUNE_RANGES = (
+    ((141, 148, 245), (146, 158, 255)),
+)
+rune_filtered = utils.filter_color(cv2.imread('assets/rune_template.png'), RUNE_RANGES)
+RUNE_TEMPLATE = cv2.cvtColor(rune_filtered, cv2.COLOR_BGR2GRAY)
 
 # Other players' symbols on the minimap
 OTHER_RANGES = (
@@ -65,6 +73,18 @@ class Notifier:
                     if others > prev_others:
                         self._ding()
                     prev_others = others
+
+                # Check for rune
+                if not config.bot.rune_active:
+                    filtered = utils.filter_color(minimap, RUNE_RANGES)
+                    matches = utils.multi_match(filtered, RUNE_TEMPLATE, threshold=0.9)
+                    if matches and config.routine.sequence:
+                        abs_rune_pos = (matches[0][0], matches[0][1])
+                        config.bot.rune_pos = utils.convert_to_relative(abs_rune_pos, minimap)
+                        distances = list(map(distance_to_rune, config.routine.sequence))
+                        index = np.argmin(distances)
+                        config.bot.rune_closest_pos = config.routine[index].location
+                        config.bot.rune_active = True
             time.sleep(0.05)
 
     def _alert(self):
@@ -90,3 +110,18 @@ class Notifier:
         self.mixer.load('./assets/ding.mp3')
         self.mixer.set_volume(0.50)
         self.mixer.play()
+
+
+#################################
+#       Helper Functions        #
+#################################
+def distance_to_rune(point):
+    """
+    Calculates the distance from POINT to the rune.
+    :param point:   The position to check.
+    :return:        The distance from POINT to the rune, infinity if it is not a Point object.
+    """
+
+    if isinstance(point, Point):
+        return utils.distance(config.bot.rune_pos, point.location)
+    return float('inf')

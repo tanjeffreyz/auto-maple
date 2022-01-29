@@ -8,7 +8,6 @@ import time
 import cv2
 import threading
 import numpy as np
-from components import Point
 
 
 # The distance between the top of the minimap and the top of the screen
@@ -22,13 +21,6 @@ MINIMAP_TEMPLATE = cv2.imread('assets/minimap_template.jpg', 0)
 
 # The player's symbol on the minimap
 PLAYER_TEMPLATE = cv2.imread('assets/player_template.png', 0)
-
-# A rune's symbol on the minimap
-RUNE_RANGES = (
-    ((141, 148, 245), (146, 158, 255)),
-)
-rune_filtered = utils.filter_color(cv2.imread('assets/rune_template.png'), RUNE_RANGES)
-RUNE_TEMPLATE = cv2.cvtColor(rune_filtered, cv2.COLOR_BGR2GRAY)
 
 
 class Capture:
@@ -87,25 +79,6 @@ class Capture:
                 if player:
                     config.player_pos = utils.convert_to_relative(player[0], minimap)
 
-                # Check for a rune
-                if rune_counter == 0 and not config.bot.rune_active:
-                    filtered = utils.filter_color(minimap, RUNE_RANGES)
-                    matches = utils.multi_match(filtered, RUNE_TEMPLATE, threshold=0.9)
-                    if matches and config.routine.sequence:
-                        abs_rune_pos = (matches[0][0], matches[0][1])
-                        config.bot.rune_pos = utils.convert_to_relative(abs_rune_pos, minimap)
-                        distances = list(map(Capture._distance_to_rune, config.routine.sequence))
-                        index = np.argmin(distances)
-                        config.bot.rune_closest_pos = config.routine[index].location
-                        config.bot.rune_active = True
-                rune_counter = (rune_counter + 1) % 100
-
-                # m = utils.multi_match(utils.filter_color(minimap, OTHER_RANGES),
-                #                       OTHER_TEMPLATE, threshold=0.7)
-                # test = utils.filter_color(minimap, OTHER_RANGES)
-                # for x in m:
-                #     cv2.circle(test, x, 1, (255, 0, 0), -1)
-
                 # Package display information to be polled by GUI
                 self.minimap = {
                     'minimap': minimap,
@@ -118,37 +91,3 @@ class Capture:
                 if not self.ready:
                     self.ready = True
                 time.sleep(0.001)
-
-    @staticmethod
-    def _count(frame, threshold):
-        """
-        Counts the number of pixels in FRAME that are less than or equal to THRESHOLD.
-        Two pixels are compared by their corresponding tuple elements in order.
-        :param frame:       The image in which to search.
-        :param threshold:   The pixel value to compare to.
-        :return:            The number of pixels in FRAME that are below THRESHOLD.
-        """
-
-        count = 0
-        for row in frame:
-            for col in row:
-                pixel = frame[row][col]
-                if len(pixel) == len(threshold):
-                    valid = True
-                    for i in range(len(pixel)):
-                        valid = valid and frame[i] <= threshold[i]
-                    if valid:
-                        count += 1
-        return count
-
-    @staticmethod
-    def _distance_to_rune(point):
-        """
-        Calculates the distance from POINT to the rune.
-        :param point:   The position to check.
-        :return:        The distance from POINT to the rune, infinity if it is not a Point object.
-        """
-
-        if isinstance(point, Point):
-            return utils.distance(config.bot.rune_pos, point.location)
-        return float('inf')
