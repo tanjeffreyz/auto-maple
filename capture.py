@@ -56,7 +56,6 @@ class Capture:
 
         mss.windows.CAPTUREBLT = 0
         with mss.mss() as sct:
-            rune_counter = 0
             while True:
                 self.frame = np.array(sct.grab(config.MONITOR))
 
