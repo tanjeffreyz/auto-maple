@@ -302,7 +302,7 @@ def step(direction, target):
     :return:            None
     """
 
-    print("\n[!] 'step' function not implemented in current command book, aborting process.")
+    print("\n[!] Function 'step' not implemented in current command book, aborting process.")
     config.enabled = False
 
 
@@ -346,6 +346,8 @@ class Fall(Command):
         start = config.player_pos
         key_down('down')
         time.sleep(0.05)
+        if config.stage_fright and utils.bernoulli(0.5):
+            time.sleep(utils.rand_float(0.2, 0.4))
         counter = 6
         while config.enabled and \
                 counter > 0 and \
@@ -353,7 +355,7 @@ class Fall(Command):
             press('space', 1, down_time=0.1)
             counter -= 1
         key_up('down')
-        time.sleep(0.1)
+        time.sleep(0.05)
 
 
 class Buff(Command):

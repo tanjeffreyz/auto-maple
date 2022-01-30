@@ -18,6 +18,8 @@ def step(direction, target):
     num_presses = 2
     if direction == 'up' or direction == 'down':
         num_presses = 1
+    if config.stage_fright and direction != 'up' and utils.bernoulli(0.75):
+        time.sleep(utils.rand_float(0.1, 0.3))
     d_y = target[1] - config.player_pos[1]
     if abs(d_y) > settings.move_tolerance * 1.5:
         if direction == 'down':
@@ -143,6 +145,8 @@ class Shikigami(Command):
         time.sleep(0.05)
         key_down(self.direction)
         time.sleep(0.05)
+        if config.stage_fright and utils.bernoulli(0.7):
+            time.sleep(utils.rand_float(0.1, 0.3))
         for _ in range(self.repetitions):
             press('r', self.attacks, up_time=0.05)
         key_up(self.direction)
@@ -156,7 +160,7 @@ class Tengu(Command):
     """Uses 'Tengu Strike' once."""
 
     def main(self):
-        press('q', 1)
+        press('q', 1, up_time=0.05)
 
 
 class Yaksha(Command):

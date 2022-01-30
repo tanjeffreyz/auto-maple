@@ -217,6 +217,13 @@ def bernoulli(p):
     return random() < p
 
 
+def rand_float(start, end):
+    """Returns a random float value in the interval [START, END)."""
+
+    assert start < end, 'START must be less than END'
+    return (end - start) * random() + start
+
+
 ##########################
 #       Threading        #
 ##########################

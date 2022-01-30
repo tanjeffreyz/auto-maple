@@ -69,6 +69,7 @@ class Notifier:
                 # Check for other players entering the map
                 filtered = utils.filter_color(minimap, OTHER_RANGES)
                 others = len(utils.multi_match(filtered, OTHER_TEMPLATE, threshold=0.5))
+                config.stage_fright = others > 0
                 if others != prev_others:
                     if others > prev_others:
                         self._ding()
