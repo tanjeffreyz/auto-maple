@@ -180,7 +180,9 @@ Auto Maple has the ability to automatically solve "runes", or in-game arrow key 
     Download and install <a href="https://www.python.org/downloads/">Python3</a>.
   </li>
   <li>
-    Download and unzip the latest Auto Maple release.
+    Download and install the latest version of <a href="https://developer.nvidia.com/cuda-downloads">CUDA Toolkit</a>.
+  <li>
+    Download and unzip the latest <a href="https://github.com/tanjeffreyz02/auto-maple/releases">Auto Maple release</a>.
   </li>
   <li>
     Download the <a href="https://drive.google.com/drive/folders/1SPdTNF4KZczoWyWTgfyTBRvLvy7WSGpu?usp=sharing">TensorFlow model</a> and unzip the "models" folder into Auto Maple's "assets" directory.
