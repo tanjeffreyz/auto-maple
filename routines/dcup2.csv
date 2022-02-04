@@ -35,10 +35,11 @@ $, target=move_tolerance, value=0.075
     Wait, duration=0.15
 *, x=0.225, y=0.200, frequency=1, skip=False, adjust=True
     Walk, direction=left, duration=0.2
-    Tengu
+    Shikigami, direction=left, attacks=2, repetitions=1
 *, x=0.225, y=0.200, frequency=1, skip=False, adjust=False
     Fall, distance=0.05
     Walk, direction=left, duration=0.2
+    Tengu
 *, x=0.660, y=0.083, frequency=1, skip=False, adjust=False
     Shikigami, direction=left, attacks=2, repetitions=1
     Tengu
