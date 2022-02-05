@@ -78,10 +78,10 @@ class Bot:
 
                     # Execute next Point in the routine
                     element = config.routine[config.routine.index]
-                    element.execute()
                     if self.rune_active and isinstance(element, Point) \
                             and element.location == self.rune_closest_pos:
                         self._solve_rune(model, sct)
+                    element.execute()
                     config.routine.step()
                 else:
                     time.sleep(0.01)
