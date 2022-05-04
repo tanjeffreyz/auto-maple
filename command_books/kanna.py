@@ -5,10 +5,42 @@ import time
 import math
 import settings
 import utils
+from enum import Enum
 from components import Command
 from vkeys import press, key_down, key_up
 
 
+# List of key mappings
+class Key(Enum):
+    # Movement
+    JUMP = 'space'
+    TELEPORT = 'e'
+    CHARM = 'd'
+
+    # Buffs
+    HAKU = 'f4'
+    AKATSUKI_WARRIOR = 'f3'
+    HOLY_SYMBOL = 'f2'
+    SPEED_INFUSION = 'f1'
+
+    # Skills
+    SHIKIGAMI = 'r'
+    TENGU = 'q'
+    YAKSHA = '2'
+    VANQUISHER = 'f'
+    KISHIN = 'ctrl'
+    NINE_TAILS = '3'
+    EXORCIST = 'w'
+    DOMAIN = 'z'
+    ONI_LEGION = '5'
+    BLOSSOM_BARRIER = 'g'
+    YUKIMUSUME = 'c'
+    MANA_BALANCE = 'lshift'
+
+
+#########################
+#       Commands        #
+#########################
 def step(direction, target):
     """
     Performs one movement step in the given DIRECTION towards TARGET.
@@ -23,10 +55,10 @@ def step(direction, target):
     d_y = target[1] - config.player_pos[1]
     if abs(d_y) > settings.move_tolerance * 1.5:
         if direction == 'down':
-            press('space', 3)
+            press(Key.JUMP, 3)
         elif direction == 'up':
-            press('space', 1)
-    press('e', num_presses)
+            press(Key.JUMP, 1)
+    press(Key.TELEPORT, num_presses)
 
 
 class Adjust(Command):
@@ -70,7 +102,7 @@ class Adjust(Command):
                     else:
                         key_down('down')
                         time.sleep(0.05)
-                        press('space', 3, down_time=0.1)
+                        press(Key.JUMP, 3, down_time=0.1)
                         key_up('down')
                         time.sleep(0.05)
                     counter -= 1
@@ -87,11 +119,11 @@ class Buff(Command):
         self.buff_time = 0
 
     def main(self):
-        buffs = ['f1', 'f2']
+        buffs = [Key.SPEED_INFUSION, Key.HOLY_SYMBOL]
         now = time.time()
         if self.haku_time == 0 or now - self.haku_time > 490:
-            press('f4', 2)
-            press('f3', 2)
+            press(Key.HAKU, 2)
+            press(Key.AKATSUKI_WARRIOR, 2)
             self.haku_time = now
         if self.buff_time == 0 or now - self.buff_time > settings.buff_cooldown:
             for key in buffs:
@@ -120,13 +152,13 @@ class Teleport(Command):
             time.sleep(0.05)
         if self.jump:
             if self.direction == 'down':
-                press('space', 3, down_time=0.1)
+                press(Key.JUMP, 3, down_time=0.1)
             else:
-                press('space', 1)
+                press(Key.JUMP, 1)
         if self.direction == 'up':
             key_down(self.direction)
             time.sleep(0.05)
-        press('e', num_presses)
+        press(Key.TELEPORT, num_presses)
         key_up(self.direction)
         if settings.record_layout:
             config.layout.add(*config.player_pos)
@@ -148,7 +180,7 @@ class Shikigami(Command):
         if config.stage_fright and utils.bernoulli(0.7):
             time.sleep(utils.rand_float(0.1, 0.3))
         for _ in range(self.repetitions):
-            press('r', self.attacks, up_time=0.05)
+            press(Key.SHIKIGAMI, self.attacks, up_time=0.05)
         key_up(self.direction)
         if self.attacks > 2:
             time.sleep(0.3)
@@ -160,7 +192,7 @@ class Tengu(Command):
     """Uses 'Tengu Strike' once."""
 
     def main(self):
-        press('q', 1, up_time=0.05)
+        press(Key.TENGU, 1, up_time=0.05)
 
 
 class Yaksha(Command):
@@ -184,16 +216,16 @@ class Yaksha(Command):
                 press('left', 1, down_time=0.1, up_time=0.05)
             else:
                 press('right', 1, down_time=0.1, up_time=0.05)
-        press('2', 3)
+        press(Key.YAKSHA, 3)
 
 
 class Vanquisher(Command):
     """Holds down 'Vanquisher's Charm' until this command is called again."""
 
     def main(self):
-        key_up('f')
+        key_up(Key.VANQUISHER)
         time.sleep(0.075)
-        key_down('f')
+        key_down(Key.VANQUISHER)
         time.sleep(0.15)
 
 
@@ -201,14 +233,14 @@ class Kishin(Command):
     """Uses 'Kishin Shoukan' once."""
 
     def main(self):
-        press('ctrl', 4, down_time=0.1, up_time=0.15)
+        press(Key.KISHIN, 4, down_time=0.1, up_time=0.15)
 
 
 class NineTails(Command):
     """Uses 'Nine-Tailed Fury' once."""
 
     def main(self):
-        press('3', 3)
+        press(Key.NINE_TAILS, 3)
 
 
 class Exorcist(Command):
@@ -220,47 +252,47 @@ class Exorcist(Command):
 
     def main(self):
         if self.jump:
-            press('space', 1, down_time=0.1, up_time=0.15)
-        press('w', 2, up_time=0.05)
+            press(Key.JUMP, 1, down_time=0.1, up_time=0.15)
+        press(Key.EXORCIST, 2, up_time=0.05)
 
 
 class Domain(Command):
     """Uses 'Spirit's Domain' once."""
 
     def main(self):
-        press('z', 3)
+        press(Key.DOMAIN, 3)
 
 
 class Legion(Command):
     """Uses 'Ghost Yaksha: Great Oni Lord's Legion' once."""
 
     def main(self):
-        press('5', 2, down_time=0.1)
+        press(Key.ONI_LEGION, 2, down_time=0.1)
 
 
 class BlossomBarrier(Command):
     """Places a 'Blossom Barrier' on the ground once."""
 
     def main(self):
-        press('g', 2)
+        press(Key.BLOSSOM_BARRIER, 2)
 
 
 class Yukimusume(Command):
     """Uses 'Yuki-musume Shoukan' once."""
 
     def main(self):
-        press('c', 2)
+        press(Key.YUKIMUSUME, 2)
 
 
 class Balance(Command):
     """Restores mana using 'Mana Balance' once."""
 
     def main(self):
-        press('lshift', 2)
+        press(Key.MANA_BALANCE, 2)
 
 
 class Charm(Command):
     """Jumps up using 'Shikigami Charm'."""
 
     def main(self):
-        press('d', 2)
+        press(Key.CHARM, 2)
