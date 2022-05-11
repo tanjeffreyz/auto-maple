@@ -5,13 +5,12 @@ import time
 import math
 import settings
 import utils
-from enum import Enum
 from components import Command
 from vkeys import press, key_down, key_up
 
 
 # List of key mappings
-class Key(Enum):
+class Key:
     # Movement
     JUMP = 'space'
     TELEPORT = 'e'
