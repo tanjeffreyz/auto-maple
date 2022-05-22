@@ -30,6 +30,9 @@ class Capture:
     displays the minimap in a pop-up window.
     """
 
+    # Describes the dimensions of the screen to capture with mss
+    MONITOR = {'top': 0, 'left': 0, 'width': 1366, 'height': 768}
+
     def __init__(self):
         """Initializes this Capture object's main thread."""
 
@@ -57,7 +60,7 @@ class Capture:
         mss.windows.CAPTUREBLT = 0
         with mss.mss() as sct:
             while True:
-                self.frame = np.array(sct.grab(config.MONITOR))
+                self.frame = np.array(sct.grab(config.capture.MONITOR))
 
                 if not self.calibrated:
                     # Calibrate by finding the bottom right corner of the minimap

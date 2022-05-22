@@ -104,7 +104,7 @@ class Bot:
         print('\nSolving rune:')
         inferences = []
         for _ in range(15):
-            frame = np.array(sct.grab(config.MONITOR))
+            frame = np.array(sct.grab(config.capture.MONITOR))
             solution = detection.merge_detection(model, frame)
             if solution:
                 print(', '.join(solution))
@@ -115,7 +115,7 @@ class Bot:
                     time.sleep(1)
                     for _ in range(3):
                         time.sleep(0.3)
-                        frame = np.array(sct.grab(config.MONITOR))
+                        frame = np.array(sct.grab(config.capture.MONITOR))
                         rune_buff = utils.multi_match(frame[:frame.shape[0]//8, :],
                                                       RUNE_BUFF_TEMPLATE,
                                                       threshold=0.9)

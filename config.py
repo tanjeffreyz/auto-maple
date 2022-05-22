@@ -1,11 +1,5 @@
 """A collection of variables shared across multiple modules."""
 
-#################################
-#           CONSTANTS           #
-#################################
-# Describes the dimensions of the screen to capture with mss
-MONITOR = {'top': 0, 'left': 0, 'width': 1366, 'height': 768}
-
 
 #################################
 #       Global Variables        #
