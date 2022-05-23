@@ -11,6 +11,7 @@ import utils
 import inspect
 import components
 import numpy as np
+from PIL import ImageGrab
 from os.path import splitext, basename
 from routine import Routine
 from components import Point
@@ -64,30 +65,30 @@ class Bot:
         model = detection.load_model()
         print('\n[~] Initialized detection algorithm.')
 
-        mss.windows.CAPTUREBLT = 0
-        with mss.mss() as sct:
-            self.ready = True
-            config.listener.enabled = True
-            while True:
-                if config.enabled and len(config.routine) > 0:
-                    self.buff.main()
+        # mss.windows.CAPTUREBLT = 0
+        # with mss.mss() as sct:
+        self.ready = True
+        config.listener.enabled = True
+        while True:
+            if config.enabled and len(config.routine) > 0:
+                self.buff.main()
 
-                    # Highlight the current Point
-                    config.gui.view.routine.select(config.routine.index)
-                    config.gui.view.details.display_info(config.routine.index)
+                # Highlight the current Point
+                config.gui.view.routine.select(config.routine.index)
+                config.gui.view.details.display_info(config.routine.index)
 
-                    # Execute next Point in the routine
-                    element = config.routine[config.routine.index]
-                    if self.rune_active and isinstance(element, Point) \
-                            and element.location == self.rune_closest_pos:
-                        self._solve_rune(model, sct)
-                    element.execute()
-                    config.routine.step()
-                else:
-                    time.sleep(0.01)
+                # Execute next Point in the routine
+                element = config.routine[config.routine.index]
+                if self.rune_active and isinstance(element, Point) \
+                        and element.location == self.rune_closest_pos:
+                    self._solve_rune(model)
+                element.execute()
+                config.routine.step()
+            else:
+                time.sleep(0.01)
 
     @utils.run_if_enabled
-    def _solve_rune(self, model, sct):
+    def _solve_rune(self, model):
         """
         Moves to the position of the rune and solves the arrow-key puzzle.
         :param model:   The TensorFlow model to classify with.
@@ -104,7 +105,8 @@ class Bot:
         print('\nSolving rune:')
         inferences = []
         for _ in range(15):
-            frame = np.array(sct.grab(config.capture.MONITOR))
+            frame = np.array(ImageGrab.grab(config.capture.window))
+            frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
             solution = detection.merge_detection(model, frame)
             if solution:
                 print(', '.join(solution))
@@ -115,7 +117,8 @@ class Bot:
                     time.sleep(1)
                     for _ in range(3):
                         time.sleep(0.3)
-                        frame = np.array(sct.grab(config.capture.MONITOR))
+                        frame = np.array(ImageGrab.grab(config.capture.window))
+                        frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
                         rune_buff = utils.multi_match(frame[:frame.shape[0]//8, :],
                                                       RUNE_BUFF_TEMPLATE,
                                                       threshold=0.9)

@@ -57,7 +57,8 @@ class Notifier:
 
                 # Check for unexpected black screen
                 gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-                if np.count_nonzero(gray < 15) / height / width > 0.95:
+                print(np.count_nonzero(gray < 15) / height / width)
+                if np.count_nonzero(gray < 15) / height / width > 0.90:
                     self._alert()
 
                 # Check for elite warning
