@@ -5,8 +5,6 @@ import detection
 import threading
 import time
 import cv2
-import mss
-import mss.windows
 import utils
 import inspect
 import components
