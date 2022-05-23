@@ -57,7 +57,6 @@ class Notifier:
 
                 # Check for unexpected black screen
                 gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-                print(np.count_nonzero(gray < 15) / height / width)
                 if np.count_nonzero(gray < 15) / height / width > 0.90:
                     self._alert()
 

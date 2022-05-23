@@ -14,16 +14,25 @@ user32.SetProcessDPIAware()
 
 
 # The distance between the top of the minimap and the top of the screen
-MINIMAP_TOP_BORDER = 21
+MINIMAP_TOP_BORDER = 5
 
 # The thickness of the other three borders of the minimap
 MINIMAP_BOTTOM_BORDER = 8
 
-# The bottom right corner of the minimap
-MINIMAP_TEMPLATE = cv2.imread('assets/minimap_template.jpg', 0)
+# Offset in pixels to adjust for windowed mode
+WINDOWED_OFFSET_TOP = 36
+WINDOWED_OFFSET_LEFT = 10
+
+# The top-left and bottom-right corners of the minimap
+MM_TL_TEMPLATE = cv2.imread('assets/minimap_tl_template.png', 0)
+MM_BR_TEMPLATE = cv2.imread('assets/minimap_br_template.png', 0)
+
+MMT_HEIGHT = max(MM_TL_TEMPLATE.shape[0], MM_BR_TEMPLATE.shape[0])
+MMT_WIDTH = max(MM_TL_TEMPLATE.shape[1], MM_BR_TEMPLATE.shape[1])
 
 # The player's symbol on the minimap
 PLAYER_TEMPLATE = cv2.imread('assets/player_template.png', 0)
+PT_HEIGHT, PT_WIDTH = PLAYER_TEMPLATE.shape
 
 
 class Capture:
@@ -32,9 +41,6 @@ class Capture:
     the config module with information regarding these events. It also annotates and
     displays the minimap in a pop-up window.
     """
-
-    WINDOWED_OFFSET_TOP = 31
-    WINDOWED_OFFSET_BOTTOM = 8
 
     def __init__(self):
         """Initializes this Capture object's main thread."""
@@ -63,33 +69,48 @@ class Capture:
 
         while True:
             if not self.calibrated:
-                full_dim = (0, 0, user32.GetSystemMetrics(0), user32.GetSystemMetrics(1))
                 handle = user32.FindWindowW(None, 'MapleStory')
                 rect = wintypes.RECT()
                 user32.GetWindowRect(handle, ctypes.pointer(rect))
-                self.window = (rect.left, rect.top, rect.right, rect.bottom)
-                full_screen = self.window == full_dim
+                rect = (rect.left, rect.top, rect.right, rect.bottom)
+                rect = tuple(max(0, x) for x in rect)
+
+                # Preliminary window to template match minimap
+                self.window = (
+                    rect[0],
+                    rect[1],
+                    max(rect[2], rect[0] + MMT_WIDTH),     # Make room for minimap templates
+                    max(rect[3], rect[1] + MMT_HEIGHT)
+                )
 
                 # Calibrate by finding the bottom right corner of the minimap
                 self.frame = np.array(ImageGrab.grab(self.window))
                 self.frame = cv2.cvtColor(self.frame, cv2.COLOR_RGB2BGR)
-                _, br = utils.single_match(self.frame[:round(self.frame.shape[0] / 4),
-                                           :round(self.frame.shape[1] / 3)],
-                                           MINIMAP_TEMPLATE)
-                if full_screen:
-                    mm_tl = (MINIMAP_BOTTOM_BORDER, MINIMAP_TOP_BORDER)
-                else:
-                    mm_tl = (
-                        MINIMAP_BOTTOM_BORDER + Capture.WINDOWED_OFFSET_BOTTOM,
-                        MINIMAP_TOP_BORDER + Capture.WINDOWED_OFFSET_TOP
-                    )
-                mm_br = tuple(max(75, a - MINIMAP_BOTTOM_BORDER) for a in br)
+                tl, _ = utils.single_match(self.frame, MM_TL_TEMPLATE)
+                _, br = utils.single_match(self.frame, MM_BR_TEMPLATE)
+                mm_tl = (
+                    tl[0] + MINIMAP_BOTTOM_BORDER,
+                    tl[1] + MINIMAP_TOP_BORDER
+                )
+                mm_br = (
+                    max(mm_tl[0] + PT_WIDTH, br[0] - MINIMAP_BOTTOM_BORDER),
+                    max(mm_tl[1] + PT_HEIGHT, br[1] - MINIMAP_BOTTOM_BORDER - 1)
+                )
+
+                # Resize window to encompass minimap if needed
+                self.window = (
+                    rect[0],
+                    rect[1],
+                    max(rect[2], mm_br[0]),
+                    max(rect[3], mm_br[1])
+                )
                 self.minimap_ratio = (mm_br[0] - mm_tl[0]) / (mm_br[1] - mm_tl[1])
                 self.minimap_sample = self.frame[mm_tl[1]:mm_br[1], mm_tl[0]:mm_br[0]]
                 self.calibrated = True
-            else:
-                self.frame = np.array(ImageGrab.grab(self.window))
-                self.frame = cv2.cvtColor(self.frame, cv2.COLOR_RGB2BGR)
+
+            # Take screenshot
+            self.frame = np.array(ImageGrab.grab(self.window))
+            self.frame = cv2.cvtColor(self.frame, cv2.COLOR_RGB2BGR)
 
             # Crop the frame to only show the minimap
             minimap = self.frame[mm_tl[1]:mm_br[1], mm_tl[0]:mm_br[0]]
