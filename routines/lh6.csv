@@ -15,6 +15,7 @@
     Exorcist, jump=False
 *, x=0.100, y=0.461, frequency=1, skip=False, adjust=False
     Shikigami, direction=right, attacks=2, repetitions=1
+    Exorcist, jump=False
 *, x=0.250, y=0.582, frequency=1, skip=False, adjust=True
     LucidSoul, direction=left
     Shikigami, direction=right, attacks=2, repetitions=1
@@ -30,7 +31,9 @@
     Exorcist, jump=True
     Teleport, direction=up, jump=False
 *, x=0.504, y=0.404, frequency=1, skip=False, adjust=False
+    Shikigami, direction=right, attacks=2, repetitions=1
     Tengu
+    NineTails
 *, x=0.681, y=0.404, frequency=1, skip=False, adjust=False
     Shikigami, direction=left, attacks=2, repetitions=1
 *, x=0.837, y=0.404, frequency=1, skip=False, adjust=False
@@ -39,8 +42,7 @@
     Exorcist, jump=True
     Teleport, direction=up, jump=False
 *, x=0.872, y=0.170, frequency=1, skip=False, adjust=False
-    Shikigami, direction=left, attacks=2, repetitions=1
-    Teleport, direction=left, jump=False
+    Vanquisher
 *, x=0.681, y=0.170, frequency=1, skip=False, adjust=False
     Exorcist, jump=False
     Shikigami, direction=left, attacks=2, repetitions=1
@@ -56,11 +58,10 @@
     Teleport, direction=left, jump=False
 *, x=0.100, y=0.291, frequency=1, skip=False, adjust=False
     Legion
-    Teleport, direction=up, jump=False
+    Shikigami, direction=right, attacks=2, repetitions=1
 *, x=0.100, y=0.170, frequency=1, skip=False, adjust=False
     Tengu
     Shikigami, direction=right, attacks=2, repetitions=1
-    Teleport, direction=right, jump=False
 *, x=0.241, y=0.170, frequency=1, skip=False, adjust=False
     Tengu
     Shikigami, direction=left, attacks=2, repetitions=1
@@ -70,6 +71,7 @@
     Shikigami, direction=left, attacks=2, repetitions=1
 *, x=0.078, y=0.582, frequency=1, skip=False, adjust=False
     Yukimusume
+    Shikigami, direction=right, attacks=2, repetitions=1
 *, x=0.250, y=0.582, frequency=1, skip=False, adjust=True
     LucidSoul, direction=left
 *, x=0.430, y=0.582, frequency=1, skip=False, adjust=False
