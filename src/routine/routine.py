@@ -203,9 +203,9 @@ class Routine:
         if not file:
             if self.path:
                 file = self.path
-                print(' *  File path not provided, using previously loaded routine.')
+                print(' *  File path not provided, using previously loaded routine')
             else:
-                print('[!] File path not provided, no routine was previously loaded either.')
+                print('[!] File path not provided, no routine was previously loaded either')
                 return False
 
         ext = splitext(file)[1]

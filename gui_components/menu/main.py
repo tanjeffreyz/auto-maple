@@ -24,7 +24,7 @@ class Menu(tk.Menu):
         self.add_cascade(label='File', menu=self.file)
 
     @staticmethod
-    @utils.run_if_disabled('\n[!] Cannot create a new routine while Auto Maple is enabled.')
+    @utils.run_if_disabled('\n[!] Cannot create a new routine while Auto Maple is enabled')
     def _new_routine():
         if config.routine.dirty:
             if not askyesno(title='New Routine',
@@ -36,7 +36,7 @@ class Menu(tk.Menu):
         config.routine.clear()
 
     @staticmethod
-    @utils.run_if_disabled('\n[!] Cannot save routines while Auto Maple is enabled.')
+    @utils.run_if_disabled('\n[!] Cannot save routines while Auto Maple is enabled')
     def _save_routine():
         file_path = asksaveasfilename(initialdir='./routines/',
                                       title='Save routine',
@@ -46,7 +46,7 @@ class Menu(tk.Menu):
             config.routine.save(file_path)
 
     @staticmethod
-    @utils.run_if_disabled('\n[!] Cannot load routines while Auto Maple is enabled.')
+    @utils.run_if_disabled('\n[!] Cannot load routines while Auto Maple is enabled')
     def _load_routine():
         if config.routine.dirty:
             if not askyesno(title='Load Routine',
@@ -62,7 +62,7 @@ class Menu(tk.Menu):
             config.routine.load(file_path)
 
     @staticmethod
-    @utils.run_if_disabled('\n[!] Cannot load command books while Auto Maple is enabled.')
+    @utils.run_if_disabled('\n[!] Cannot load command books while Auto Maple is enabled')
     def _load_commands():
         if config.routine.dirty:
             if not askyesno(title='Load Command Book',

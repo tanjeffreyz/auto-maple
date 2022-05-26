@@ -95,5 +95,5 @@ class Listener(Configurable):
         pos = tuple('{:.3f}'.format(round(i, 3)) for i in config.player_pos)
         now = datetime.now().strftime('%I:%M:%S %p')
         config.gui.edit.record.add_entry(now, pos)
-        print(f'\n[~] Recorded position ({pos[0]}, {pos[1]}) at {now}.')
+        print(f'\n[~] Recorded position ({pos[0]}, {pos[1]}) at {now}')
         time.sleep(0.6)

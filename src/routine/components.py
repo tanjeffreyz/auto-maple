@@ -15,9 +15,9 @@ class Component:
 
     def __init__(self, *args, **kwargs):
         if len(args) > 1:
-            raise TypeError('Component superclass __init__ only accepts 1 (optional) argument: LOCALS.')
+            raise TypeError('Component superclass __init__ only accepts 1 (optional) argument: LOCALS')
         if len(kwargs) != 0:
-            raise TypeError('Component superclass __init__ does not accept any keyword arguments.')
+            raise TypeError('Component superclass __init__ does not accept any keyword arguments')
         if len(args) == 0:
             self.kwargs = {}
         elif type(args[0]) != dict:

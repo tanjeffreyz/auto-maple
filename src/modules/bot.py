@@ -114,7 +114,7 @@ class Bot(Configurable):
             if solution:
                 print(', '.join(solution))
                 if solution in inferences:
-                    print('Solution found, entering result.')
+                    print('Solution found, entering result')
                     for arrow in solution:
                         press(arrow, 1, down_time=0.1)
                     time.sleep(1)
