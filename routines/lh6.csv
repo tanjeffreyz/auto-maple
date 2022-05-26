@@ -1,0 +1,77 @@
+*, x=0.681, y=0.291, frequency=1, skip=False, adjust=False
+    Shikigami, direction=right, attacks=2, repetitions=1
+*, x=0.652, y=0.291, frequency=1, skip=False, adjust=False
+    Tengu
+    Exorcist, jump=True
+*, x=0.709, y=0.291, frequency=1, skip=False, adjust=False
+    Shikigami, direction=right, attacks=2, repetitions=1
+    Teleport, direction=left, jump=False
+*, x=0.518, y=0.291, frequency=1, skip=False, adjust=False
+    NineTails
+*, x=0.450, y=0.291, frequency=1, skip=False, adjust=True
+    Yaksha, direction=left
+*, x=0.227, y=0.461, frequency=1, skip=False, adjust=False
+    Buff
+    Exorcist, jump=False
+*, x=0.100, y=0.461, frequency=1, skip=False, adjust=False
+    Shikigami, direction=right, attacks=2, repetitions=1
+*, x=0.250, y=0.582, frequency=1, skip=False, adjust=True
+    LucidSoul, direction=left
+    Shikigami, direction=right, attacks=2, repetitions=1
+*, x=0.362, y=0.582, frequency=1, skip=False, adjust=False
+    Tengu
+    Teleport, direction=right, jump=False
+*, x=0.520, y=0.582, frequency=1, skip=False, adjust=False
+    Kishin
+*, x=0.680, y=0.582, frequency=1, skip=False, adjust=True
+    Balance
+    Domain
+*, x=0.823, y=0.582, frequency=1, skip=False, adjust=False
+    Exorcist, jump=True
+    Teleport, direction=up, jump=False
+*, x=0.504, y=0.404, frequency=1, skip=False, adjust=False
+    Tengu
+*, x=0.681, y=0.404, frequency=1, skip=False, adjust=False
+    Shikigami, direction=left, attacks=2, repetitions=1
+*, x=0.837, y=0.404, frequency=1, skip=False, adjust=False
+    Charm
+*, x=0.851, y=0.291, frequency=1, skip=False, adjust=False
+    Exorcist, jump=True
+    Teleport, direction=up, jump=False
+*, x=0.872, y=0.170, frequency=1, skip=False, adjust=False
+    Shikigami, direction=left, attacks=2, repetitions=1
+    Teleport, direction=left, jump=False
+*, x=0.681, y=0.170, frequency=1, skip=False, adjust=False
+    Exorcist, jump=False
+    Shikigami, direction=left, attacks=2, repetitions=1
+    Tengu
+    Teleport, direction=left, jump=False
+*, x=0.468, y=0.170, frequency=1, skip=False, adjust=False
+    Shikigami, direction=right, attacks=2, repetitions=1
+    Teleport, direction=down, jump=False
+*, x=0.450, y=0.291, frequency=1, skip=False, adjust=True
+    Balance
+    Yaksha, direction=left
+    Shikigami, direction=right, attacks=2, repetitions=1
+    Teleport, direction=left, jump=False
+*, x=0.100, y=0.291, frequency=1, skip=False, adjust=False
+    Legion
+    Teleport, direction=up, jump=False
+*, x=0.100, y=0.170, frequency=1, skip=False, adjust=False
+    Tengu
+    Shikigami, direction=right, attacks=2, repetitions=1
+    Teleport, direction=right, jump=False
+*, x=0.241, y=0.170, frequency=1, skip=False, adjust=False
+    Tengu
+    Shikigami, direction=left, attacks=2, repetitions=1
+*, x=0.220, y=0.291, frequency=1, skip=False, adjust=False
+    Shikigami, direction=right, attacks=2, repetitions=1
+*, x=0.213, y=0.461, frequency=1, skip=False, adjust=False
+    Shikigami, direction=left, attacks=2, repetitions=1
+*, x=0.078, y=0.582, frequency=1, skip=False, adjust=False
+    Yukimusume
+*, x=0.250, y=0.582, frequency=1, skip=False, adjust=True
+    LucidSoul, direction=left
+*, x=0.430, y=0.582, frequency=1, skip=False, adjust=False
+    Kishin
+    Teleport, direction=right, jump=False
