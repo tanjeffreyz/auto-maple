@@ -1,5 +1,7 @@
 """User friendly GUI to interact with Auto Maple."""
 
+import time
+import threading
 import tkinter as tk
 from tkinter import ttk
 from src.common import config, settings
@@ -7,6 +9,7 @@ from gui_components import Menu, View, Edit, Settings
 
 
 class GUI:
+    DISPLAY_FRAME_RATE = 30
     RESOLUTIONS = {
         'DEFAULT': '800x800',
         'Edit': '1400x800'
@@ -71,9 +74,17 @@ class GUI:
     def start(self):
         """Starts the GUI as well as any scheduled functions."""
 
-        self.view.minimap.display_minimap()
+        self.display_thread = threading.Thread(target=self._display_minimap)
+        self.display_thread.daemon = True
+        self.display_thread.start()
         self._save_layout()
         self.root.mainloop()
+
+    def _display_minimap(self):
+        delay = 1 / GUI.DISPLAY_FRAME_RATE
+        while True:
+            self.view.minimap.display_minimap()
+            time.sleep(delay)
 
     def _save_layout(self):         # TODO: move to bot main loop, file I/O is costly, blocks gui main loop
         """Periodically saves the current Layout object."""

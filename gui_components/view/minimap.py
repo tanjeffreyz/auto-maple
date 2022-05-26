@@ -80,4 +80,3 @@ class Minimap(LabelFrame):
             else:
                 self.canvas.itemconfig(self.container, image=img)
             self._img = img                 # Prevent garbage collection
-        self.after(50, self.display_minimap)
