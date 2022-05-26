@@ -1,12 +1,15 @@
 import tkinter as tk
 import keyboard as kb
 from gui_components.interfaces import LabelFrame, Frame
-from src.common import config, utils
+from src.common import utils
+from src.modules.interfaces import Configurable
 
 
 class KeyBindings(LabelFrame):
-    def __init__(self, parent, **kwargs):
-        super().__init__(parent, 'Key Bindings', **kwargs)
+    def __init__(self, parent, label, target, **kwargs):
+        super().__init__(parent, label, **kwargs)
+        assert isinstance(target, Configurable)
+        self.target = target
 
         self.columnconfigure(0, minsize=300)
 
@@ -29,8 +32,8 @@ class KeyBindings(LabelFrame):
         self.contents = Frame(self)
         self.contents.grid(row=0, column=0, sticky=tk.NSEW, padx=5, pady=5)
 
-        if config.listener is not None:         # For when running GUI only
-            for action, key in config.listener.config.items():
+        if self.target is not None:         # For when running GUI only
+            for action, key in self.target.config.items():
                 self.forward[action] = key
                 self.backward[key] = action
                 self.create_entry(action, key)
@@ -48,30 +51,29 @@ class KeyBindings(LabelFrame):
         self.contents.destroy()
         self.create_edit_ui()
 
-    @utils.run_if_disabled('\n[!] Cannot save key bindings while Auto Maple is enabled.')
+    @utils.run_if_disabled('\n[!] Cannot save key bindings while Auto Maple is enabled')
     def save(self):
         utils.print_separator()
-        print('[~] Saving key bindings...')
+        print(f"[~] Saving key bindings to '{self.target.TARGET}':")
 
         failures = 0
         for action, key in self.forward.items():
             if key != '':
-                config.listener.config[action] = key
+                self.target.config[action] = key
             else:
-                print(f" !  Action '{action}' was not bound to a key.")
+                print(f" !  Action '{action}' was not bound to a key")
                 failures += 1
 
-        config.listener.save_config()
+        self.target.save_config()
         if failures == 0:
-            print('[~] Successfully saved all key bindings.')
+            print(' ~  Successfully saved all key bindings')
         else:
-            print(f'[~] Successfully saved all except for {failures} key bindings.')
+            print(f' ~  Successfully saved all except for {failures} key bindings')
         self.create_edit_ui()
 
     def create_entry(self, action, key):
         """
-        Creates an input row for a single key bind. KEY is the name of its action
-        while VALUE is its currently assigned key.
+        Creates an input row for a single key bind. ACTION is assigned to KEY.
         """
 
         display_var = tk.StringVar(value=key)

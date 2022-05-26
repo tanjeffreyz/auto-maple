@@ -10,7 +10,7 @@ from datetime import datetime
 
 
 class Listener(Configurable):
-    TARGET = 'keybinds'
+    TARGET = 'controls'
     DEFAULT_CONFIG = {
         'Start/stop': 'insert',
         'Reload routine': 'f6',
@@ -34,7 +34,7 @@ class Listener(Configurable):
         :return:    None
         """
 
-        print('\n[~] Started keyboard listener.')
+        print('\n[~] Started keyboard listener')
         self.thread.start()
 
     def _main(self):

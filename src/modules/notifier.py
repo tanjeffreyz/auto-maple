@@ -42,7 +42,7 @@ class Notifier:
     def start(self):
         """Starts this Notifier's thread."""
 
-        print('\n[~] Started notifier.')
+        print('\n[~] Started notifier')
         self.thread.start()
 
     def _main(self):

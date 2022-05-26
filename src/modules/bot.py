@@ -23,7 +23,7 @@ RUNE_BUFF_TEMPLATE = cv2.imread('assets/rune_buff_template.jpg', 0)
 class Bot(Configurable):
     """A class that interprets and executes user-defined routines."""
 
-    TARGET = 'controls'
+    TARGET = 'keybindings'
     DEFAULT_CONFIG = {
         'Interact': 'y',
         'Feed pet': '9'
@@ -57,7 +57,7 @@ class Bot(Configurable):
         :return:    None
         """
 
-        print('\n[~] Started main bot loop.')
+        print('\n[~] Started main bot loop')
         self.thread.start()
 
     def _main(self):
@@ -66,9 +66,9 @@ class Bot(Configurable):
         :return:    None
         """
 
-        print('\n[~] Initializing detection algorithm...\n')
+        print('\n[~] Initializing detection algorithm:\n')
         model = detection.load_model()
-        print('\n[~] Initialized detection algorithm.')
+        print('\n[~] Successfully initialized detection algorithm')
 
         self.ready = True
         config.listener.enabled = True
