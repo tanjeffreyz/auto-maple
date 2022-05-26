@@ -13,7 +13,7 @@ from src.routine import components
 from src.routine.routine import Routine
 from src.routine.components import Point
 from src.common.vkeys import press, click
-from src.modules.interfaces import Configurable
+from src.common.interfaces import Configurable
 
 
 # The rune's buff icon
@@ -23,7 +23,6 @@ RUNE_BUFF_TEMPLATE = cv2.imread('assets/rune_buff_template.jpg', 0)
 class Bot(Configurable):
     """A class that interprets and executes user-defined routines."""
 
-    TARGET = 'keybindings'
     DEFAULT_CONFIG = {
         'Interact': 'y',
         'Feed pet': '9'
@@ -32,7 +31,7 @@ class Bot(Configurable):
     def __init__(self):
         """Loads a user-defined routine on start up and initializes this Bot's main thread."""
 
-        super().__init__()
+        super().__init__('keybindings')
         config.bot = self
 
         self.rune_active = False
@@ -72,9 +71,18 @@ class Bot(Configurable):
 
         self.ready = True
         config.listener.enabled = True
+        last_fed = time.time()
         while True:
             if config.enabled and len(config.routine) > 0:
+                # Buff and feed pets
                 self.buff.main()
+                pet_settings = config.gui.settings.pets
+                auto_feed = pet_settings.auto_feed.get()
+                num_pets = pet_settings.num_pets.get()
+                now = time.time()
+                if auto_feed and now - last_fed > 1200 / num_pets:
+                    press(self.config['Feed pet'], 1)
+                    last_fed = now
 
                 # Highlight the current Point
                 config.gui.view.routine.select(config.routine.index)

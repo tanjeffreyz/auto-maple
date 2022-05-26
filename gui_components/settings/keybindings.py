@@ -2,7 +2,7 @@ import tkinter as tk
 import keyboard as kb
 from gui_components.interfaces import LabelFrame, Frame
 from src.common import utils
-from src.modules.interfaces import Configurable
+from src.common.interfaces import Configurable
 
 
 class KeyBindings(LabelFrame):

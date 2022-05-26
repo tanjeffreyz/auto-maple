@@ -4,13 +4,12 @@ import time
 import threading
 import winsound
 import keyboard as kb
-from src.modules.interfaces import Configurable
+from src.common.interfaces import Configurable
 from src.common import config, utils
 from datetime import datetime
 
 
 class Listener(Configurable):
-    TARGET = 'controls'
     DEFAULT_CONFIG = {
         'Start/stop': 'insert',
         'Reload routine': 'f6',
@@ -20,7 +19,7 @@ class Listener(Configurable):
     def __init__(self):
         """Initializes this Listener object's main thread."""
 
-        super().__init__()
+        super().__init__('controls')
         config.listener = self
 
         self.enabled = False

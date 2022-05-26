@@ -2,7 +2,8 @@
 
 import tkinter as tk
 from gui_components.settings.keybindings import KeyBindings
-from gui_components.interfaces import Tab
+from gui_components.settings.pets import Pets
+from gui_components.interfaces import Tab, Frame
 from src.common import config
 
 
@@ -13,8 +14,14 @@ class Settings(Tab):
         self.columnconfigure(0, weight=1)
         self.columnconfigure(3, weight=1)
 
-        self.controls = KeyBindings(self, 'Auto Maple Controls', config.listener)
-        self.controls.grid(row=0, column=1, sticky=tk.N, padx=10, pady=10)
+        column1 = Frame(self)
+        column1.grid(row=0, column=1, sticky=tk.N, padx=10, pady=10)
+        self.controls = KeyBindings(column1, 'Auto Maple Controls', config.listener)
+        self.controls.pack(side=tk.TOP, fill='x', expand=True)
 
-        self.key_bindings = KeyBindings(self, 'In-game Keybindings', config.bot)
-        self.key_bindings.grid(row=0, column=2, sticky=tk.N, padx=10, pady=10)
+        column2 = Frame(self)
+        column2.grid(row=0, column=2, sticky=tk.N, padx=10, pady=10)
+        self.key_bindings = KeyBindings(column2, 'In-game Keybindings', config.bot)
+        self.key_bindings.pack(side=tk.TOP, fill='x', expand=True)
+        self.pets = Pets(column2)
+        self.pets.pack(side=tk.TOP, fill='x', expand=True, pady=(10, 0))

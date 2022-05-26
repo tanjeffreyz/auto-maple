@@ -10,7 +10,8 @@ class Configurable:
         'Default configuration': 'None'
     }
 
-    def __init__(self):
+    def __init__(self, target):
+        self.TARGET = target
         self.config = self.DEFAULT_CONFIG.copy()
         self.load_config()
 
