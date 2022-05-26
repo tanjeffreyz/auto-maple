@@ -30,7 +30,7 @@ class KeyBindings(LabelFrame):
         self.contents.grid(row=0, column=0, sticky=tk.NSEW, padx=5, pady=5)
 
         if config.listener is not None:         # For when running GUI only
-            for action, key in config.listener.key_binds.items():
+            for action, key in config.listener.config.items():
                 self.forward[action] = key
                 self.backward[key] = action
                 self.create_entry(action, key)
@@ -56,12 +56,12 @@ class KeyBindings(LabelFrame):
         failures = 0
         for action, key in self.forward.items():
             if key != '':
-                config.listener.key_binds[action] = key
+                config.listener.config[action] = key
             else:
                 print(f" !  Action '{action}' was not bound to a key.")
                 failures += 1
 
-        config.listener.save_keybindings()
+        config.listener.save_config()
         if failures == 0:
             print('[~] Successfully saved all key bindings.')
         else:

@@ -13,18 +13,26 @@ from src.routine import components
 from src.routine.routine import Routine
 from src.routine.components import Point
 from src.common.vkeys import press, click
+from src.modules.interfaces import Configurable
 
 
 # The rune's buff icon
 RUNE_BUFF_TEMPLATE = cv2.imread('assets/rune_buff_template.jpg', 0)
 
 
-class Bot:
+class Bot(Configurable):
     """A class that interprets and executes user-defined routines."""
+
+    TARGET = 'controls'
+    DEFAULT_CONFIG = {
+        'Interact': 'y',
+        'Feed pet': '9'
+    }
 
     def __init__(self):
         """Loads a user-defined routine on start up and initializes this Bot's main thread."""
 
+        super().__init__()
         config.bot = self
 
         self.rune_active = False
@@ -62,8 +70,6 @@ class Bot:
         model = detection.load_model()
         print('\n[~] Initialized detection algorithm.')
 
-        # mss.windows.CAPTUREBLT = 0
-        # with mss.mss() as sct:
         self.ready = True
         config.listener.enabled = True
         while True:
@@ -98,7 +104,7 @@ class Bot:
         adjust = self.command_book['adjust']
         adjust(*self.rune_pos).execute()
         time.sleep(0.2)
-        press('y', 1, down_time=0.2)        # Press 'y' to interact with rune in-game
+        press(self.config['Interact'], 1, down_time=0.2)        # Inherited from Configurable
         print('\nSolving rune:')
         inferences = []
         for _ in range(15):

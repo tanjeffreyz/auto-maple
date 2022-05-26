@@ -1,33 +1,29 @@
 """A keyboard listener to track user inputs."""
-import os.path
+
 import time
 import threading
 import winsound
-import pickle
 import keyboard as kb
+from src.modules.interfaces import Configurable
 from src.common import config, utils
-from os.path import isfile
 from datetime import datetime
 
 
-class Listener:
-    TARGET = '.settings/keybinds'
-    DEFAULT_KEYBINDS = {
+class Listener(Configurable):
+    TARGET = 'keybinds'
+    DEFAULT_CONFIG = {
         'Start/stop': 'insert',
         'Reload routine': 'f6',
-        'Record position': 'f7',
-        'Feed pet': '9'
+        'Record position': 'f7'
     }
 
     def __init__(self):
         """Initializes this Listener object's main thread."""
 
+        super().__init__()
         config.listener = self
 
         self.enabled = False
-        self.key_binds = Listener.DEFAULT_KEYBINDS.copy()
-        self.load_keybindings()
-
         self.ready = False
         self.thread = threading.Thread(target=self._main)
         self.thread.daemon = True
@@ -50,11 +46,11 @@ class Listener:
         self.ready = True
         while True:
             if self.enabled:
-                if kb.is_pressed(self.key_binds['Start/stop']):
+                if kb.is_pressed(self.config['Start/stop']):
                     Listener.toggle_enabled()
-                elif kb.is_pressed(self.key_binds['Reload routine']):
+                elif kb.is_pressed(self.config['Reload routine']):
                     Listener.reload_routine()
-                elif kb.is_pressed(self.key_binds['Record position']):
+                elif kb.is_pressed(self.config['Record position']):
                     Listener.record_position()
             time.sleep(0.01)
 
@@ -101,17 +97,3 @@ class Listener:
         config.gui.edit.record.add_entry(now, pos)
         print(f'\n[~] Recorded position ({pos[0]}, {pos[1]}) at {now}.')
         time.sleep(0.6)
-
-    def load_keybindings(self):
-        if isfile(Listener.TARGET):
-            with open(Listener.TARGET, 'rb') as file:
-                self.key_binds = pickle.load(file)
-        else:
-            self.save_keybindings()
-
-    def save_keybindings(self):
-        directory = os.path.dirname(Listener.TARGET)
-        if not os.path.exists(directory):
-            os.makedirs(directory)
-        with open(Listener.TARGET, 'wb') as file:
-            pickle.dump(self.key_binds, file)
