@@ -99,7 +99,7 @@ class Notifier:
         self.mixer.load('./assets/alerts/alert.mp3')
         self.mixer.set_volume(0.75)
         self.mixer.play(-1)
-        while not kb.is_pressed(config.listener.key_binds['Start/stop']):
+        while not kb.is_pressed(config.listener.config['Start/stop']):
             time.sleep(0.1)
         self.mixer.stop()
         time.sleep(2)
