@@ -1,9 +1,9 @@
 """Displays Auto Maple's current settings and allows the user to edit them."""
 
 import tkinter as tk
-from gui_components.settings.keybindings import KeyBindings
-from gui_components.settings.pets import Pets
-from gui_components.interfaces import Tab, Frame
+from src.gui_components.settings.keybindings import KeyBindings
+from src.gui_components.settings.pets import Pets
+from src.gui_components.interfaces import Tab, Frame
 from src.common import config
 
 

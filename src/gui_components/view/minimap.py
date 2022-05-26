@@ -1,7 +1,7 @@
 import cv2
 import tkinter as tk
 from PIL import ImageTk, Image
-from gui_components.interfaces import LabelFrame
+from src.gui_components.interfaces import LabelFrame
 from src.common import config, utils
 from src.routine.components import Point
 

@@ -1,11 +1,11 @@
 """Displays the current minimap as well as various information regarding the current routine."""
 
 import tkinter as tk
-from gui_components.view.details import Details
-from gui_components.view.minimap import Minimap
-from gui_components.view.routine import Routine
-from gui_components.view.status import Status
-from gui_components.interfaces import Tab
+from src.gui_components.view.details import Details
+from src.gui_components.view.minimap import Minimap
+from src.gui_components.view.routine import Routine
+from src.gui_components.view.status import Status
+from src.gui_components.interfaces import Tab
 
 
 class View(Tab):

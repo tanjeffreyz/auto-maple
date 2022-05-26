@@ -1,6 +1,6 @@
 import tkinter as tk
 from src.common import config
-from gui_components.interfaces import LabelFrame
+from src.gui_components.interfaces import LabelFrame
 
 
 class Status(LabelFrame):

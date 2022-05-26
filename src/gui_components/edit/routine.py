@@ -1,8 +1,8 @@
 import tkinter as tk
-from gui_components.edit.commands import Commands
-from gui_components.edit.components import Components
-from gui_components.edit.controls import Controls
-from gui_components.interfaces import LabelFrame, Frame
+from src.gui_components.edit.commands import Commands
+from src.gui_components.edit.components import Components
+from src.gui_components.edit.controls import Controls
+from src.gui_components.interfaces import LabelFrame, Frame
 
 
 class Routine(LabelFrame):

@@ -5,7 +5,7 @@ import threading
 import tkinter as tk
 from tkinter import ttk
 from src.common import config, settings
-from gui_components import Menu, View, Edit, Settings
+from src.gui_components import Menu, View, Edit, Settings
 
 
 class GUI:

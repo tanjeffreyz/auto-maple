@@ -1,7 +1,7 @@
 import tkinter as tk
 from src.common import config
 from src.routine.components import Point
-from gui_components.interfaces import Frame
+from src.gui_components.interfaces import Frame
 
 
 class Components(Frame):
