@@ -39,6 +39,9 @@ class Notifier:
         self.thread = threading.Thread(target=self._main)
         self.thread.daemon = True
 
+        self.room_change_threshold = 0.9
+        self.rune_alert_delay = 120
+
     def start(self):
         """Starts this Notifier's thread."""
 
@@ -48,6 +51,7 @@ class Notifier:
     def _main(self):
         self.ready = True
         prev_others = 0
+        rune_start_time = time.time()
         while True:
             if config.enabled:
                 frame = config.capture.frame
@@ -56,7 +60,7 @@ class Notifier:
 
                 # Check for unexpected black screen
                 gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-                if np.count_nonzero(gray < 15) / height / width > 0.9:
+                if np.count_nonzero(gray < 15) / height / width > self.room_change_threshold:
                     self._alert()
 
                 # Check for elite warning
@@ -75,9 +79,11 @@ class Notifier:
                     prev_others = others
 
                 # Check for rune
+                now = time.time()
                 if not config.bot.rune_active:
                     filtered = utils.filter_color(minimap, RUNE_RANGES)
                     matches = utils.multi_match(filtered, RUNE_TEMPLATE, threshold=0.9)
+                    rune_start_time = now
                     if matches and config.routine.sequence:
                         abs_rune_pos = (matches[0][0], matches[0][1])
                         config.bot.rune_pos = utils.convert_to_relative(abs_rune_pos, minimap)
@@ -86,6 +92,9 @@ class Notifier:
                         config.bot.rune_closest_pos = config.routine[index].location
                         config.bot.rune_active = True
                         self._rune_alert()
+                elif now - rune_start_time > self.rune_alert_delay:     # Alert if rune hasn't been solved
+                    config.bot.rune_active = False
+                    self._alert()
             time.sleep(0.05)
 
     def _alert(self):
