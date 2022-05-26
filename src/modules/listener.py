@@ -1,5 +1,5 @@
 """A keyboard listener to track user inputs."""
-
+import os.path
 import time
 import threading
 import winsound
@@ -11,11 +11,12 @@ from datetime import datetime
 
 
 class Listener:
-    TARGET = '.keybinds'
+    TARGET = '.settings/keybinds'
     DEFAULT_KEYBINDS = {
         'Start/stop': 'insert',
         'Reload routine': 'f6',
-        'Record position': 'f7'
+        'Record position': 'f7',
+        'Feed pet': '9'
     }
 
     def __init__(self):
@@ -109,5 +110,8 @@ class Listener:
             self.save_keybindings()
 
     def save_keybindings(self):
+        directory = os.path.dirname(Listener.TARGET)
+        if not os.path.exists(directory):
+            os.makedirs(directory)
         with open(Listener.TARGET, 'wb') as file:
             pickle.dump(self.key_binds, file)
