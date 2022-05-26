@@ -74,10 +74,14 @@ class GUI:
     def start(self):
         """Starts the GUI as well as any scheduled functions."""
 
-        self.display_thread = threading.Thread(target=self._display_minimap)
-        self.display_thread.daemon = True
-        self.display_thread.start()
-        self._save_layout()
+        display_thread = threading.Thread(target=self._display_minimap)
+        display_thread.daemon = True
+        display_thread.start()
+
+        layout_thread = threading.Thread(target=self._save_layout)
+        layout_thread.daemon = True
+        layout_thread.start()
+
         self.root.mainloop()
 
     def _display_minimap(self):
@@ -86,12 +90,13 @@ class GUI:
             self.view.minimap.display_minimap()
             time.sleep(delay)
 
-    def _save_layout(self):         # TODO: move to bot main loop, file I/O is costly, blocks gui main loop
+    def _save_layout(self):
         """Periodically saves the current Layout object."""
 
-        if config.layout is not None and settings.record_layout:
-            config.layout.save()
-        self.root.after(5000, self._save_layout)
+        while True:
+            if config.layout is not None and settings.record_layout:
+                config.layout.save()
+            time.sleep(5)
 
 
 if __name__ == '__main__':

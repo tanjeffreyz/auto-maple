@@ -65,7 +65,7 @@ class Bot(Configurable):
 
         print('\n[~] Initializing detection algorithm:\n')
         model = detection.load_model()
-        print('\n[~] Successfully initialized detection algorithm')
+        print('\n[~] Initialized detection algorithm')
 
         self.ready = True
         config.listener.enabled = True
