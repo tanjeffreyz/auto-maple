@@ -85,6 +85,7 @@ class Notifier:
                         index = np.argmin(distances)
                         config.bot.rune_closest_pos = config.routine[index].location
                         config.bot.rune_active = True
+                        self._rune_alert()
             time.sleep(0.05)
 
     def _alert(self):
@@ -95,7 +96,7 @@ class Notifier:
 
         config.enabled = False
         config.listener.enabled = False
-        self.mixer.load('./assets/alert.mp3')
+        self.mixer.load('./assets/alerts/alert.mp3')
         self.mixer.set_volume(0.75)
         self.mixer.play(-1)
         while not kb.is_pressed(config.listener.key_binds['Start/stop']):
@@ -107,8 +108,15 @@ class Notifier:
     def _ding(self):
         """A quick notification for when another player enters the map."""
 
-        self.mixer.load('./assets/ding.mp3')
+        self.mixer.load('./assets/alerts/ding.mp3')
         self.mixer.set_volume(0.50)
+        self.mixer.play()
+
+    def _rune_alert(self):
+        """Notification for when a rune appears."""
+
+        self.mixer.load('./assets/alerts/rune_alert.mp3')
+        self.mixer.set_volume(0.75)
         self.mixer.play()
 
 

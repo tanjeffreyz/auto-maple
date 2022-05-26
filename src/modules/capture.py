@@ -51,6 +51,7 @@ class Capture:
         self.minimap_ratio = 1
         self.minimap_sample = None
         self.window = (0, 0, 1366, 768)
+        self.scale = 1.0
 
         self.ready = False
         self.calibrated = False
@@ -75,6 +76,7 @@ class Capture:
                 rect = tuple(max(0, x) for x in rect)
 
                 # Preliminary window to template match minimap
+                self.scale = ctypes.windll.shcore.GetScaleFactorForDevice(0) / 100
                 self.window = (
                     rect[0],
                     rect[1],

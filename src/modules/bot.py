@@ -122,11 +122,9 @@ class Bot:
                                                       threshold=0.9)
                         if rune_buff:
                             rune_buff_pos = min(rune_buff, key=lambda p: p[0])
-                            click(
-                                (rune_buff_pos[0] + config.capture.window[0],
-                                 rune_buff_pos[1] + config.capture.window[0]),
-                                button='right'
-                            )
+                            target = tuple(round(rune_buff_pos[i] + config.capture.window[i])
+                                           for i in range(2))
+                            click(target, button='right')
                     break
                 elif len(solution) == 4:
                     inferences.append(solution)
