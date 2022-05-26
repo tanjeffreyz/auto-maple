@@ -1,11 +1,9 @@
 """A collection of classes used to execute a Routine."""
 
-import config
-import settings
-import utils
 import math
 import time
-from vkeys import key_down, key_up, press
+from src.common import config, settings, utils
+from src.common.vkeys import key_down, key_up, press
 
 
 #################################
@@ -263,6 +261,8 @@ class Move(Command):
                             key = 'right'
                         self._new_direction(key)
                         step(key, point)
+                        if settings.record_layout:
+                            config.layout.add(*config.player_pos)
                         counter -= 1
                         if i < len(path) - 1:
                             time.sleep(0.15)
@@ -275,6 +275,8 @@ class Move(Command):
                             key = 'down'
                         self._new_direction(key)
                         step(key, point)
+                        if settings.record_layout:
+                            config.layout.add(*config.player_pos)
                         counter -= 1
                         if i < len(path) - 1:
                             time.sleep(0.05)

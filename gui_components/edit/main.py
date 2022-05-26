@@ -1,9 +1,9 @@
 """Allows the user to edit routines while viewing each Point's location on the minimap."""
 
-import config
+from src.common import config
 import inspect
 import tkinter as tk
-from components import Point, Command
+from src.routine.components import Point, Command
 from gui_components.edit.minimap import Minimap
 from gui_components.edit.record import Record
 from gui_components.edit.routine import Routine

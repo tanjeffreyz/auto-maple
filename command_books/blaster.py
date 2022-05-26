@@ -1,12 +1,9 @@
 """A collection of all commands that a Blaster can use to interact with the game."""
 
-import config
 import time
-import math
-import settings
-import utils
-from components import Command
-from vkeys import press, key_down, key_up
+from src.common import settings
+from src.routine.components import Command
+from src.common.vkeys import press, key_down, key_up
 
 #
 # class Move(Command):

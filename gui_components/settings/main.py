@@ -1,7 +1,6 @@
 """Displays Auto Maple's current settings and allows the user to edit them."""
 
-import config
-import utils
+from src.common import config, utils
 import tkinter as tk
 import keyboard as kb
 from gui_components.interfaces import Tab, Frame, LabelFrame

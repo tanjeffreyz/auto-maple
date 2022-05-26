@@ -1,9 +1,8 @@
 """User friendly GUI to interact with Auto Maple."""
 
-import config
 import tkinter as tk
 from tkinter import ttk
-import settings
+from src.common import config, settings
 from gui_components import Menu, View, Edit, Settings
 
 
@@ -76,7 +75,7 @@ class GUI:
         self._save_layout()
         self.root.mainloop()
 
-    def _save_layout(self):
+    def _save_layout(self):         # TODO: move to bot main loop, file I/O is costly, blocks gui main loop
         """Periodically saves the current Layout object."""
 
         if config.layout is not None and settings.record_layout:

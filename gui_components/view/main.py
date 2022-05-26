@@ -1,11 +1,10 @@
 """Displays the current minimap as well as various information regarding the current routine."""
 
-import config
-import utils
+from src.common import config, utils
 import cv2
 import tkinter as tk
 from gui_components.interfaces import LabelFrame, Tab
-from components import Point
+from src.routine.components import Point
 from PIL import Image, ImageTk
 
 

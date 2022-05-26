@@ -1,19 +1,19 @@
 """An interpreter that reads and executes user-created routines."""
 
-import config
-import detection
+
 import threading
 import time
 import cv2
-import utils
 import inspect
-import components
 import numpy as np
 from PIL import ImageGrab
 from os.path import splitext, basename
-from routine import Routine
-from components import Point
-from vkeys import press, click
+from src.common import config, utils
+from src.detection import detection
+from src.routine import components
+from src.routine.routine import Routine
+from src.routine.components import Point
+from src.common.vkeys import press, click
 
 
 # The rune's buff icon
@@ -117,12 +117,16 @@ class Bot:
                         time.sleep(0.3)
                         frame = np.array(ImageGrab.grab(config.capture.window))
                         frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
-                        rune_buff = utils.multi_match(frame[:frame.shape[0]//8, :],
+                        rune_buff = utils.multi_match(frame[:frame.shape[0] // 8, :],
                                                       RUNE_BUFF_TEMPLATE,
                                                       threshold=0.9)
                         if rune_buff:
                             rune_buff_pos = min(rune_buff, key=lambda p: p[0])
-                            click(rune_buff_pos, button='right')
+                            click(
+                                (rune_buff_pos[0] + config.capture.window[0],
+                                 rune_buff_pos[1] + config.capture.window[0]),
+                                button='right'
+                            )
                     break
                 elif len(solution) == 4:
                     inferences.append(solution)

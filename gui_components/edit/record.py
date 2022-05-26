@@ -1,6 +1,5 @@
 import tkinter as tk
-
-from components import Point
+from src.routine.components import Point
 from gui_components.interfaces import LabelFrame
 
 

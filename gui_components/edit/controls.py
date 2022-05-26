@@ -1,6 +1,5 @@
 import tkinter as tk
-
-import config
+from src.common import config
 from gui_components.interfaces import Frame
 
 

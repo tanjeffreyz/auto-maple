@@ -1,11 +1,8 @@
 import tkinter as tk
-
 import cv2
 from PIL import ImageTk, Image
-
-import config
-import utils
-from components import Point
+from src.common import config, utils
+from src.routine.components import Point
 from gui_components.interfaces import LabelFrame
 
 

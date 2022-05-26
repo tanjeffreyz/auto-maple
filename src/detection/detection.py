@@ -1,9 +1,9 @@
 """A module for classifying directional arrows using TensorFlow."""
 
-import utils
 import cv2
 import tensorflow as tf
 import numpy as np
+from src.common import utils
 
 
 #########################
@@ -178,7 +178,7 @@ def merge_detection(model, image):
 
 # Script for testing the detection module by itself
 if __name__ == '__main__':
-    import config
+    from src.common import config, utils
     import mss
     config.enabled = True
     monitor = {'top': 0, 'left': 0, 'width': 1366, 'height': 768}

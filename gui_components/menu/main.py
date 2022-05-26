@@ -1,12 +1,10 @@
 """A menu for loading routines and command books."""
 
-import config
-import utils
+from src.common import config, utils
 import queue
 import tkinter as tk
 from tkinter.filedialog import askopenfilename, asksaveasfilename
 from tkinter.messagebox import askyesno
-from bot import Bot
 
 
 class Menu(tk.Menu):

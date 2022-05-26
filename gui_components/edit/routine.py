@@ -1,5 +1,4 @@
 import tkinter as tk
-
 from gui_components.edit.commands import Commands
 from gui_components.edit.components import Components
 from gui_components.edit.controls import Controls

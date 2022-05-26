@@ -1,12 +1,11 @@
 """A keyboard listener to track user inputs."""
 
-import config
 import time
-import utils
 import threading
 import winsound
 import pickle
 import keyboard as kb
+from src.common import config, utils
 from os.path import isfile
 from datetime import datetime
 

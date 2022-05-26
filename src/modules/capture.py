@@ -1,12 +1,11 @@
 """A module for tracking useful in-game information."""
 
-import config
-import utils
 import time
 import cv2
 import threading
 import ctypes
 import numpy as np
+from src.common import config, utils
 from ctypes import wintypes
 from PIL import ImageGrab
 user32 = ctypes.windll.user32

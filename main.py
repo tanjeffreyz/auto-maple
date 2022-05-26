@@ -1,11 +1,11 @@
 """The central program that ties all the modules together."""
 
 import time
-from bot import Bot
-from capture import Capture
-from notifier import Notifier
-from listener import Listener
-from gui import GUI
+from src.modules.bot import Bot
+from src.modules.capture import Capture
+from src.modules.notifier import Notifier
+from src.modules.listener import Listener
+from src.modules.gui import GUI
 
 
 bot = Bot()

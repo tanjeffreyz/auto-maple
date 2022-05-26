@@ -1,14 +1,13 @@
 """A module for detecting and notifying the user of dangerous in-game events."""
 
-import config
-import utils
+from src.common import config, utils
 import time
 import cv2
 import pygame
 import threading
 import numpy as np
 import keyboard as kb
-from components import Point
+from src.routine.components import Point
 
 
 # A rune's symbol on the minimap
@@ -57,7 +56,7 @@ class Notifier:
 
                 # Check for unexpected black screen
                 gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-                if np.count_nonzero(gray < 15) / height / width > 0.75:
+                if np.count_nonzero(gray < 15) / height / width > 0.9:
                     self._alert()
 
                 # Check for elite warning

@@ -2,9 +2,9 @@
 
 import ctypes
 import time
-import utils
 import win32con
 import win32api
+from src.common import utils
 from ctypes import wintypes
 from random import random
 

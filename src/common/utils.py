@@ -1,12 +1,11 @@
 """A collection of functions and classes used across multiple modules."""
 
-import config
-import settings
 import math
 import queue
 import cv2
 import threading
 import numpy as np
+from src.common import config, settings
 from random import random
 
 

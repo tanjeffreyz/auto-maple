@@ -1,3 +1,4 @@
+$, target=record_layout, value=True
 $, target=move_tolerance, value=0.075
 
 @, label=main
@@ -8,7 +9,7 @@ $, target=move_tolerance, value=0.075
     Shikigami, direction=right, attacks=2, repetitions=1
 >, label=loot, frequency=4, skip=False
 *, x=0.873, y=0.200, frequency=1, skip=False, adjust=False
-    Fall, distance=0.05
+    Fall, distance=0.02
 
 @, label=afterboss
 *, x=0.055, y=0.125, frequency=1, skip=False, adjust=False
@@ -37,7 +38,7 @@ $, target=move_tolerance, value=0.075
     Walk, direction=left, duration=0.2
     Shikigami, direction=left, attacks=2, repetitions=1
 *, x=0.225, y=0.200, frequency=1, skip=False, adjust=False
-    Fall, distance=0.05
+    Fall, distance=0.02
     Walk, direction=left, duration=0.2
     Tengu
 *, x=0.660, y=0.083, frequency=1, skip=False, adjust=False
@@ -59,7 +60,7 @@ $, target=move_tolerance, value=0.075
     Shikigami, direction=right, attacks=2, repetitions=1
 >, label=boss2, frequency=5, skip=True
 *, x=0.873, y=0.200, frequency=1, skip=False, adjust=False
-    Fall, distance=0.05
+    Fall, distance=0.02
     Walk, direction=right, duration=0.2
 
 @, label=afterboss2
@@ -76,8 +77,8 @@ $, target=move_tolerance, value=0.075
     Teleport, direction=left, jump=False
     Yaksha, direction=left
 *, x=0.750, y=0.200, frequency=3, skip=True, adjust=False
-    Fall, distance=0.05
+    Fall, distance=0.02
 >, label=afterboss, frequency=3, skip=True
 *, x=0.750, y=0.200, frequency=1, skip=False, adjust=False
-    Fall, distance=0.05
+    Fall, distance=0.02
 >, label=afterboss2, frequency=1, skip=False

@@ -1,12 +1,10 @@
 """A collection of all commands that a Kanna can use to interact with the game."""
 
-import config
+from src.common import config, settings, utils
 import time
 import math
-import settings
-import utils
-from components import Command
-from vkeys import press, key_down, key_up
+from src.routine.components import Command
+from src.common.vkeys import press, key_down, key_up
 
 
 # List of key mappings

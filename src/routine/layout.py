@@ -1,11 +1,9 @@
 """A module for saving map layouts and determining shortest paths."""
 
-import config
-import settings
-import utils
 import cv2
 import math
 import pickle
+from src.common import config, settings, utils
 from os.path import join, isfile, splitext, basename
 from heapq import heappush, heappop
 
