@@ -85,7 +85,9 @@ class Capture:
                 )
 
                 # Calibrate by finding the bottom right corner of the minimap
-                self.frame = np.array(ImageGrab.grab(self.window))
+                self.frame = self.screenshot()
+                if self.frame is None:
+                    continue
                 self.frame = cv2.cvtColor(self.frame, cv2.COLOR_RGB2BGR)
                 tl, _ = utils.single_match(self.frame, MM_TL_TEMPLATE)
                 _, br = utils.single_match(self.frame, MM_BR_TEMPLATE)
@@ -110,7 +112,9 @@ class Capture:
                 self.calibrated = True
 
             # Take screenshot
-            self.frame = np.array(ImageGrab.grab(self.window))
+            self.frame = self.screenshot()
+            if self.frame is None:
+                continue
             self.frame = cv2.cvtColor(self.frame, cv2.COLOR_RGB2BGR)
 
             # Crop the frame to only show the minimap
@@ -133,3 +137,11 @@ class Capture:
             if not self.ready:
                 self.ready = True
             time.sleep(0.001)
+
+    def screenshot(self, delay=1):
+        try:
+            return np.array(ImageGrab.grab(self.window))
+        except OSError:
+            print(f'\n[!] Error while taking screenshot, retrying in {delay} second'
+                  + ('s' if delay != 1 else ''))
+            time.sleep(delay)
