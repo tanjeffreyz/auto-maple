@@ -211,9 +211,10 @@ class Bot(Configurable):
             return False
 
     @staticmethod
-    def _update_submodules():
+    def _update_submodules(force=False):
         print('\n[~] Retrieving latest submodules:')
         repo = git.Repo.init()
+        changed = False
         with open('.gitmodules', 'r') as file:
             lines = file.readlines()
             i = 0
@@ -221,14 +222,26 @@ class Bot(Configurable):
                 if lines[i].startswith('[') and i < len(lines) - 2:
                     path = lines[i + 1].split('=')[1].strip()
                     url = lines[i + 2].split('=')[1].strip()
-                    try:
+                    try:        # First time loading submodule
                         repo.git.clone(url, path)
+                        changed = True
                         print(f" -  Initialized submodule '{path}'")
                     except git.exc.GitCommandError:
                         sub_repo = git.Repo(path)
-                        sub_repo.git.fetch('origin', 'main')
-                        sub_repo.git.reset('--hard', 'FETCH_HEAD')
-                        print(f" -  Updated submodule '{path}'")
+                        if force:
+                            sub_repo.git.fetch('origin', 'main')
+                            sub_repo.git.reset('--hard', 'FETCH_HEAD')
+                            changed = True
+                            print(f" -  Force-updated submodule '{path}'")
+                        else:
+                            try:
+                                sub_repo.git.pull('origin', 'main')
+                                changed = True
+                                print(f" -  Updated submodule '{path}'")
+                            except git.exc.GitCommandError:
+                                print(f" !  Uncommitted changes in submodule '{path}'")
                     i += 3
                 else:
                     i += 1
+        if not changed:
+            print(' ~  All submodules are already up to date')
