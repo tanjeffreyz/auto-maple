@@ -3,7 +3,7 @@ import cv2
 from PIL import ImageTk, Image
 from src.common import config, utils
 from src.routine.components import Point
-from src.gui_components.interfaces import LabelFrame
+from src.gui.interfaces import LabelFrame
 
 
 class Minimap(LabelFrame):

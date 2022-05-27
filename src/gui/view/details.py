@@ -1,5 +1,5 @@
 import tkinter as tk
-from src.gui_components.interfaces import LabelFrame
+from src.gui.interfaces import LabelFrame
 from src.common import config
 
 
