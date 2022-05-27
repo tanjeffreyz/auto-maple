@@ -37,6 +37,7 @@ class Bot(Configurable):
         self.rune_pos = (0, 0)
         self.rune_closest_pos = (0, 0)      # Location of the Point closest to rune
         self.submodules = {}
+        self.module_name = None
         self.buff = components.Buff()
 
         self.command_book = {}
@@ -166,7 +167,8 @@ class Bot(Configurable):
 
         # Import the desired command book file
         module_name = splitext(basename(file))[0]
-        module = __import__(f'resources.command_books.{module_name}', fromlist=[''])
+        target = '.'.join(['resources', 'command_books', module_name])
+        module = __import__(target, fromlist=[''])
 
         # Check if the 'step' function has been implemented
         step_found = False
@@ -197,18 +199,20 @@ class Bot(Configurable):
                 new_cb[name] = command
 
         if not step_found and not movement_found:
-            print(f" !  Error: Must either implement both the 'move' and 'adjust' commands, "
+            print(f" !  Error: Must either implement both 'Move' and 'Adjust' commands, "
                   f"or the function 'step'.")
         if required_found and (step_found or movement_found):
+            self.module_name = module_name
             self.command_book = new_cb
             self.buff = new_cb['buff']()
             components.step = new_step
+            config.gui.menu.file.enable_routine_state()
             config.gui.view.status.set_cb(basename(file))
             config.routine.clear()
-            print(f"[~] Successfully loaded command book '{module_name}'.")
+            print(f" ~  Successfully loaded command book '{module_name}'.")
             return True
         else:
-            print(f"[!] Command book '{module_name}' was not loaded.")
+            print(f" !  Command book '{module_name}' was not loaded.")
             return False
 
     def update_submodules(self, force=False):
