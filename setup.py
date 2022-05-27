@@ -1,7 +1,6 @@
 """Creates a desktop shortcut that can run Auto Maple from anywhere."""
 
 import os
-import git
 import argparse
 import win32com.client as client
 
@@ -36,25 +35,9 @@ def create_desktop_shortcut():
     print(' ~  Successfully created Auto Maple shortcut')
 
 
-def update_submodules():
-    print('\n[~] Updating submodules:')
-    repo = git.Repo.init()
-    output = repo.git.submodule('update', '--init', '--recursive')
-    changed = False
-    for line in output.split('\n'):
-        if line:
-            print(f' -  {line}')
-            changed = True
-    if changed:
-        print(' ~  Finished updating submodules')
-    else:
-        print(' ~  No changes found in submodules')
-
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--stay', action='store_true')
     args = parser.parse_args()
 
     create_desktop_shortcut()
-    update_submodules()
