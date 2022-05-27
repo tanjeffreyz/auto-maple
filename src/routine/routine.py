@@ -226,7 +226,7 @@ class Routine:
         config.layout = Layout.load(file)
         config.gui.view.status.set_routine(basename(file))
         config.gui.edit.minimap.draw_default()
-        print(f"[~] Finished loading routine '{basename(splitext(file)[0])}'.")
+        print(f" ~  Finished loading routine '{basename(splitext(file)[0])}'.")
 
     def compile(self, file):
         self.labels = {}

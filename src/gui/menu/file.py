@@ -22,7 +22,6 @@ class File(MenuBarItem):
         )
 
     def enable_routine_state(self):
-        print(config.bot.module_name)
         self.entryconfig('Load Routine', state=tk.NORMAL)
 
     @staticmethod

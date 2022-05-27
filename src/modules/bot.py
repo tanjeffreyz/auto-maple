@@ -209,10 +209,10 @@ class Bot(Configurable):
             config.gui.menu.file.enable_routine_state()
             config.gui.view.status.set_cb(basename(file))
             config.routine.clear()
-            print(f"[~] Successfully loaded command book '{module_name}'.")
+            print(f" ~  Successfully loaded command book '{module_name}'.")
             return True
         else:
-            print(f"[!] Command book '{module_name}' was not loaded.")
+            print(f" !  Command book '{module_name}' was not loaded.")
             return False
 
     def update_submodules(self, force=False):

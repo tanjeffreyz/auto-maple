@@ -64,7 +64,6 @@ class Node:
 class Layout:
     """Uses a quadtree to represent possible player positions in a map layout."""
 
-    LAYOUTS_DIR = os.path.join(config.RESOURCES_DIR, 'layouts', config.bot.module_name)
     TOLERANCE = settings.move_tolerance / 2
 
     def __init__(self, name):
@@ -266,13 +265,13 @@ class Layout:
         """
 
         layout_name = splitext(basename(routine))[0]
-        target = f'{Layout.LAYOUTS_DIR}/{layout_name}'
+        target = os.path.join(get_layouts_dir(), layout_name)
         if isfile(target):
-            print(f" ~  Found existing Layout file at '{target}'.")
+            print(f" -  Found existing Layout file at '{target}'.")
             with open(target, 'rb') as file:
                 return pickle.load(file)
         else:
-            print(f" ~  Created new Layout file at '{target}'.")
+            print(f" -  Created new Layout file at '{target}'.")
             new_layout = Layout(layout_name)
             new_layout.save()
             return new_layout
@@ -285,5 +284,12 @@ class Layout:
         :return:    None
         """
 
-        with open(join(Layout.LAYOUTS_DIR, self.name), 'wb') as file:
+        layouts_dir = get_layouts_dir()
+        if not os.path.exists(layouts_dir):
+            os.makedirs(layouts_dir)
+        with open(join(layouts_dir, self.name), 'wb') as file:
             pickle.dump(self, file)
+
+
+def get_layouts_dir():
+    return os.path.join(config.RESOURCES_DIR, 'layouts', config.bot.module_name)
