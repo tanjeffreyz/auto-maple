@@ -38,7 +38,7 @@ def create_desktop_shortcut():
 
 def update_submodules():
     print('\n[~] Updating submodules:')
-    repo = git.Repo()
+    repo = git.Repo.init()
     output = repo.git.submodule('update', '--init', '--recursive')
     changed = False
     for line in output.split('\n'):
