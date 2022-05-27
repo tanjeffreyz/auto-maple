@@ -64,7 +64,7 @@ class Node:
 class Layout:
     """Uses a quadtree to represent possible player positions in a map layout."""
 
-    LAYOUTS_DIR = os.path.join(config.RESOURCES_DIR, 'layouts')
+    LAYOUTS_DIR = os.path.join(config.RESOURCES_DIR, 'layouts', config.bot.module_name)
     TOLERANCE = settings.move_tolerance / 2
 
     def __init__(self, name):
