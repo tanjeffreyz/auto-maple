@@ -1,6 +1,12 @@
 """A collection of variables shared across multiple modules."""
 
 
+#########################
+#       Constants       #
+#########################
+RESOURCES_DIR = 'resources'
+
+
 #################################
 #       Global Variables        #
 #################################

@@ -1,5 +1,6 @@
 """A module for saving map layouts and determining shortest paths."""
 
+import os
 import cv2
 import math
 import pickle
@@ -63,7 +64,7 @@ class Node:
 class Layout:
     """Uses a quadtree to represent possible player positions in a map layout."""
 
-    LAYOUTS_DIR = 'layouts'
+    LAYOUTS_DIR = os.path.join(config.RESOURCES_DIR, 'layouts')
     TOLERANCE = settings.move_tolerance / 2
 
     def __init__(self, name):
