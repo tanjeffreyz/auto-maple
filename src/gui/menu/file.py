@@ -1,4 +1,5 @@
 import os
+import tkinter as tk
 from src.common import config, utils
 from src.gui.interfaces import MenuBarItem
 from tkinter.filedialog import askopenfilename, asksaveasfilename
@@ -14,7 +15,15 @@ class File(MenuBarItem):
         self.add_command(label='Save Routine', command=utils.async_callback(self, File._save_routine))
         self.add_separator()
         self.add_command(label='Load Command Book', command=utils.async_callback(self, File._load_commands))
-        self.add_command(label='Load Routine', command=utils.async_callback(self, File._load_routine))
+        self.add_command(
+            label='Load Routine',
+            command=utils.async_callback(self, File._load_routine),
+            state=tk.DISABLED
+        )
+
+    def enable_routine_state(self):
+        print(config.bot.module_name)
+        self.entryconfig('Load Routine', state=tk.NORMAL)
 
     @staticmethod
     @utils.run_if_disabled('\n[!] Cannot create a new routine while Auto Maple is enabled')
@@ -30,7 +39,7 @@ class File(MenuBarItem):
     @staticmethod
     @utils.run_if_disabled('\n[!] Cannot save routines while Auto Maple is enabled')
     def _save_routine():
-        file_path = asksaveasfilename(initialdir=os.path.join(config.RESOURCES_DIR, 'routines'),
+        file_path = asksaveasfilename(initialdir=get_routines_dir(),
                                       title='Save routine',
                                       filetypes=[('*.csv', '*.csv')],
                                       defaultextension='*.csv')
@@ -46,7 +55,7 @@ class File(MenuBarItem):
                                     'Would you like to proceed anyways?',
                             icon='warning'):
                 return
-        file_path = askopenfilename(initialdir=os.path.join(config.RESOURCES_DIR, 'routines'),
+        file_path = askopenfilename(initialdir=get_routines_dir(),
                                     title='Select a routine',
                                     filetypes=[('*.csv', '*.csv')])
         if file_path:
@@ -66,3 +75,12 @@ class File(MenuBarItem):
                                     filetypes=[('*.py', '*.py')])
         if file_path:
             config.bot.load_commands(file_path)
+
+
+def get_routines_dir():
+    target = os.path.join(config.RESOURCES_DIR, 'routines')
+    if config.bot.module_name is not None:
+        target = os.path.join(target, config.bot.module_name)
+    if not os.path.exists(target):
+        os.makedirs(target)
+    return target

@@ -40,6 +40,7 @@ class GUI:
 
         self.navigation.pack(expand=True, fill='both')
         self.navigation.bind('<<NotebookTabChanged>>', self._resize_window)
+        self.root.focus()
 
     def set_routine(self, arr):
         self.routine_var.set(arr)
