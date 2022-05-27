@@ -2,6 +2,7 @@
 
 import threading
 import time
+import git
 import cv2
 import inspect
 from os.path import splitext, basename
@@ -54,6 +55,7 @@ class Bot(Configurable):
         :return:    None
         """
 
+        Bot._update_submodules()
         print('\n[~] Started main bot loop')
         self.thread.start()
 
@@ -207,3 +209,26 @@ class Bot(Configurable):
         else:
             print(f"[!] Command book '{module_name}' was not loaded.")
             return False
+
+    @staticmethod
+    def _update_submodules():
+        print('\n[~] Retrieving latest submodules:')
+        repo = git.Repo.init()
+        with open('.gitmodules', 'r') as file:
+            lines = file.readlines()
+            i = 0
+            while i < len(lines):
+                if lines[i].startswith('[') and i < len(lines) - 2:
+                    path = lines[i + 1].split('=')[1].strip()
+                    url = lines[i + 2].split('=')[1].strip()
+                    try:
+                        repo.git.clone(url, path)
+                        print(f" -  Initialized submodule '{path}'")
+                    except git.exc.GitCommandError:
+                        sub_repo = git.Repo(path)
+                        sub_repo.git.fetch('origin', 'main')
+                        sub_repo.git.reset('--hard', 'FETCH_HEAD')
+                        print(f" -  Updated submodule '{path}'")
+                    i += 3
+                else:
+                    i += 1
