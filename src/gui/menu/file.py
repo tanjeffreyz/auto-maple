@@ -25,7 +25,6 @@ class File(MenuBarItem):
                                     'Would you like to proceed anyways?',
                             icon='warning'):
                 return
-
         config.routine.clear()
 
     @staticmethod
@@ -47,7 +46,6 @@ class File(MenuBarItem):
                                     'Would you like to proceed anyways?',
                             icon='warning'):
                 return
-
         file_path = askopenfilename(initialdir=os.path.join(config.RESOURCES_DIR, 'routines'),
                                     title='Select a routine',
                                     filetypes=[('*.csv', '*.csv')])
@@ -63,7 +61,6 @@ class File(MenuBarItem):
                                     'which has unsaved changes. Would you like to proceed anyways?',
                             icon='warning'):
                 return
-
         file_path = askopenfilename(initialdir=os.path.join(config.RESOURCES_DIR, 'command_books'),
                                     title='Select a command book',
                                     filetypes=[('*.py', '*.py')])

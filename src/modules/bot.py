@@ -56,7 +56,7 @@ class Bot(Configurable):
         :return:    None
         """
 
-        self._update_submodules()
+        self.update_submodules()
         print('\n[~] Started main bot loop')
         self.thread.start()
 
@@ -211,7 +211,7 @@ class Bot(Configurable):
             print(f"[!] Command book '{module_name}' was not loaded.")
             return False
 
-    def _update_submodules(self, force=False):
+    def update_submodules(self, force=False):
         print('\n[~] Retrieving latest submodules:')
         repo = git.Repo.init()
         changed = False
