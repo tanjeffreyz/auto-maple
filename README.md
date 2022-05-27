@@ -197,17 +197,3 @@ Auto Maple has the ability to automatically solve "runes", or in-game arrow key 
     This shortcut uses absolute paths, so feel free to move it wherever you want. However, if you move Auto Maple's main directory, you will need to run <code>python setup.py</code> again to generate a new shortcut. To keep the command prompt open after Auto Maple closes, run the above command with the <code>--stay</code> flag.
   </li>
 </ol>
-
-
-<br>
-
-
-<h2 align="center">
-  Reflection
-</h2>
-
-From working on this project, I truly learned a lot. Auto Maple not only allowed me to apply the knowledge I learned in lectures to a challenging problem, but it also introduced me to many exciting and complex concepts such as machine learning and Canny edge detection. However, perhaps more importantly, working on Auto Maple has given me a deeper appreciation of human problem solving and a clearer understanding of just how hard it is for a computer to emulate that.
-
-Early in this project, when I was still trying to get the character to move to locations on the minimap, I resorted to letting the program blindly move horizontally and vertically until it reached its target. This was very inefficient and often resulted in the character getting stuck. Later, I realized that memory was the main aspect Auto Maple was missing: human gamers remember where they've been, which places are safe to walk on, and which places aren't. This gave me the idea to create a Layout class to help the program chart a path in advance based on where it has already been, much like a human.
-
-In the end, Auto Maple is still far from perfect. It can't predict and prevent missteps like we can. It can't reproduce the fluid actions of a practiced gamer. But acknowledging these shortcomings inspires me to continue learning and experimenting with new ways to make programs faster and smarter.
