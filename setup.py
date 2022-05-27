@@ -40,10 +40,15 @@ def update_submodules():
     print('\n[~] Updating submodules:')
     repo = git.Repo()
     output = repo.git.submodule('update', '--init', '--recursive')
+    changed = False
     for line in output.split('\n'):
         if line:
             print(f' -  {line}')
-    print(' ~  Finished updating submodules')
+            changed = True
+    if changed:
+        print(' ~  Finished updating submodules')
+    else:
+        print(' ~  No changes found in submodules')
 
 
 if __name__ == '__main__':
