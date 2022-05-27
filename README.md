@@ -2,7 +2,7 @@
   Auto Maple
 </h1>
 
-Auto Maple is an intelligent Python program that plays MapleStory, a 2D side-scrolling MMORPG, using simulated key presses, TensorFlow machine learning, OpenCV template matching, and other computer vision techniques.
+Auto Maple is an intelligent Python bot that plays MapleStory, a 2D side-scrolling MMORPG, using simulated key presses, TensorFlow machine learning, OpenCV template matching, and other computer vision techniques.
 
 <br>
 
