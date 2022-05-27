@@ -22,3 +22,9 @@ class Tab(Frame):
     def __init__(self, parent, name, **kwargs):
         super().__init__(parent, **kwargs)
         parent.add(self, text=name)
+
+
+class MenuBarItem(tk.Menu):
+    def __init__(self, parent, label, **kwargs):
+        super().__init__(parent, **kwargs)
+        parent.add_cascade(label=label, menu=self)
