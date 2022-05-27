@@ -12,7 +12,7 @@ class Update(MenuBarItem):
         self.add_command(label='Resources', command=self._resources)
 
     def _resources(self):
-        prompt = ResourcesPrompt(self)
+        ResourcesPrompt(self)
 
 
 class ResourcesPrompt(tk.Toplevel):
@@ -65,7 +65,6 @@ class ResourcesPrompt(tk.Toplevel):
                             message='Updating resources will overwrite local changes. '
                                     'Do you wish to proceed?',
                             icon='warning'):
-                # self._close()
                 return
         config.bot.update_submodules(force=True)
         self._close()
