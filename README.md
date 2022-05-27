@@ -172,7 +172,7 @@ Auto Maple has the ability to automatically solve "runes", or in-game arrow key 
 
 
 <h2 align="center">
-  Setup Instructions
+  Setup
 </h2>
 
 <ol>
