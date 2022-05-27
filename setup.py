@@ -8,7 +8,7 @@ import win32com.client as client
 
 def create_desktop_shortcut():
     """Creates and saves a desktop shortcut using absolute paths"""
-    print('\n[~] Creating a desktop shortcut for Auto Maple:')
+    print('\n[~] Creating desktop shortcut for Auto Maple:')
     CWD = os.getcwd()
     TARGET = os.path.join(os.environ['WINDIR'], 'System32', 'cmd.exe')
     PATH = os.path.join(os.environ['USERPROFILE'], 'Desktop', 'Auto Maple.lnk')
@@ -38,7 +38,7 @@ def create_desktop_shortcut():
 
 def update_submodules():
     print('\n[~] Updating submodules:')
-    repo = git.Repo()
+    repo = git.Repo.init()
     output = repo.git.submodule('update', '--init', '--recursive')
     changed = False
     for line in output.split('\n'):

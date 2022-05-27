@@ -4,11 +4,11 @@ from src.common import config
 import inspect
 import tkinter as tk
 from src.routine.components import Point, Command
-from src.gui_components.edit.minimap import Minimap
-from src.gui_components.edit.record import Record
-from src.gui_components.edit.routine import Routine
-from src.gui_components.edit.status import Status
-from src.gui_components.interfaces import Tab, Frame, LabelFrame
+from src.gui.edit.minimap import Minimap
+from src.gui.edit.record import Record
+from src.gui.edit.routine import Routine
+from src.gui.edit.status import Status
+from src.gui.interfaces import Tab, Frame, LabelFrame
 
 
 class Edit(Tab):

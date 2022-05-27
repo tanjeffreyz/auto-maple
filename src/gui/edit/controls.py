@@ -1,6 +1,6 @@
 import tkinter as tk
 from src.common import config
-from src.gui_components.interfaces import Frame
+from src.gui.interfaces import Frame
 
 
 class Controls(Frame):
