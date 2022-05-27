@@ -163,7 +163,7 @@ class Bot(Configurable):
 
         # Import the desired command book file
         module_name = splitext(basename(file))[0]
-        module = __import__(f'command_books.{module_name}', fromlist=[''])
+        module = __import__(f'resources.command_books.{module_name}', fromlist=[''])
 
         # Check if the 'step' function has been implemented
         step_found = False

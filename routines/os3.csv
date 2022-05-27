@@ -1,0 +1,100 @@
+$, target=move_tolerance, value=0.075
+*, x=0.49, y=0.16, frequency=1, skip=False, adjust=True
+    Yaksha, direction=left
+
+@, label=kishin
+*, x=0.360, y=0.257, frequency=1, skip=False, adjust=False
+    Kishin
+*, x=0.543, y=0.257, frequency=1, skip=False, adjust=False
+    Shikigami, direction=right, attacks=2, repetitions=1
+*, x=0.754, y=0.257, frequency=1, skip=False, adjust=True
+    Shikigami, direction=right, attacks=2, repetitions=1
+
+@, label=main1
+*, x=0.754, y=0.183, frequency=1, skip=False, adjust=False
+    Shikigami, direction=left, attacks=3, repetitions=1
+    Shikigami, direction=right, attacks=3, repetitions=1
+    Exorcist, jump=False
+    Wait, duration=0.4
+    Teleport, direction=up, jump=False
+*, x=0.754, y=0.097, frequency=2, skip=False, adjust=False
+    Shikigami, direction=left, attacks=3, repetitions=1
+    Shikigami, direction=right, attacks=2, repetitions=1
+*, x=0.754, y=0.097, frequency=2, skip=False, adjust=True
+    Teleport, direction=down, jump=False
+*, x=0.754, y=0.097, frequency=2, skip=True, adjust=False
+    Shikigami, direction=right, attacks=3, repetitions=1
+    Shikigami, direction=left, attacks=2, repetitions=1
+*, x=0.754, y=0.097, frequency=2, skip=True, adjust=True
+    Teleport, direction=down, jump=False
+>, label=boss1, frequency=5, skip=True
+>, label=main1, frequency=1, skip=False
+
+@, label=boss1
+*, x=0.49, y=0.16, frequency=1, skip=False, adjust=True
+    Yaksha, direction=left
+>, label=loot_domain, frequency=3, skip=True
+>, label=main1, frequency=1, skip=False
+
+@, label=loot_domain
+*, x=0.754, y=0.183, frequency=1, skip=False, adjust=False
+    Exorcist, jump=False
+    Wait, duration=0.6
+*, x=0.754, y=0.257, frequency=1, skip=False, adjust=True
+    Domain
+*, x=0.846, y=0.257, frequency=1, skip=False, adjust=False
+    Shikigami, direction=right, attacks=3, repetitions=1
+*, x=0.869, y=0.177, frequency=1, skip=False, adjust=False
+    Shikigami, direction=right, attacks=3, repetitions=1
+    Shikigami, direction=right, attacks=2, repetitions=1
+*, x=0.846, y=0.097, frequency=1, skip=False, adjust=False
+    Shikigami, direction=right, attacks=3, repetitions=1
+    Shikigami, direction=left, attacks=2, repetitions=1
+*, x=0.650, y=0.097, frequency=1, skip=False, adjust=False
+    Shikigami, direction=left, attacks=3, repetitions=1
+*, x=0.474, y=0.063, frequency=1, skip=False, adjust=False
+    Shikigami, direction=left, attacks=3, repetitions=1
+*, x=0.280, y=0.080, frequency=1, skip=False, adjust=False
+    Shikigami, direction=left, attacks=3, repetitions=1
+    Shikigami, direction=left, attacks=2, repetitions=1
+    Teleport, direction=down, jump=False
+*, x=0.28, y=0.16, frequency=1, skip=False, adjust=False
+    Shikigami, direction=left, attacks=2, repetitions=1
+*, x=0.46, y=0.16, frequency=1, skip=False, adjust=True
+    Yaksha, direction=right
+    Teleport, direction=down, jump=False
+*, x=0.36, y=0.257, frequency=1, skip=False, adjust=False
+    Kishin
+*, x=0.25, y=0.257, frequency=1, skip=False, adjust=True
+    Shikigami, direction=left, attacks=3, repetitions=1
+    Teleport, direction=up, jump=False
+
+@, label=main2
+*, x=0.297, y=0.16, frequency=1, skip=False, adjust=False
+    Shikigami, direction=left, attacks=3, repetitions=1
+    Shikigami, direction=right, attacks=3, repetitions=1
+*, x=0.297, y=0.16, frequency=1, skip=False, adjust=True
+    Teleport, direction=up, jump=False
+    Shikigami, direction=left, attacks=3, repetitions=1
+    Shikigami, direction=left, attacks=2, repetitions=1
+    Teleport, direction=down, jump=False
+>, label=boss2, frequency=5, skip=True
+>, label=main2, frequency=1, skip=False
+
+@, label=boss2
+>, label=loot_no_domain, frequency=2, skip=True
+*, x=0.45, y=0.16, frequency=1, skip=False, adjust=False
+    Yaksha, direction=right
+>, label=main2, frequency=1, skip=False
+
+@, label=loot_no_domain
+*, x=0.49, y=0.160, frequency=1, skip=False, adjust=True
+    Yaksha, direction=left
+*, x=0.486, y=0.063, frequency=1, skip=False, adjust=False
+    Shikigami, direction=left, attacks=2, repetitions=1
+*, x=0.280, y=0.080, frequency=1, skip=False, adjust=False
+    Shikigami, direction=left, attacks=2, repetitions=1
+*, x=0.28, y=0.257, frequency=1, skip=False, adjust=False
+*, x=0.183, y=0.257, frequency=1, skip=False, adjust=False
+    Shikigami, direction=left, attacks=3, repetitions=1
+>, label=kishin, frequency=1, skip=False

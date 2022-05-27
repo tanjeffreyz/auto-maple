@@ -1,10 +1,14 @@
 """A menu for loading routines and command books."""
 
-from src.common import config, utils
+import os
 import queue
 import tkinter as tk
+from src.common import config, utils
 from tkinter.filedialog import askopenfilename, asksaveasfilename
 from tkinter.messagebox import askyesno
+
+
+RESOURCE_DIR = 'resources'
 
 
 class Menu(tk.Menu):
@@ -38,7 +42,7 @@ class Menu(tk.Menu):
     @staticmethod
     @utils.run_if_disabled('\n[!] Cannot save routines while Auto Maple is enabled')
     def _save_routine():
-        file_path = asksaveasfilename(initialdir='./routines/',
+        file_path = asksaveasfilename(initialdir=os.path.join(RESOURCE_DIR, 'routines'),
                                       title='Save routine',
                                       filetypes=[('*.csv', '*.csv')],
                                       defaultextension='*.csv')
@@ -55,7 +59,7 @@ class Menu(tk.Menu):
                             icon='warning'):
                 return
 
-        file_path = askopenfilename(initialdir='./routines/',
+        file_path = askopenfilename(initialdir=os.path.join(RESOURCE_DIR, 'routines'),
                                     title='Select a routine',
                                     filetypes=[('*.csv', '*.csv')])
         if file_path:
@@ -71,7 +75,7 @@ class Menu(tk.Menu):
                             icon='warning'):
                 return
 
-        file_path = askopenfilename(initialdir='./command_books/',
+        file_path = askopenfilename(initialdir=os.path.join(RESOURCE_DIR, 'command_books'),
                                     title='Select a command book',
                                     filetypes=[('*.py', '*.py')])
         if file_path:

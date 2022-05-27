@@ -1,0 +1,62 @@
+$, target=move_tolerance, value=0.09
+$, target=buff_cooldown, value=185
+
+@, label=kish
+*, x=0.811, y=0.243, frequency=1, skip=False, adjust=False
+    Kishin
+*, x=0.640, y=0.243, frequency=1, skip=False, adjust=True
+*, x=0.415, y=0.243, frequency=1, skip=False, adjust=False
+    Yaksha, direction=right
+*, x=0.150, y=0.243, frequency=1, skip=False, adjust=False
+    Shikigami, direction=left, attacks=3, repetitions=1
+    Shikigami, direction=left, attacks=2, repetitions=1
+    Shikigami, direction=right, attacks=3, repetitions=1
+
+@, label=main
+*, x=0.275, y=0.142, frequency=1, skip=False, adjust=False
+    Shikigami, direction=left, attacks=3, repetitions=1
+    Shikigami, direction=right, attacks=3, repetitions=1
+    Wait, duration=0.05
+*, x=0.275, y=0.142, frequency=1, skip=False, adjust=True
+    Exorcist, jump=False
+    Wait, duration=0.3
+    Teleport, direction=up, jump=False
+    Shikigami, direction=right, attacks=3, repetitions=1
+    Shikigami, direction=right, attacks=2, repetitions=1
+    Teleport, direction=down, jump=False
+    Wait, duration=0.05
+>, label=boss, frequency=7, skip=True
+>, label=main, frequency=1, skip=False
+
+@, label=boss
+>, label=loot, frequency=3, skip=True
+*, x=0.415, y=0.243, frequency=1, skip=False, adjust=False
+    Yaksha, direction=right
+    Charm
+    Teleport, direction=left, jump=False
+>, label=main, frequency=1, skip=False
+
+@, label=loot
+*, x=0.125, y=0.142, frequency=1, skip=False, adjust=False
+    Yaksha, direction=right
+    Wait, duration=0.1
+    Balance
+*, x=0.257, y=0.142, frequency=1, skip=False, adjust=True
+    Exorcist, jump=False
+    Tengu
+    Teleport, direction=up, jump=False
+    Shikigami, direction=left, attacks=3, repetitions=1
+    Teleport, direction=right, jump=False
+    Shikigami, direction=right, attacks=3, repetitions=1
+    Shikigami, direction=right, attacks=2, repetitions=1
+    Walk, direction=right, duration=0.4
+    Teleport, direction=down, jump=False
+*, x=0.640, y=0.108, frequency=1, skip=False, adjust=True
+    Shikigami, direction=left, attacks=2, repetitions=1
+    Shikigami, direction=right, attacks=2, repetitions=1
+*, x=0.640, y=0.108, frequency=1, skip=False, adjust=False
+    NineTails
+    Tengu
+    Wait, duration=0.2
+*, x=0.640, y=0.243, frequency=1, skip=False, adjust=False
+>, label=kish, frequency=1, skip=False
