@@ -1,0 +1,3 @@
+[submodule "resources"]
+	path = resources
+	url = https://github.com/tanjeffreyz/auto-maple-resources.git

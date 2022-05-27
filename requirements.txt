@@ -1,3 +1,4 @@
+GitPython
 keyboard
 mss
 numpy
