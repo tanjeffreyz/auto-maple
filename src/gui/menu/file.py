@@ -77,9 +77,7 @@ class File(MenuBarItem):
 
 
 def get_routines_dir():
-    target = os.path.join(config.RESOURCES_DIR, 'routines')
-    if config.bot.module_name is not None:
-        target = os.path.join(target, config.bot.module_name)
+    target = os.path.join(config.RESOURCES_DIR, 'routines', config.bot.module_name)
     if not os.path.exists(target):
         os.makedirs(target)
     return target
