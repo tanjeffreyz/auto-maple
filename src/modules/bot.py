@@ -36,6 +36,7 @@ class Bot(Configurable):
         self.rune_active = False
         self.rune_pos = (0, 0)
         self.rune_closest_pos = (0, 0)      # Location of the Point closest to rune
+        self.submodules = {}
         self.buff = components.Buff()
 
         self.command_book = {}
@@ -55,7 +56,7 @@ class Bot(Configurable):
         :return:    None
         """
 
-        Bot._update_submodules()
+        self.update_submodules()
         print('\n[~] Started main bot loop')
         self.thread.start()
 
@@ -210,8 +211,7 @@ class Bot(Configurable):
             print(f"[!] Command book '{module_name}' was not loaded.")
             return False
 
-    @staticmethod
-    def _update_submodules(force=False):
+    def update_submodules(self, force=False):
         print('\n[~] Retrieving latest submodules:')
         repo = git.Repo.init()
         changed = False
@@ -222,6 +222,7 @@ class Bot(Configurable):
                 if lines[i].startswith('[') and i < len(lines) - 2:
                     path = lines[i + 1].split('=')[1].strip()
                     url = lines[i + 2].split('=')[1].strip()
+                    self.submodules[path] = url
                     try:        # First time loading submodule
                         repo.git.clone(url, path)
                         changed = True
