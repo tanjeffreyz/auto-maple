@@ -181,6 +181,10 @@ Auto Maple has the ability to automatically solve "runes", or in-game arrow key 
   </li>
   <li>
     Download and install the latest version of <a href="https://developer.nvidia.com/cuda-downloads">CUDA Toolkit</a>.
+  </li>
+  <li>
+    Download and install <a href="https://git-scm.com/download/win">Git</a>.
+  </li>
   <li>
     Download and unzip the latest <a href="https://github.com/tanjeffreyz02/auto-maple/releases">Auto Maple release</a>.
   </li>
