@@ -6,6 +6,7 @@ import git
 import cv2
 import inspect
 import importlib
+import traceback
 from os.path import splitext, basename
 from src.common import config, utils
 from src.detection import detection
@@ -169,8 +170,17 @@ class Bot(Configurable):
         # Import the desired command book file
         module_name = splitext(basename(file))[0]
         target = '.'.join(['resources', 'command_books', module_name])
-        module = importlib.import_module(target)
-        module = importlib.reload(module)
+        try:
+            module = importlib.import_module(target)
+            module = importlib.reload(module)
+        except ImportError:     # Display errors in the target Command Book
+            print(' !  Errors during compilation:\n')
+            for line in traceback.format_exc().split('\n'):
+                line = line.rstrip()
+                if line:
+                    print(' ' * 4 + line)
+            print(f"\n !  Command book '{module_name}' was not loaded")
+            return
 
         # Check if the 'step' function has been implemented
         step_found = False
@@ -202,7 +212,7 @@ class Bot(Configurable):
 
         if not step_found and not movement_found:
             print(f" !  Error: Must either implement both 'Move' and 'Adjust' commands, "
-                  f"or the function 'step'.")
+                  f"or the function 'step'")
         if required_found and (step_found or movement_found):
             self.module_name = module_name
             self.command_book = new_cb
@@ -211,9 +221,9 @@ class Bot(Configurable):
             config.gui.menu.file.enable_routine_state()
             config.gui.view.status.set_cb(basename(file))
             config.routine.clear()
-            print(f" ~  Successfully loaded command book '{module_name}'.")
+            print(f" ~  Successfully loaded command book '{module_name}'")
         else:
-            print(f" !  Command book '{module_name}' was not loaded.")
+            print(f" !  Command book '{module_name}' was not loaded")
 
     def update_submodules(self, force=False):
         print('\n[~] Retrieving latest submodules:')
