@@ -228,7 +228,8 @@ class Bot(Configurable):
             print(f" !  Command book '{module_name}' was not loaded")
 
     def update_submodules(self, force=False):
-        print('\n[~] Retrieving latest submodules:')
+        utils.print_separator()
+        print('[~] Retrieving latest submodules:')
         repo = git.Repo.init()
         changed = False
         with open('.gitmodules', 'r') as file:
