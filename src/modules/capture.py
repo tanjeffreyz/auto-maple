@@ -9,7 +9,6 @@ import mss.windows
 import numpy as np
 from src.common import config, utils
 from ctypes import wintypes
-# from PIL import ImageGrab
 user32 = ctypes.windll.user32
 user32.SetProcessDPIAware()
 
@@ -53,7 +52,6 @@ class Capture:
         self.minimap_ratio = 1
         self.minimap_sample = None
         self.sct = None
-        # self.window = (0, 0, 1366, 768)
         self.window = {
             'left': 0,
             'top': 0,
@@ -76,96 +74,74 @@ class Capture:
         """Constantly monitors the player's position and in-game events."""
 
         mss.windows.CAPTUREBLT = 0
-        with mss.mss() as self.sct:
-            while True:
-                if not self.calibrated:
-                    handle = user32.FindWindowW(None, 'MapleStory')
-                    rect = wintypes.RECT()
-                    user32.GetWindowRect(handle, ctypes.pointer(rect))
-                    rect = (rect.left, rect.top, rect.right, rect.bottom)
-                    rect = tuple(max(0, x) for x in rect)
+        while True:
+            # Calibrate screen capture
+            handle = user32.FindWindowW(None, 'MapleStory')
+            rect = wintypes.RECT()
+            user32.GetWindowRect(handle, ctypes.pointer(rect))
+            rect = (rect.left, rect.top, rect.right, rect.bottom)
+            rect = tuple(max(0, x) for x in rect)
 
-                    # Preliminary window to template match minimap
-                    # self.window = (
-                    #     rect[0],
-                    #     rect[1],
-                    #     max(rect[2], rect[0] + MMT_WIDTH),     # Make room for minimap templates
-                    #     max(rect[3], rect[1] + MMT_HEIGHT)
-                    # )
-                    self.window['left'] = rect[0]
-                    self.window['top'] = rect[1]
-                    self.window['width'] = max(rect[2] - rect[0], MMT_WIDTH)
-                    self.window['height'] = max(rect[3] - rect[1], MMT_HEIGHT)
+            self.window['left'] = rect[0]
+            self.window['top'] = rect[1]
+            self.window['width'] = max(rect[2] - rect[0], MMT_WIDTH)
+            self.window['height'] = max(rect[3] - rect[1], MMT_HEIGHT)
 
-                    # Calibrate by finding the bottom right corner of the minimap
+            # Calibrate by finding the bottom right corner of the minimap
+            with mss.mss() as self.sct:
+                self.frame = self.screenshot()
+            if self.frame is None:
+                continue
+            tl, _ = utils.single_match(self.frame, MM_TL_TEMPLATE)
+            _, br = utils.single_match(self.frame, MM_BR_TEMPLATE)
+            mm_tl = (
+                tl[0] + MINIMAP_BOTTOM_BORDER,
+                tl[1] + MINIMAP_TOP_BORDER
+            )
+            mm_br = (
+                max(mm_tl[0] + PT_WIDTH, br[0] - MINIMAP_BOTTOM_BORDER),
+                max(mm_tl[1] + PT_HEIGHT, br[1] - MINIMAP_BOTTOM_BORDER)
+            )
+            self.minimap_ratio = (mm_br[0] - mm_tl[0]) / (mm_br[1] - mm_tl[1])
+            self.minimap_sample = self.frame[mm_tl[1]:mm_br[1], mm_tl[0]:mm_br[0]]
+            self.calibrated = True
+
+            with mss.mss() as self.sct:
+                while True:
+                    if not self.calibrated:
+                        break
+
+                    # Take screenshot
                     self.frame = self.screenshot()
                     if self.frame is None:
                         continue
-                    # self.frame = cv2.cvtColor(self.frame, cv2.COLOR_RGB2BGR)
-                    tl, _ = utils.single_match(self.frame, MM_TL_TEMPLATE)
-                    _, br = utils.single_match(self.frame, MM_BR_TEMPLATE)
-                    mm_tl = (
-                        tl[0] + MINIMAP_BOTTOM_BORDER,
-                        tl[1] + MINIMAP_TOP_BORDER
-                    )
-                    mm_br = (
-                        max(mm_tl[0] + PT_WIDTH, br[0] - MINIMAP_BOTTOM_BORDER),
-                        max(mm_tl[1] + PT_HEIGHT, br[1] - MINIMAP_BOTTOM_BORDER)
-                    )
 
-                    # Resize window to encompass minimap if needed
-                    # self.window = (
-                    #     rect[0],
-                    #     rect[1],
-                    #     max(rect[2], mm_br[0]),
-                    #     max(rect[3], mm_br[1])
-                    # )
+                    # Crop the frame to only show the minimap
+                    minimap = self.frame[mm_tl[1]:mm_br[1], mm_tl[0]:mm_br[0]]
 
-                    self.minimap_ratio = (mm_br[0] - mm_tl[0]) / (mm_br[1] - mm_tl[1])
-                    self.minimap_sample = self.frame[mm_tl[1]:mm_br[1], mm_tl[0]:mm_br[0]]
-                    self.calibrated = True
+                    # Determine the player's position
+                    player = utils.multi_match(minimap, PLAYER_TEMPLATE, threshold=0.8)
+                    if player:
+                        config.player_pos = utils.convert_to_relative(player[0], minimap)
 
-                # Take screenshot
-                self.frame = self.screenshot()
-                if self.frame is None:
-                    continue
-                # self.frame = cv2.cvtColor(self.frame, cv2.COLOR_RGB2BGR)
+                    # Package display information to be polled by GUI
+                    self.minimap = {
+                        'minimap': minimap,
+                        'rune_active': config.bot.rune_active,
+                        'rune_pos': config.bot.rune_pos,
+                        'path': config.path,
+                        'player_pos': config.player_pos
+                    }
 
-                # Crop the frame to only show the minimap
-                minimap = self.frame[mm_tl[1]:mm_br[1], mm_tl[0]:mm_br[0]]
-
-                # Determine the player's position
-                player = utils.multi_match(minimap, PLAYER_TEMPLATE, threshold=0.8)
-                if player:
-                    config.player_pos = utils.convert_to_relative(player[0], minimap)
-
-                # Package display information to be polled by GUI
-                self.minimap = {
-                    'minimap': minimap,
-                    'rune_active': config.bot.rune_active,
-                    'rune_pos': config.bot.rune_pos,
-                    'path': config.path,
-                    'player_pos': config.player_pos
-                }
-
-                if not self.ready:
-                    self.ready = True
-                time.sleep(0.001)
-
-    # def screenshot(self, delay=1):
-    #     try:
-    #         return np.array(ImageGrab.grab(self.window))
-    #     except OSError:
-    #         print(f'\n[!] Error while taking screenshot, retrying in {delay} second'
-    #               + ('s' if delay != 1 else ''))
-    #         time.sleep(delay)
+                    if not self.ready:
+                        self.ready = True
+                    time.sleep(0.001)
 
     def screenshot(self, delay=1):
-        if self.sct is not None:
-            try:
-                return np.array(self.sct.grab(self.window))
-            except mss.exception.ScreenShotError:
-                print(f'\n[!] Error while taking screenshot, retrying in {delay} second'
-                      + ('s' if delay != 1 else ''))
-                print(self.window)
-                time.sleep(delay)
+        try:
+            return np.array(self.sct.grab(self.window))
+        except mss.exception.ScreenShotError:
+            print(f'\n[!] Error while taking screenshot, retrying in {delay} second'
+                  + ('s' if delay != 1 else ''))
+            print(self.window)
+            time.sleep(delay)
