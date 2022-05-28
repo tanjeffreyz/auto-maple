@@ -143,8 +143,10 @@ class Bot(Configurable):
                                                       threshold=0.9)
                         if rune_buff:
                             rune_buff_pos = min(rune_buff, key=lambda p: p[0])
-                            target = tuple(round(rune_buff_pos[i] + config.capture.window[i])
-                                           for i in range(2))
+                            target = (
+                                round(rune_buff_pos[0] + config.capture.window['left']),
+                                round(rune_buff_pos[1] + config.capture.window['top'])
+                            )
                             click(target, button='right')
                     self.rune_active = False
                     break
