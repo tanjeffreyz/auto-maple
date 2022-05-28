@@ -143,5 +143,4 @@ class Capture:
         except mss.exception.ScreenShotError:
             print(f'\n[!] Error while taking screenshot, retrying in {delay} second'
                   + ('s' if delay != 1 else ''))
-            print(self.window)
             time.sleep(delay)
