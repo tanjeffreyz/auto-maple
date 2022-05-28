@@ -11,8 +11,16 @@ class File(MenuBarItem):
         super().__init__(parent, 'File', **kwargs)
         # parent.add_cascade(label='File', menu=self)
 
-        self.add_command(label='New Routine', command=utils.async_callback(self, File._new_routine))
-        self.add_command(label='Save Routine', command=utils.async_callback(self, File._save_routine))
+        self.add_command(
+            label='New Routine',
+            command=utils.async_callback(self, File._new_routine),
+            state=tk.DISABLED
+        )
+        self.add_command(
+            label='Save Routine',
+            command=utils.async_callback(self, File._save_routine),
+            state=tk.DISABLED
+        )
         self.add_separator()
         self.add_command(label='Load Command Book', command=utils.async_callback(self, File._load_commands))
         self.add_command(
@@ -22,6 +30,8 @@ class File(MenuBarItem):
         )
 
     def enable_routine_state(self):
+        self.entryconfig('New Routine', state=tk.NORMAL)
+        self.entryconfig('Save Routine', state=tk.NORMAL)
         self.entryconfig('Load Routine', state=tk.NORMAL)
 
     @staticmethod
