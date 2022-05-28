@@ -144,10 +144,10 @@ class Bot(Configurable):
                             target = tuple(round(rune_buff_pos[i] + config.capture.window[i])
                                            for i in range(2))
                             click(target, button='right')
+                    self.rune_active = False
                     break
                 elif len(solution) == 4:
                     inferences.append(solution)
-        self.rune_active = False
 
     def load_commands(self, file):
         """Prompts the user to select a command module to import. Updates config's command book."""
