@@ -24,10 +24,6 @@ Auto Maple uses OpenCV template matching to determine the bounds of the minimap 
     </td>
     <td align="center" width="400px">
       <img align="center" src="https://user-images.githubusercontent.com/69165598/123177212-b16f0700-d439-11eb-8a21-8b414273f1e1.gif"/>
-      <br>
-      <sub>
-      Click <a href="https://github.com/tanjeffreyz02/Auto-Maple/blob/version-2/routines/hft.csv">here</a> to view the above routine.
-      </sub>
     </td>
   </tr>
 </table>
