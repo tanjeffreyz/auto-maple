@@ -5,6 +5,7 @@ import time
 import git
 import cv2
 import inspect
+import importlib
 from os.path import splitext, basename
 from src.common import config, utils
 from src.detection import detection
@@ -168,7 +169,8 @@ class Bot(Configurable):
         # Import the desired command book file
         module_name = splitext(basename(file))[0]
         target = '.'.join(['resources', 'command_books', module_name])
-        module = __import__(target, fromlist=[''])
+        module = importlib.import_module(target)
+        module = importlib.reload(module)
 
         # Check if the 'step' function has been implemented
         step_found = False
@@ -210,10 +212,8 @@ class Bot(Configurable):
             config.gui.view.status.set_cb(basename(file))
             config.routine.clear()
             print(f" ~  Successfully loaded command book '{module_name}'.")
-            return True
         else:
             print(f" !  Command book '{module_name}' was not loaded.")
-            return False
 
     def update_submodules(self, force=False):
         print('\n[~] Retrieving latest submodules:')
