@@ -117,7 +117,7 @@ class Bot(Configurable):
         adjust(*self.rune_pos).execute()
         time.sleep(0.2)
         press(self.config['Interact'], 1, down_time=0.2)        # Inherited from Configurable
-        
+
         print('\nSolving rune:')
         inferences = []
         for _ in range(15):
