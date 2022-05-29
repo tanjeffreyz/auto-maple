@@ -49,16 +49,24 @@ class Listener(Configurable):
                     Listener.toggle_enabled()
                 elif kb.is_pressed(self.config['Reload routine']):
                     Listener.reload_routine()
-                elif kb.is_pressed(self.config['Record position']):
+                elif self.restricted_pressed('Record position'):
                     Listener.record_position()
             time.sleep(0.01)
+
+    def restricted_pressed(self, action):
+        """Returns whether the key bound to ACTION is pressed only if the bot is disabled."""
+
+        if kb.is_pressed(self.config[action]):
+            if not config.enabled:
+                return True
+            print(f"\n[!] Cannot use '{action}' while Auto Maple is enabled")
+        return False
 
     @staticmethod
     def toggle_enabled():
         """Resumes or pauses the current routine. Plays a sound to notify the user."""
 
         config.bot.rune_active = False
-        config.bot.alert_active = False
 
         if not config.enabled:
             Listener.recalibrate_minimap()      # Recalibrate only when being enabled.
