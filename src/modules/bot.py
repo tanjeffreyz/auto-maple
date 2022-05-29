@@ -249,8 +249,11 @@ class Bot(Configurable):
                         sub_repo.git.fetch('origin', 'main')
                         sub_repo.git.reset('--hard', 'FETCH_HEAD')
                         if not force:
-                            sub_repo.git.checkout('stash', '--', '.')   # Restore modified content
-                            print(f" -  Updated submodule '{path}'")
+                            try:                # Restore modified content
+                                sub_repo.git.checkout('stash', '--', '.')
+                                print(f" -  Updated submodule '{path}', restored local changes")
+                            except git.exc.GitCommandError:
+                                print(f" -  Updated submodule '{path}'")
                         else:
                             print(f" -  Rebuilt submodule '{path}'")
                         sub_repo.git.stash('clear')
