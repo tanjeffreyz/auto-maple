@@ -8,7 +8,7 @@ import win32com.client as client
 
 
 def run_as_admin():
-    print(' !  Insufficient privileges, re-running as administrator')
+    print('\n[!] Insufficient privileges, re-running as administrator')
     ctypes.windll.shell32.ShellExecuteW(None, 'runas', sys.executable, ' '.join(sys.argv), None, 1)
     print(' ~  Finished setting up Auto Maple')
     exit(0)
@@ -26,8 +26,8 @@ def create_desktop_shortcut():
         print(" -  Leaving command prompt open after program finishes")
 
     shell = client.Dispatch('WScript.Shell')
-    PATH = os.path.join(shell.SpecialFolders('Desktop'), 'Auto Maple.lnk')
-    shortcut = shell.CreateShortCut(PATH)
+    shortcut_path = os.path.join(shell.SpecialFolders('Desktop'), 'Auto Maple.lnk')
+    shortcut = shell.CreateShortCut(shortcut_path)
     shortcut.Targetpath = TARGET
     shortcut.Arguments = flag + f' \"cd {CWD} & python main.py\"'
     shortcut.IconLocation = os.path.join(CWD, 'assets', 'icon.ico')
@@ -37,12 +37,12 @@ def create_desktop_shortcut():
         run_as_admin()
 
     # Enable "run as administrator"
-    with open(PATH, 'rb') as lnk:
+    with open(shortcut_path, 'rb') as lnk:
         arr = bytearray(lnk.read())
 
     arr[0x15] = arr[0x15] | 0x20        # Set the 6th bit of 21st byte to 1
 
-    with open(PATH, 'wb') as lnk:
+    with open(shortcut_path, 'wb') as lnk:
         lnk.write(arr)
         print(' -  Enabled the "Run as Administrator" option')
     print(' ~  Successfully created Auto Maple shortcut')
