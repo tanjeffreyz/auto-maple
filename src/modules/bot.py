@@ -117,13 +117,11 @@ class Bot(Configurable):
         adjust(*self.rune_pos).execute()
         time.sleep(0.2)
         press(self.config['Interact'], 1, down_time=0.2)        # Inherited from Configurable
+        
         print('\nSolving rune:')
         inferences = []
         for _ in range(15):
-            frame = config.capture.screenshot()
-            if frame is None:
-                continue
-            frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+            frame = config.capture.frame
             solution = detection.merge_detection(model, frame)
             if solution:
                 print(', '.join(solution))
@@ -134,10 +132,7 @@ class Bot(Configurable):
                     time.sleep(1)
                     for _ in range(3):
                         time.sleep(0.3)
-                        frame = config.capture.screenshot()
-                        if frame is None:
-                            continue
-                        frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+                        frame = config.capture.frame
                         rune_buff = utils.multi_match(frame[:frame.shape[0] // 8, :],
                                                       RUNE_BUFF_TEMPLATE,
                                                       threshold=0.9)
@@ -228,7 +223,8 @@ class Bot(Configurable):
             print(f" !  Command book '{module_name}' was not loaded")
 
     def update_submodules(self, force=False):
-        print('\n[~] Retrieving latest submodules:')
+        utils.print_separator()
+        print('[~] Retrieving latest submodules:')
         repo = git.Repo.init()
         changed = False
         with open('.gitmodules', 'r') as file:
