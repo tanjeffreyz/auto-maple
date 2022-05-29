@@ -52,21 +52,31 @@ class ResourcesPrompt(tk.Toplevel):
         controls_frame.grid(row=0, column=2, sticky=tk.NSEW, padx=10, pady=10)
         self.refresh = tk.Button(controls_frame, text='Refresh', command=self._refresh_display)
         self.refresh.pack(side=tk.TOP, pady=(10, 5))
-        self.submit = tk.Button(controls_frame, text='Update', command=self._update)
-        self.submit.pack(side=tk.BOTTOM)
+        self.soft_update = tk.Button(
+            controls_frame,
+            text='Update',
+            command=self._update
+        )
+        self.soft_update.pack(side=tk.BOTTOM)
+        self.force_update = tk.Button(
+            controls_frame,
+            text='Rebuild',
+            command=lambda: self._update(force=True)
+        )
+        self.force_update.pack(side=tk.BOTTOM)
 
         self.listbox.bindtags((self.listbox, config.gui.root, "all"))       # Unbind all events
         self.bind('<FocusIn>', lambda *_: self._refresh_display())
         self.focus()
 
-    def _update(self):
-        if self.dirty:
+    def _update(self, force=False):
+        if force and self.dirty:
             if not askyesno(title='Overwrite Local Changes',
-                            message='Updating resources will overwrite local changes. '
+                            message='Rebuilding resources will overwrite all local changes. '
                                     'Do you wish to proceed?',
                             icon='warning'):
                 return
-        config.bot.update_submodules(force=True)
+        config.bot.update_submodules(force=force)
         self._close()
 
     def _refresh_display(self):
