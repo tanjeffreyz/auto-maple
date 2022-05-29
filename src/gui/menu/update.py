@@ -63,7 +63,7 @@ class ResourcesPrompt(tk.Toplevel):
             text='Rebuild',
             command=lambda: self._update(force=True)
         )
-        self.force_update.pack(side=tk.BOTTOM)
+        self.force_update.pack(side=tk.BOTTOM, pady=(0, 5))
 
         self.listbox.bindtags((self.listbox, config.gui.root, "all"))       # Unbind all events
         self.bind('<FocusIn>', lambda *_: self._refresh_display())

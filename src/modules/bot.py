@@ -253,6 +253,7 @@ class Bot(Configurable):
                             print(f" -  Updated submodule '{path}'")
                         else:
                             print(f" -  Rebuilt submodule '{path}'")
+                        sub_repo.git.stash('clear')
                     i += 3
                 else:
                     i += 1
