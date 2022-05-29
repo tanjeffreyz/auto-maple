@@ -38,7 +38,7 @@ class Bot(Configurable):
         self.rune_active = False
         self.rune_pos = (0, 0)
         self.rune_closest_pos = (0, 0)      # Location of the Point closest to rune
-        self.submodules = {}
+        self.submodules = []
         self.module_name = None
         self.buff = components.Buff()
 
@@ -230,6 +230,7 @@ class Bot(Configurable):
 
         utils.print_separator()
         print('[~] Retrieving latest submodules:')
+        self.submodules = []
         repo = git.Repo.init()
         with open('.gitmodules', 'r') as file:
             lines = file.readlines()
@@ -238,7 +239,7 @@ class Bot(Configurable):
                 if lines[i].startswith('[') and i < len(lines) - 2:
                     path = lines[i + 1].split('=')[1].strip()
                     url = lines[i + 2].split('=')[1].strip()
-                    self.submodules[path] = url
+                    self.submodules.append(path)
                     try:
                         repo.git.clone(url, path)       # First time loading submodule
                         print(f" -  Initialized submodule '{path}'")

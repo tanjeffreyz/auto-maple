@@ -9,23 +9,27 @@ class Update(MenuBarItem):
     def __init__(self, parent, **kwargs):
         super().__init__(parent, 'Update', **kwargs)
 
-        self.add_command(label='Resources', command=self._resources)
+        for path in config.bot.submodules:
+            name = path.capitalize()
+            self.add_command(
+                label=name,
+                command=lambda: UpdatePrompt(self, name, path)
+            )
 
-    def _resources(self):
-        ResourcesPrompt(self)
 
-
-class ResourcesPrompt(tk.Toplevel):
+class UpdatePrompt(tk.Toplevel):
     RESOLUTION = '500x400'
 
-    def __init__(self, parent, **kwargs):
+    def __init__(self, parent, name, path, **kwargs):
         super().__init__(parent, **kwargs)
 
+        self.path = path
+
         self.grab_set()
-        self.title('Update Resources')
+        self.title(f'Update {name}')
         icon = tk.PhotoImage(file='assets/icon.png')
         self.iconphoto(False, icon)
-        self.geometry(ResourcesPrompt.RESOLUTION)
+        self.geometry(UpdatePrompt.RESOLUTION)
         self.resizable(False, False)
 
         self.columnconfigure(0, weight=1)
@@ -72,7 +76,7 @@ class ResourcesPrompt(tk.Toplevel):
     def _update(self, force=False):
         if force and self.dirty:
             if not askyesno(title='Overwrite Local Changes',
-                            message='Rebuilding resources will overwrite all local changes. '
+                            message=f"Rebuilding '{self.path}' will overwrite all local changes. "
                                     'Do you wish to proceed?',
                             icon='warning'):
                 return
@@ -82,10 +86,14 @@ class ResourcesPrompt(tk.Toplevel):
     def _refresh_display(self):
         self.list_var.set(['Searching for local changes...'])
         self.update()
-        repo = git.Repo('resources')
+        repo = git.Repo(self.path)
         diffs = []
-        for item in repo.index.diff(None) + repo.index.diff('HEAD'):
-            diffs.append(f'{item.change_type} - {item.a_path}')
+        paths = set()
+        for item in repo.index.diff(None) + repo.index.diff('HEAD'):        # Unstaged and staged changes
+            path = item.a_path
+            if path not in paths:       # Only show changes once per file, unstaged has precedence over staged
+                diffs.append(f'{item.change_type} - {path}')
+                paths.add(path)
         self.dirty = len(diffs) > 0
         if len(diffs) == 0:
             diffs.append('No local changes found, safe to update')
