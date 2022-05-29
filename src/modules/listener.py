@@ -15,6 +15,7 @@ class Listener(Configurable):
         'Reload routine': 'f6',
         'Record position': 'f7'
     }
+    BLOCK_DELAY = 1         # Delay after blocking restricted button press
 
     def __init__(self):
         """Initializes this Listener object's main thread."""
@@ -24,6 +25,7 @@ class Listener(Configurable):
 
         self.enabled = False
         self.ready = False
+        self.block_time = 0
         self.thread = threading.Thread(target=self._main)
         self.thread.daemon = True
 
@@ -49,16 +51,27 @@ class Listener(Configurable):
                     Listener.toggle_enabled()
                 elif kb.is_pressed(self.config['Reload routine']):
                     Listener.reload_routine()
-                elif kb.is_pressed(self.config['Record position']):
+                elif self.restricted_pressed('Record position'):
                     Listener.record_position()
             time.sleep(0.01)
+
+    def restricted_pressed(self, action):
+        """Returns whether the key bound to ACTION is pressed only if the bot is disabled."""
+
+        if kb.is_pressed(self.config[action]):
+            if not config.enabled:
+                return True
+            now = time.time()
+            if now - self.block_time > Listener.BLOCK_DELAY:
+                print(f"\n[!] Cannot use '{action}' while Auto Maple is enabled")
+                self.block_time = now
+        return False
 
     @staticmethod
     def toggle_enabled():
         """Resumes or pauses the current routine. Plays a sound to notify the user."""
 
         config.bot.rune_active = False
-        config.bot.alert_active = False
 
         if not config.enabled:
             Listener.recalibrate_minimap()      # Recalibrate only when being enabled.
