@@ -15,6 +15,7 @@ class Listener(Configurable):
         'Reload routine': 'f6',
         'Record position': 'f7'
     }
+    BLOCK_DELAY = 1         # Delay after blocking restricted button press
 
     def __init__(self):
         """Initializes this Listener object's main thread."""
@@ -24,6 +25,7 @@ class Listener(Configurable):
 
         self.enabled = False
         self.ready = False
+        self.block_time = 0
         self.thread = threading.Thread(target=self._main)
         self.thread.daemon = True
 
@@ -59,7 +61,10 @@ class Listener(Configurable):
         if kb.is_pressed(self.config[action]):
             if not config.enabled:
                 return True
-            print(f"\n[!] Cannot use '{action}' while Auto Maple is enabled")
+            now = time.time()
+            if now - self.block_time > Listener.BLOCK_DELAY:
+                print(f"\n[!] Cannot use '{action}' while Auto Maple is enabled")
+                self.block_time = now
         return False
 
     @staticmethod
