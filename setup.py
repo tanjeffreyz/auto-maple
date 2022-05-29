@@ -7,7 +7,7 @@ import argparse
 import win32com.client as client
 
 
-MAX_DEPTH = 1
+MAX_DEPTH = 1       # Run at most MAX_DEPTH additional times
 
 
 def run_as_admin():
@@ -61,7 +61,7 @@ def create_desktop_shortcut():
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--depth', default=0)
+    parser.add_argument('--depth', type=int, default=0)
     parser.add_argument('--stay', action='store_true')
     args = parser.parse_args()
 
