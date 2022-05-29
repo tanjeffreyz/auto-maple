@@ -7,18 +7,29 @@ import argparse
 import win32com.client as client
 
 
+MAX_DEPTH = 1
+
+
 def run_as_admin():
-    print('\n[!] Insufficient privileges, re-running as administrator')
-    ctypes.windll.shell32.ShellExecuteW(None, 'runas', sys.executable, ' '.join(sys.argv), None, 1)
-    print(' ~  Finished setting up Auto Maple')
+    if args.depth < MAX_DEPTH:
+        print('\n[!] Insufficient privileges, re-running as administrator')
+        ctypes.windll.shell32.ShellExecuteW(
+            None,
+            'runas',
+            sys.executable,
+            ' '.join(sys.argv + [f'--depth {args.depth + 1}']),
+            None,
+            1
+        )
+        print(' ~  Finished setting up Auto Maple')
     exit(0)
 
 
 def create_desktop_shortcut():
     """Creates and saves a desktop shortcut using absolute paths"""
     print('\n[~] Creating desktop shortcut for Auto Maple:')
-    CWD = os.getcwd()
-    TARGET = os.path.join(os.environ['WINDIR'], 'System32', 'cmd.exe')
+    cwd = os.getcwd()
+    target = os.path.join(os.environ['WINDIR'], 'System32', 'cmd.exe')
 
     flag = "/c"
     if args.stay:
@@ -28,9 +39,9 @@ def create_desktop_shortcut():
     shell = client.Dispatch('WScript.Shell')
     shortcut_path = os.path.join(shell.SpecialFolders('Desktop'), 'Auto Maple.lnk')
     shortcut = shell.CreateShortCut(shortcut_path)
-    shortcut.Targetpath = TARGET
-    shortcut.Arguments = flag + f' \"cd {CWD} & python main.py\"'
-    shortcut.IconLocation = os.path.join(CWD, 'assets', 'icon.ico')
+    shortcut.Targetpath = target
+    shortcut.Arguments = flag + f' \"cd {cwd} & python main.py\"'
+    shortcut.IconLocation = os.path.join(cwd, 'assets', 'icon.ico')
     try:
         shortcut.save()
     except:
@@ -50,6 +61,7 @@ def create_desktop_shortcut():
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
+    parser.add_argument('--depth', default=0)
     parser.add_argument('--stay', action='store_true')
     args = parser.parse_args()
 
