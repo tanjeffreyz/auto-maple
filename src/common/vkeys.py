@@ -30,9 +30,12 @@ KEY_MAP = {
     'shift': 0xA0,
     'ctrl': 0x11,
     'del': 0x2E,
+    'ins': 0x2D,
     'end': 0x23,
+    'home': 0x24,
     'page up': 0x21,
     'page down': 0x22,
+    'slk': 0x91,
 
     'left': 0x25,  # Arrow keys
     'up': 0x26,
