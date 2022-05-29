@@ -31,8 +31,8 @@ KEY_MAP = {
     'ctrl': 0x11,
     'del': 0x2E,
     'end': 0x23,
-    'pgup': 0x21,
-    'pgdown': 0x22,
+    'page up': 0x21,
+    'page down': 0x22,
 
     'left': 0x25,  # Arrow keys
     'up': 0x26,
