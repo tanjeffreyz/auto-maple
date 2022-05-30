@@ -41,12 +41,12 @@ Open environment variables, search for "env" next to the taskbar and it should c
 
 ![unknown](https://user-images.githubusercontent.com/16899482/170908120-4fc42fac-304e-494d-ab0c-465abc64793d.jpg)
 
-      And add in the following folders 
-      bin & libnvvp from "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.7" <br />
-      Also "C:\zlib\dll_x64" that contains the zlibwapi.dll
-      Press "Ok" to save the changes
+      Add in the following folders 
+      bin & libnvvp from "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.7" 
+      and "C:\zlib\dll_x64" 
+      press "Ok" to save the changes
       
-      and CUDA should now be properly installed and working for auto maple
+      CUDA should be properly installed and working for auto maple after this
       
   </li>
   <li>
