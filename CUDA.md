@@ -1,30 +1,61 @@
-<h2 align="center">
-  Setup
-</h2>
 
+<h2 align="center">
+  CUDA, cuDNN, zlib, and environment variable/PATH Setup
+</h2>
 <ol>
   <li>
-    Download and install <a href="https://www.python.org/downloads/">Python3</a>.
+    Download and install the latest version of <a href="https://developer.nvidia.com/cuda-downloads">CUDA Toolkit</a>.<br />
+      express/default settings are fine
   </li>
   <li>
-    Download and install the latest version of <a href="https://developer.nvidia.com/cuda-downloads">CUDA Toolkit</a>.
+    Download the latest version of <a href="https://developer.nvidia.com/cudnn">cuDNN</a>, you will need to make a free account for this
   </li>
   <li>
-    Download and install <a href="https://git-scm.com/download/win">Git</a>.
+   Place all the cuDNN files in the nvidia toolkit folder for the version you downloaded earlier and replace all files when it asks <br />   
+    the default install location should be at "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.7" <br /> 
+      Leave this folder open for step 5
   </li>
   <li>
-    Download and unzip the latest <a href="https://github.com/tanjeffreyz02/auto-maple/releases">Auto Maple release</a>.
+     Download <a href="http://www.winimage.com/zLibDll/zlib123dllx64.zip">zlib</a> and unzip it at "C:\"   <br /> 
+      go into the "C:\zlib\dll_x64" folder and leave it open
   </li>
   <li>
-    Download the <a href="https://drive.google.com/drive/folders/1SPdTNF4KZczoWyWTgfyTBRvLvy7WSGpu?usp=sharing">TensorFlow model</a> and unzip the "models" folder into Auto Maple's "assets" directory.
+Open environment variables, search for "env" next to the taskbar and it should come up <br /> 
+    <br /> 
+      
+![chrome_1T7oinVvK7](https://user-images.githubusercontent.com/16899482/170908758-db921e67-7963-48f8-aee5-56311727662b.jpg)
+      
+     
+      
+![unknown(1)](https://user-images.githubusercontent.com/16899482/170906902-b8867b35-3777-4ca0-ad51-89243870b256.jpg)
+      
+     Environment variables ->  
+      
+   ![chrome_cyugM6McJ0](https://user-images.githubusercontent.com/16899482/170907962-f2edc0ed-d25c-4961-bba5-100cecd57363.jpg)
+   
+      Double click on Path -> 
+      
+![chrome_VDPdMkU77j](https://user-images.githubusercontent.com/16899482/170907999-78370809-d214-4899-96e7-060d73f78c1d.jpg)
+      
+      Press new -> 
+
+![unknown](https://user-images.githubusercontent.com/16899482/170908120-4fc42fac-304e-494d-ab0c-465abc64793d.jpg)
+
+      And add in the following folders 
+      bin & libnvvp from "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.7" <br />
+      Also "C:\zlib\dll_x64" that contains the zlibwapi.dll
+      Press "Ok" to save the changes
+      
+      and CUDA should now be properly installed and working for auto maple
+      
   </li>
   <li>
-    Inside Auto Maple's main directory, open a command prompt and run:
-    <pre><code>python -m pip install -r requirements.txt</code></pre>
+    https://www.youtube.com/watch?v=hHWkvEcDBO0 Video tutorial if you are still confused after all the steps above <br />
+    ( can skip the last few steps, like installing anaconda, tensorflow etc ) <br />
   </li>
-  <li>
-    Lastly, create a desktop shortcut by running:
-    <pre><code>python setup.py</code></pre>
-    This shortcut uses absolute paths, so feel free to move it wherever you want. However, if you move Auto Maple's main directory, you will need to run <code>python setup.py</code> again to generate a new shortcut. To keep the command prompt open after Auto Maple closes, run the above command with the <code>--stay</code> flag.
-  </li>
+    
 </ol>
+
+
+
+
