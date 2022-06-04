@@ -18,12 +18,14 @@ class Settings(Tab):
         column1.grid(row=0, column=1, sticky=tk.N, padx=10, pady=10)
         self.controls = KeyBindings(column1, 'Auto Maple Controls', config.listener)
         self.controls.pack(side=tk.TOP, fill='x', expand=True)
-        self.key_bindings = KeyBindings(column1, 'In-game Keybindings', config.bot)
-        self.key_bindings.pack(side=tk.TOP, fill='x', expand=True, pady=(10, 0))
+        self.common_bindings = KeyBindings(column1, 'In-game Keybindings', config.bot)
+        self.common_bindings.pack(side=tk.TOP, fill='x', expand=True, pady=(10, 0))
         self.pets = Pets(column1)
         self.pets.pack(side=tk.TOP, fill='x', expand=True, pady=(10, 0))
 
         column2 = Frame(self)
         column2.grid(row=0, column=2, sticky=tk.N, padx=10, pady=10)
-
-
+        blank_configurable =
+        class_name = config.bot.command_book.name.capitalize()
+        self.class_bindings = KeyBindings(column2, f'No Command Book Selected', config.bot.command_book)
+        self.class_bindings.pack(side=tk.TOP, fill='x', expand=True)
