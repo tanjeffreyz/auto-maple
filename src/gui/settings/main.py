@@ -18,10 +18,12 @@ class Settings(Tab):
         column1.grid(row=0, column=1, sticky=tk.N, padx=10, pady=10)
         self.controls = KeyBindings(column1, 'Auto Maple Controls', config.listener)
         self.controls.pack(side=tk.TOP, fill='x', expand=True)
+        self.key_bindings = KeyBindings(column1, 'In-game Keybindings', config.bot)
+        self.key_bindings.pack(side=tk.TOP, fill='x', expand=True, pady=(10, 0))
+        self.pets = Pets(column1)
+        self.pets.pack(side=tk.TOP, fill='x', expand=True, pady=(10, 0))
 
         column2 = Frame(self)
         column2.grid(row=0, column=2, sticky=tk.N, padx=10, pady=10)
-        self.key_bindings = KeyBindings(column2, 'In-game Keybindings', config.bot)
-        self.key_bindings.pack(side=tk.TOP, fill='x', expand=True)
-        self.pets = Pets(column2)
-        self.pets.pack(side=tk.TOP, fill='x', expand=True, pady=(10, 0))
+
+
