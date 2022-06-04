@@ -5,7 +5,7 @@ import pickle
 class Configurable:
     TARGET = 'default_configurable'
     DIRECTORY = '.settings'
-    DEFAULT_CONFIG = {
+    DEFAULT_CONFIG = {          # Must be overridden by subclass
         'Default configuration': 'None'
     }
 
