@@ -39,8 +39,7 @@ class KeyBindings(LabelFrame):
         if target is not None:
             assert isinstance(target, Configurable)
         self.target = target
-
-        self.columnconfigure(0, minsize=300)
+        self.long = False
 
         self.displays = {}          # Holds each action's display variable
         self.forward = {}           # Maps actions to keys
@@ -49,6 +48,11 @@ class KeyBindings(LabelFrame):
         self.prev_k = ''
 
         self.contents = None
+        self.container = None
+        self.canvas = None
+        self.scrollbar = None
+        self.reset = None
+        self.save = None
         self.create_edit_ui()
 
     def create_edit_ui(self):
@@ -58,26 +62,55 @@ class KeyBindings(LabelFrame):
         self.prev_a = ''
         self.prev_k = ''
 
-        self.contents = Frame(self)
-        self.contents.grid(row=0, column=0, sticky=tk.NSEW, padx=5, pady=5)
-
-        if self.target is not None:         # For when running GUI only
-            for action, key in self.target.config.items():
-                self.forward[action] = key
-                self.backward[key] = action
-                self.create_entry(action, key)
-            self.focus()
-
-            reset = tk.Button(self.contents, text='Reset', command=self.refresh_edit_ui, takefocus=False)
-            reset.pack(side=tk.LEFT, pady=5)
-            save = tk.Button(self.contents, text='Save', command=self.save, takefocus=False)
-            save.pack(side=tk.RIGHT, pady=5)
-        else:
+        if self.target is None:
+            self.contents = Frame(self)
             self.create_disabled_entry()
+            self.contents.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=5, pady=5)
+            return
+
+        if len(self.target.config) > 27:
+            self.long = True
+            self.container = Frame(self, width=355, height=650)
+            self.container.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+            self.container.pack_propagate(False)
+            self.canvas = tk.Canvas(self.container, height=2)
+            self.scrollbar = tk.Scrollbar(self.container, command=self.canvas.yview)
+            self.scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+            self.canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+            self.contents = Frame(self.canvas)
+            self.contents.bind(
+                '<Configure>',
+                lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+            )
+            self.canvas.create_window((0, 0), window=self.contents, anchor=tk.NW)
+            self.canvas.configure(yscrollcommand=self.scrollbar.set)
+        else:
+            self.contents = Frame(self)
+            self.contents.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=5, pady=5)
+
+        for action, key in self.target.config.items():
+            self.forward[action] = key
+            self.backward[key] = action
+            self.create_entry(action, key)
+        self.focus()
+
+        self.reset = tk.Button(self, text='Reset', command=self.refresh_edit_ui, takefocus=False)
+        self.reset.pack(side=tk.LEFT, padx=5, pady=5)
+        self.save = tk.Button(self, text='Save', command=self.save, takefocus=False)
+        self.save.pack(side=tk.RIGHT, padx=5, pady=5)
 
     def refresh_edit_ui(self):
-        self.contents.destroy()
+        self.destroy_contents()
         self.create_edit_ui()
+
+    def destroy_contents(self):
+        self.contents.destroy()
+        self.reset.destroy()
+        self.save.destroy()
+        if self.long:
+            self.container.destroy()
+            self.canvas.destroy()
+            self.scrollbar.destroy()
 
     @utils.run_if_disabled('\n[!] Cannot save key bindings while Auto Maple is enabled')
     def save(self):
