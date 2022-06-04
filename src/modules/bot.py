@@ -153,6 +153,7 @@ class Bot(Configurable):
     def load_commands(self, file):
         try:
             self.command_book = CommandBook(file)
+            config.gui.settings.update_class_bindings()
         except ValueError:
             pass    # TODO: UI warning popup, say check cmd for errors
         #

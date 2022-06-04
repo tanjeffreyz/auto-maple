@@ -36,7 +36,8 @@ class MenuBarItem(tk.Menu):
 class KeyBindings(LabelFrame):
     def __init__(self, parent, label, target, **kwargs):
         super().__init__(parent, label, **kwargs)
-        assert isinstance(target, Configurable)
+        if target is not None:
+            assert isinstance(target, Configurable)
         self.target = target
 
         self.columnconfigure(0, minsize=300)
@@ -66,14 +67,13 @@ class KeyBindings(LabelFrame):
                 self.backward[key] = action
                 self.create_entry(action, key)
             self.focus()
+
+            reset = tk.Button(self.contents, text='Reset', command=self.refresh_edit_ui, takefocus=False)
+            reset.pack(side=tk.LEFT, pady=5)
+            save = tk.Button(self.contents, text='Save', command=self.save, takefocus=False)
+            save.pack(side=tk.RIGHT, pady=5)
         else:
             self.create_disabled_entry()
-
-        reset = tk.Button(self.contents, text='Reset', command=self.refresh_edit_ui, takefocus=False)
-        reset.pack(side=tk.LEFT, pady=5)
-
-        save = tk.Button(self.contents, text='Save', command=self.save, takefocus=False)
-        save.pack(side=tk.RIGHT, pady=5)
 
     def refresh_edit_ui(self):
         self.contents.destroy()
