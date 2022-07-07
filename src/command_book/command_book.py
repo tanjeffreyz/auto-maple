@@ -16,9 +16,10 @@ class CommandBook(Configurable):
         self.name = splitext(basename(file))[0]
         self.buff = components.Buff()
         self.DEFAULT_CONFIG = {}
-        self.dict = self.load_commands(file)
-        if self.dict is None:
+        result = self.load_commands(file)
+        if result is None:
             raise ValueError(f"Invalid command book at '{file}'")
+        self.dict, self.module = result
         super().__init__(self.name, directory=CB_KEYBINDING_DIR)
         
     def load_commands(self, file):
@@ -30,7 +31,7 @@ class CommandBook(Configurable):
         ext = splitext(file)[1]
         if ext != '.py':
             print(f" !  '{ext}' is not a supported file extension.")
-            return False
+            return
 
         new_step = components.step
         new_cb = {}
@@ -101,7 +102,7 @@ class CommandBook(Configurable):
             config.gui.view.status.set_cb(basename(file))
             config.routine.clear()
             print(f" ~  Successfully loaded command book '{self.name}'")
-            return new_cb
+            return new_cb, module
         else:
             print(f" !  Command book '{self.name}' was not loaded")
 
@@ -110,3 +111,15 @@ class CommandBook(Configurable):
 
     def __contains__(self, item):
         return item in self.dict
+
+    def load_config(self):
+        super().load_config()
+        self._set_keybinds()
+
+    def save_config(self):
+        self._set_keybinds()
+        super().save_config()
+
+    def _set_keybinds(self):
+        for k, v in self.config.items():
+            setattr(self.module.Key, k, v)
