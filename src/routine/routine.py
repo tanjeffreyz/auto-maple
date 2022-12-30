@@ -274,7 +274,7 @@ class Routine:
     def get_all_components():
         """Returns a dictionary mapping all creatable Components to their names."""
 
-        options = config.bot.command_book.copy()
+        options = config.bot.command_book.dict.copy()
         for e in (Point, Label, Jump, Setting):
             options[e.__name__.lower()] = e
         return options

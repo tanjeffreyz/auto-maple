@@ -81,7 +81,7 @@ class Point(Component):
             move = config.bot.command_book['move']
             move(*self.location).execute()
             if self.adjust:
-                adjust = config.bot.command_book.get('adjust')      # TODO: adjust using step('up')?
+                adjust = config.bot.command_book['adjust']      # TODO: adjust using step('up')?
                 adjust(*self.location).execute()
             for command in self.commands:
                 command.execute()

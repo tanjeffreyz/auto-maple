@@ -87,7 +87,7 @@ class Capture:
             self.window['width'] = max(rect[2] - rect[0], MMT_WIDTH)
             self.window['height'] = max(rect[3] - rect[1], MMT_HEIGHT)
 
-            # Calibrate by finding the bottom right corner of the minimap
+            # Calibrate by finding the top-left and bottom-right corners of the minimap
             with mss.mss() as self.sct:
                 self.frame = self.screenshot()
             if self.frame is None:
