@@ -1,3 +1,4 @@
+pip
 GitPython
 keyboard
 mss
@@ -6,4 +7,4 @@ opencv-python-headless
 Pillow
 pygame
 pywin32
-tensorflow-gpu
+tensorflow
