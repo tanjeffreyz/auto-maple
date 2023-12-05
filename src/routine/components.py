@@ -366,3 +366,11 @@ class Buff(Command):
     def main(self):
         print("\n[!] 'Buff' command not implemented in current command book, aborting process.")
         config.enabled = False
+
+
+class Def(Command):
+    """Undefined 'def' command for the default command book."""
+
+    def main(self):
+        print("\n[!] 'Def' command not implemented in current command book, aborting process.")
+        config.enabled = False

@@ -17,6 +17,8 @@ from src.routine.components import Point
 from src.common.vkeys import press, click
 from src.common.interfaces import Configurable
 
+from random import randint
+
 
 # The rune's buff icon
 RUNE_BUFF_TEMPLATE = cv2.imread('assets/rune_buff_template.jpg', 0)
@@ -27,7 +29,8 @@ class Bot(Configurable):
 
     DEFAULT_CONFIG = {
         'Interact': 'y',
-        'Feed pet': '9'
+        'Feed pet': '9',
+        'Change Channel': ','
     }
 
     def __init__(self):
@@ -118,7 +121,7 @@ class Bot(Configurable):
         adjust = self.command_book['adjust']
         adjust(*self.rune_pos).execute()
         time.sleep(0.2)
-        press(self.config['Interact'], 1, down_time=0.2)        # Inherited from Configurable
+        press(self.config['Interact'], 1, down_time=0.2)  # Inherited from Configurable
 
         print('\nSolving rune:')
         inferences = []
@@ -146,9 +149,36 @@ class Bot(Configurable):
                             )
                             click(target, button='right')
                     self.rune_active = False
-                    break
+                    return
                 elif len(solution) == 4:
                     inferences.append(solution)
+        self.change_channel()
+        return
+
+    def change_channel(self):
+        """
+        Changes to a random channel
+        :return:        None
+        """
+        print('\nChanging Channel')
+        self.command_book.deff.main()
+        time.sleep(6.00)
+        num_steps = randint(1, 10)
+        press(self.config['Change Channel'], 1)
+        for i in range(num_steps):
+            key = randint(1, 4)
+            if key == 1:
+                press('left', 1)
+            elif key == 2:
+                press('right', 1)
+            elif key == 3:
+                press('down', 1)
+            else:
+                press('up', 1)
+        press('enter', 1)
+
+        self.rune_active = False
+
 
     def load_commands(self, file):
         try:

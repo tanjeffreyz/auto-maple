@@ -68,13 +68,16 @@ class Notifier:
                 # Check for unexpected black screen
                 gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
                 if np.count_nonzero(gray < 15) / height / width > self.room_change_threshold:
-                    self._alert('siren')
+                    print ("Unexpected black screen")
+                    time.sleep(0.1)
+                    #self._alert('siren')
 
                 # Check for elite warning
                 elite_frame = frame[height // 4:3 * height // 4, width // 4:3 * width // 4]
                 elite = utils.multi_match(elite_frame, ELITE_TEMPLATE, threshold=0.9)
                 if len(elite) > 0:
-                    self._alert('siren')
+                    print ("Elite Warning")
+                    #self._alert('siren')
 
                 # Check for other players entering the map
                 filtered = utils.filter_color(minimap, OTHER_RANGES)
@@ -88,10 +91,12 @@ class Notifier:
                 # Check for rune
                 now = time.time()
                 if not config.bot.rune_active:
+                    #print('\nCheck for Rune')
                     filtered = utils.filter_color(minimap, RUNE_RANGES)
                     matches = utils.multi_match(filtered, RUNE_TEMPLATE, threshold=0.9)
                     rune_start_time = now
                     if matches and config.routine.sequence:
+                        #print('\nFound Rune')
                         abs_rune_pos = (matches[0][0], matches[0][1])
                         config.bot.rune_pos = utils.convert_to_relative(abs_rune_pos, minimap)
                         distances = list(map(distance_to_rune, config.routine.sequence))
@@ -101,7 +106,8 @@ class Notifier:
                         self._ping('rune_appeared', volume=0.75)
                 elif now - rune_start_time > self.rune_alert_delay:     # Alert if rune hasn't been solved
                     config.bot.rune_active = False
-                    self._alert('siren')
+                    #print ("Rune Warning")
+                    #self._alert('siren')
             time.sleep(0.05)
 
     def _alert(self, name, volume=0.75):

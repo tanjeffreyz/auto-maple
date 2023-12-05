@@ -15,6 +15,7 @@ class CommandBook(Configurable):
     def __init__(self, file):
         self.name = splitext(basename(file))[0]
         self.buff = components.Buff()
+        self.deff = components.Def()
         self.DEFAULT_CONFIG = {}
         result = self.load_commands(file)
         if result is None:
@@ -84,6 +85,13 @@ class CommandBook(Configurable):
                 new_cb[name] = command
                 print(f" !  Error: Must implement required command '{name}'.")
 
+        for command in (components.Def,):
+            name = command.__name__.lower()
+            if name not in new_cb:
+                required_found = False
+                new_cb[name] = command
+                print(f" !  Error: Must implement required command '{name}'.")
+
         # Look for overridden movement commands
         movement_found = True
         for command in (components.Move, components.Adjust):
@@ -97,6 +105,7 @@ class CommandBook(Configurable):
                   f"or the function 'step'")
         if required_found and (step_found or movement_found):
             self.buff = new_cb['buff']()
+            self.deff = new_cb['def']()
             components.step = new_step
             config.gui.menu.file.enable_routine_state()
             config.gui.view.status.set_cb(basename(file))
