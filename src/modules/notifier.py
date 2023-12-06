@@ -68,7 +68,7 @@ class Notifier:
                 # Check for unexpected black screen
                 gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
                 if np.count_nonzero(gray < 15) / height / width > self.room_change_threshold:
-                    print ("Unexpected black screen")
+                    print("Unexpected black screen")
                     time.sleep(0.1)
                     #self._alert('siren')
 

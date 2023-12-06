@@ -27,6 +27,13 @@ WINDOWED_OFFSET_LEFT = 10
 MM_TL_TEMPLATE = cv2.imread('assets/minimap_tl_template.png', 0)
 MM_BR_TEMPLATE = cv2.imread('assets/minimap_br_template.png', 0)
 
+# HP/MP bars
+HP_MP_TEMPLATE = cv2.imread('assets/hp.png', 0)
+HP_MP_COLOR_X_POT_OFFSET = 160
+HP_COLOR_Y_OFFSET = 13
+MP_COLOR_Y_OFFSET = 28
+COLOR_DIFF_THRESHOLD = 50
+
 MMT_HEIGHT = max(MM_TL_TEMPLATE.shape[0], MM_BR_TEMPLATE.shape[0])
 MMT_WIDTH = max(MM_TL_TEMPLATE.shape[1], MM_BR_TEMPLATE.shape[1])
 
@@ -49,6 +56,7 @@ class Capture:
 
         self.frame = None
         self.minimap = {}
+        self.hp_mp_info = {}
         self.minimap_ratio = 1
         self.minimap_sample = None
         self.sct = None
@@ -92,18 +100,23 @@ class Capture:
                 self.frame = self.screenshot()
             if self.frame is None:
                 continue
-            tl, _ = utils.single_match(self.frame, MM_TL_TEMPLATE)
-            _, br = utils.single_match(self.frame, MM_BR_TEMPLATE)
-            mm_tl = (
-                tl[0] + MINIMAP_BOTTOM_BORDER,
-                tl[1] + MINIMAP_TOP_BORDER
+
+            top_left, _ = utils.single_match(self.frame, MM_TL_TEMPLATE)
+            _, bottom_right = utils.single_match(self.frame, MM_BR_TEMPLATE)
+            minimap_top_left = (
+                top_left[0] + MINIMAP_BOTTOM_BORDER,
+                top_left[1] + MINIMAP_TOP_BORDER
             )
-            mm_br = (
-                max(mm_tl[0] + PT_WIDTH, br[0] - MINIMAP_BOTTOM_BORDER),
-                max(mm_tl[1] + PT_HEIGHT, br[1] - MINIMAP_BOTTOM_BORDER)
+            minimap_bottom_right = (
+                max(minimap_top_left[0] + PT_WIDTH, bottom_right[0] - MINIMAP_BOTTOM_BORDER),
+                max(minimap_top_left[1] + PT_HEIGHT, bottom_right[1] - MINIMAP_BOTTOM_BORDER)
             )
-            self.minimap_ratio = (mm_br[0] - mm_tl[0]) / (mm_br[1] - mm_tl[1])
-            self.minimap_sample = self.frame[mm_tl[1]:mm_br[1], mm_tl[0]:mm_br[0]]
+            self.minimap_ratio = (minimap_bottom_right[0] - minimap_top_left[0]) / (minimap_bottom_right[1] - minimap_top_left[1])
+            self.minimap_sample = self.frame[minimap_top_left[1]:minimap_bottom_right[1], minimap_top_left[0]:minimap_bottom_right[0]]
+
+            # Calibrate HP/MP
+            hp_top_left, hp_bottom_right = utils.single_match(self.frame, HP_MP_TEMPLATE)
+
             self.calibrated = True
 
             with mss.mss() as self.sct:
@@ -117,7 +130,9 @@ class Capture:
                         continue
 
                     # Crop the frame to only show the minimap
-                    minimap = self.frame[mm_tl[1]:mm_br[1], mm_tl[0]:mm_br[0]]
+                    minimap = self.frame[minimap_top_left[1]:minimap_bottom_right[1], minimap_top_left[0]:minimap_bottom_right[0]]
+                    hp = self.frame[hp_top_left[1] + HP_COLOR_Y_OFFSET][hp_top_left[0] + HP_MP_COLOR_X_POT_OFFSET]
+                    mp = self.frame[hp_top_left[1] + MP_COLOR_Y_OFFSET][hp_top_left[0] + HP_MP_COLOR_X_POT_OFFSET]
 
                     # Determine the player's position
                     player = utils.multi_match(minimap, PLAYER_TEMPLATE, threshold=0.8)
@@ -131,6 +146,14 @@ class Capture:
                         'rune_pos': config.bot.rune_pos,
                         'path': config.path,
                         'player_pos': config.player_pos
+                    }
+
+                    # Tells whether hp or mp are low
+                    #print(f"HP: {hp[2]} -> {abs(hp[2] - 255) > COLOR_DIFF_THRESHOLD}")
+                    #print(f"MP: {mp[0]} -> {abs(mp[0] - 255) > COLOR_DIFF_THRESHOLD}")
+                    self.hp_mp_info = {
+                        'hp_low': abs(hp[2] - 255) > COLOR_DIFF_THRESHOLD,
+                        'mp_low': abs(mp[0] - 255) > COLOR_DIFF_THRESHOLD
                     }
 
                     if not self.ready:

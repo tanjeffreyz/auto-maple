@@ -3,6 +3,7 @@
 import cv2
 import tensorflow as tf
 import numpy as np
+import uuid
 from src.common import utils
 
 
@@ -157,11 +158,14 @@ def merge_detection(model, image):
 
         # Run detection on preprocessed image
         lst = sort_by_confidence(model, preprocessed)
+        uuid_1 = uuid.uuid1()
+        #cv2.imwrite(f"assets/training/{uuid_1}.png", preprocessed)
         lst.sort(key=lambda x: x[1][1])
         classes = [label_map[item[2]] for item in lst]
 
         # Run detection on rotated image
         rotated = cv2.rotate(preprocessed, cv2.ROTATE_90_COUNTERCLOCKWISE)
+        #cv2.imwrite(f"assets/training/{uuid_1}-rotated.png", rotated)
         lst = sort_by_confidence(model, rotated)
         lst.sort(key=lambda x: x[1][2], reverse=True)
         rotated_classes = [converter[label_map[item[2]]]

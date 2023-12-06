@@ -29,8 +29,10 @@ class Bot(Configurable):
 
     DEFAULT_CONFIG = {
         'Interact': 'y',
-        'Feed pet': '9',
-        'Change Channel': ','
+        'Feed Pet': '9',
+        'Change Channel': ',',
+        'HP Pot': 'end',
+        'MP Pot': 'page down'
     }
 
     def __init__(self):
@@ -83,6 +85,17 @@ class Bot(Configurable):
         last_fed = time.time()
         while True:
             if config.enabled and len(config.routine) > 0:
+                # Use HP/MP pots if low
+                #print(config.capture.hp_mp_info)
+
+                pot_timer = time.time()
+                while config.capture.hp_mp_info['hp_low'] and (time.time() - pot_timer) < 1:
+                    print("HP low!")
+                    press(self.config['HP Pot'], 1)
+                while config.capture.hp_mp_info['mp_low'] and (time.time() - pot_timer) < 1:
+                    print("MP low!")
+                    press(self.config['MP Pot'], 1)
+
                 # Buff and feed pets
                 self.command_book.buff.main()
                 pet_settings = config.gui.settings.pets
@@ -90,7 +103,7 @@ class Bot(Configurable):
                 num_pets = pet_settings.num_pets.get()
                 now = time.time()
                 if auto_feed and now - last_fed > 1200 / num_pets:
-                    press(self.config['Feed pet'], 1)
+                    press(self.config['Feed Pet'], 1)
                     last_fed = now
 
                 # Highlight the current Point
@@ -125,7 +138,7 @@ class Bot(Configurable):
 
         print('\nSolving rune:')
         inferences = []
-        for _ in range(15):
+        for _ in range(10):
             frame = config.capture.frame
             solution = detection.merge_detection(model, frame)
             if solution:
