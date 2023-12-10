@@ -6,12 +6,14 @@ from src.modules.capture import Capture
 from src.modules.notifier import Notifier
 from src.modules.listener import Listener
 from src.modules.gui import GUI
+from src.modules.auto_pot import AutoPot
 
 
 bot = Bot()
 capture = Capture()
 notifier = Notifier()
 listener = Listener()
+auto_pot = AutoPot()
 
 bot.start()
 while not bot.ready:
@@ -27,6 +29,10 @@ while not notifier.ready:
 
 listener.start()
 while not listener.ready:
+    time.sleep(0.01)
+
+auto_pot.start()
+while not auto_pot.ready:
     time.sleep(0.01)
 
 print('\n[~] Successfully initialized Auto Maple')

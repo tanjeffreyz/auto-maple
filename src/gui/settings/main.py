@@ -18,8 +18,13 @@ class Settings(Tab):
         self.column1.grid(row=0, column=1, sticky=tk.N, padx=10, pady=10)
         self.controls = KeyBindings(self.column1, 'Auto Maple Controls', config.listener)
         self.controls.pack(side=tk.TOP, fill='x', expand=True)
+
         self.common_bindings = KeyBindings(self.column1, 'In-game Keybindings', config.bot)
         self.common_bindings.pack(side=tk.TOP, fill='x', expand=True, pady=(10, 0))
+
+        self.pot_bindings = KeyBindings(self.column1, 'Auto Pot Keybindings', config.auto_pot)
+        self.pot_bindings.pack(side=tk.TOP, fill='x', expand=True, pady=(10, 0))
+
         self.pets = Pets(self.column1)
         self.pets.pack(side=tk.TOP, fill='x', expand=True, pady=(10, 0))
 

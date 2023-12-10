@@ -30,9 +30,7 @@ class Bot(Configurable):
     DEFAULT_CONFIG = {
         'Interact': 'y',
         'Feed Pet': '9',
-        'Change Channel': ',',
-        'HP Pot': 'end',
-        'MP Pot': 'page down'
+        'Change Channel': ','
     }
 
     def __init__(self):
@@ -41,11 +39,14 @@ class Bot(Configurable):
         super().__init__('keybindings')
         config.bot = self
 
+        self.cc_flag = False
+        self.command_book = None            # CommandBook instance
         self.rune_active = False
         self.rune_pos = (0, 0)
         self.rune_closest_pos = (0, 0)      # Location of the Point closest to rune
         self.submodules = []
-        self.command_book = None            # CommandBook instance
+        self.time_in_map = time.time()
+
         # self.module_name = None
         # self.buff = components.Buff()
 
@@ -85,16 +86,9 @@ class Bot(Configurable):
         last_fed = time.time()
         while True:
             if config.enabled and len(config.routine) > 0:
-                # Use HP/MP pots if low
-                #print(config.capture.hp_mp_info)
-
-                pot_timer = time.time()
-                while config.capture.hp_mp_info['hp_low'] and (time.time() - pot_timer) < 1:
-                    print("HP low!")
-                    press(self.config['HP Pot'], 1)
-                while config.capture.hp_mp_info['mp_low'] and (time.time() - pot_timer) < 1:
-                    print("MP low!")
-                    press(self.config['MP Pot'], 1)
+                if self.cc_flag:
+                    self.change_channel()
+                    self.cc_flag = False
 
                 # Buff and feed pets
                 self.command_book.buff.main()
@@ -128,17 +122,18 @@ class Bot(Configurable):
         :param sct:     The mss instance object with which to take screenshots.
         :return:        None
         """
-
+        config.auto_pot_enabled = False
         move = self.command_book['move']
         move(*self.rune_pos).execute()
         adjust = self.command_book['adjust']
+        self.command_book.deff.main()
         adjust(*self.rune_pos).execute()
         time.sleep(0.2)
-        press(self.config['Interact'], 1, down_time=0.2)  # Inherited from Configurable
 
         print('\nSolving rune:')
+        press(self.config['Interact'], 1, down_time=0.2)  # Inherited from Configurable
         inferences = []
-        for _ in range(10):
+        for _ in range(15):
             frame = config.capture.frame
             solution = detection.merge_detection(model, frame)
             if solution:
@@ -162,9 +157,11 @@ class Bot(Configurable):
                             )
                             click(target, button='right')
                     self.rune_active = False
+                    config.auto_pot_enabled = True
                     return
                 elif len(solution) == 4:
                     inferences.append(solution)
+        config.auto_pot_enabled = True
         self.change_channel()
         return
 
@@ -175,7 +172,7 @@ class Bot(Configurable):
         """
         print('\nChanging Channel')
         self.command_book.deff.main()
-        time.sleep(6.00)
+        time.sleep(7.00)
         num_steps = randint(1, 10)
         press(self.config['Change Channel'], 1)
         for i in range(num_steps):

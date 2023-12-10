@@ -15,6 +15,7 @@ player_pos = (0, 0)
 
 # Describes whether the main bot loop is currently running or not
 enabled = False
+auto_pot_enabled = True
 
 # If there is another player in the map, Auto Maple will purposely make random human-like mistakes
 stage_fright = False
@@ -40,6 +41,9 @@ capture = None
 
 # Shares the keyboard listener
 listener = None
+
+# Shares the auto pot loop
+auto_pot = None
 
 # Shares the gui to all modules
 gui = None

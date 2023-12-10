@@ -218,6 +218,7 @@ def press(key, n, down_time=0.05, up_time=0.1):
     """
 
     for _ in range(n):
+        #print(f"Sending: '{key}'.")
         key_down(key)
         time.sleep(down_time * (0.8 + 0.4 * random()))
         key_up(key)

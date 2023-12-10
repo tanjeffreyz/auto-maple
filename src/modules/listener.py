@@ -81,6 +81,7 @@ class Listener(Configurable):
 
         if config.enabled:
             winsound.Beep(784, 333)     # G5
+            config.bot.time_in_map = time.time()
         else:
             winsound.Beep(523, 333)     # C5
         time.sleep(0.267)
