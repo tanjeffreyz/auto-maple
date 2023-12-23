@@ -9,7 +9,6 @@ import importlib
 import traceback
 from os.path import splitext, basename
 from src.common import config, utils
-from src.detection import detection
 from src.routine import components
 from src.routine.routine import Routine
 from src.command_book.command_book import CommandBook
@@ -22,7 +21,7 @@ from random import randint
 
 # The rune's buff icon
 RUNE_BUFF_TEMPLATE = cv2.imread('assets/rune_buff_template.jpg', 0)
-
+NUM_FRAMES_TO_PROCESS = 15
 
 class Bot(Configurable):
     """A class that interprets and executes user-defined routines."""
@@ -76,11 +75,6 @@ class Bot(Configurable):
         The main body of Bot that executes the user's routine.
         :return:    None
         """
-
-        print('\n[~] Initializing detection algorithm:\n')
-        model = detection.load_model()
-        print('\n[~] Initialized detection algorithm')
-
         self.ready = True
         config.listener.enabled = True
         last_fed = time.time()
@@ -108,17 +102,16 @@ class Bot(Configurable):
                 element = config.routine[config.routine.index]
                 if self.rune_active and isinstance(element, Point) \
                         and element.location == self.rune_closest_pos:
-                    self._solve_rune(model)
+                    self._solve_rune()
                 element.execute()
                 config.routine.step()
             else:
                 time.sleep(0.01)
 
     @utils.run_if_enabled
-    def _solve_rune(self, model):
+    def _solve_rune(self):
         """
-        Moves to the position of the rune and solves the arrow-key puzzle.
-        :param model:   The TensorFlow model to classify with.
+        Moves to the position of the rune and adds frames to the frame queue.
         :param sct:     The mss instance object with which to take screenshots.
         :return:        None
         """
@@ -132,37 +125,26 @@ class Bot(Configurable):
 
         print('\nSolving rune:')
         press(self.config['Interact'], 1, down_time=0.2)  # Inherited from Configurable
-        inferences = []
-        for _ in range(15):
-            frame = config.capture.frame
-            solution = detection.merge_detection(model, frame)
-            if solution:
-                print(', '.join(solution))
-                if solution in inferences:
-                    print('Solution found, entering result')
-                    for arrow in solution:
-                        press(arrow, 1, down_time=0.1)
-                    time.sleep(1)
-                    for _ in range(3):
-                        time.sleep(0.3)
-                        frame = config.capture.frame
-                        rune_buff = utils.multi_match(frame[:frame.shape[0] // 8, :],
-                                                      RUNE_BUFF_TEMPLATE,
-                                                      threshold=0.9)
-                        if rune_buff:
-                            rune_buff_pos = min(rune_buff, key=lambda p: p[0])
-                            target = (
-                                round(rune_buff_pos[0] + config.capture.window['left']),
-                                round(rune_buff_pos[1] + config.capture.window['top'])
-                            )
-                            click(target, button='right')
-                    self.rune_active = False
-                    config.auto_pot_enabled = True
-                    return
-                elif len(solution) == 4:
-                    inferences.append(solution)
+
+        for _ in range(NUM_FRAMES_TO_PROCESS):
+            config.frame_queue.put(config.capture.frame)
+
+        now = time.time()
+        while time.time() - now < 15 and config.frame_queue.unfinished_tasks:
+            time.sleep(0.1)
+
+        if config.detection_result is not None:
+            print('Solution found, entering result')
+            for arrow in config.detection_result:
+                press(arrow, 1, down_time=0.15)
+            self.rune_active = False
+        else:
+            self.change_channel()
+
         config.auto_pot_enabled = True
-        self.change_channel()
+        config.detection_result = None
+        #print(config.detection_inferences)
+        config.detection_inferences.clear()
         return
 
     def change_channel(self):

@@ -2,10 +2,10 @@
 
 import cv2
 import tensorflow as tf
+import time
 import numpy as np
 import uuid
 from src.common import utils
-
 
 #########################
 #       Functions       #
@@ -121,7 +121,6 @@ def merge_detection(model, image):
     :param image:   The input image.
     :return:        A list of four arrow directions.
     """
-
     label_map = {1: 'up', 2: 'down', 3: 'left', 4: 'right'}
     converter = {'up': 'right', 'down': 'left'}         # For the 'rotated inferences'
     classes = []
@@ -178,7 +177,6 @@ def merge_detection(model, image):
                 classes[i] = rotated_classes.pop(0)
 
     return classes
-
 
 # Script for testing the detection module by itself
 if __name__ == '__main__':

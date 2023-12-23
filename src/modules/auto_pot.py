@@ -43,4 +43,4 @@ class AutoPot(Configurable):
                     #print("MP low!")
                     press(self.config['MP Pot'], 1)
 
-            time.sleep(0.05)
+            time.sleep(0.2)
