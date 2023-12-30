@@ -36,11 +36,17 @@ def create_desktop_shortcut():
         flag = "/k"
         print(" -  Leaving command prompt open after program finishes")
 
+    # https://www.tensorflow.org/install/pip#windows-native_1
+    gpu_cmd = ""
+    if args.gpu:
+        home_dir = os.path.expanduser( '~' )
+        gpu_cmd = f"{home_dir}\\miniconda3\\Scripts\\activate.bat {home_dir}\\miniconda3 & conda activate tf & "
+
     shell = client.Dispatch('WScript.Shell')
     shortcut_path = os.path.join(shell.SpecialFolders('Desktop'), 'Auto Maple.lnk')
     shortcut = shell.CreateShortCut(shortcut_path)
     shortcut.Targetpath = target
-    shortcut.Arguments = flag + f' \"cd {cwd} & python main.py\"'
+    shortcut.Arguments = flag + f' \"{gpu_cmd}cd {cwd} & python main.py\"'
     shortcut.IconLocation = os.path.join(cwd, 'assets', 'icon.ico')
     try:
         shortcut.save()
@@ -63,6 +69,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--depth', type=int, default=0)
     parser.add_argument('--stay', action='store_true')
+    parser.add_argument('--gpu', action='store_true', default=False)
     args = parser.parse_args()
 
     create_desktop_shortcut()

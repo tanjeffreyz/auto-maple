@@ -21,7 +21,8 @@ from random import randint
 
 # The rune's buff icon
 RUNE_BUFF_TEMPLATE = cv2.imread('assets/rune_buff_template.jpg', 0)
-NUM_FRAMES_TO_PROCESS = 15
+NUM_FRAMES_TO_PROCESS = 60
+TIME_BETWEEN_FRAMES = 0.05
 
 class Bot(Configurable):
     """A class that interprets and executes user-defined routines."""
@@ -128,6 +129,7 @@ class Bot(Configurable):
 
         for _ in range(NUM_FRAMES_TO_PROCESS):
             config.frame_queue.put(config.capture.frame)
+            time.sleep(TIME_BETWEEN_FRAMES)
 
         now = time.time()
         while time.time() - now < 15 and config.frame_queue.unfinished_tasks:
@@ -152,7 +154,7 @@ class Bot(Configurable):
         Changes to a random channel
         :return:        None
         """
-        print('\nChanging Channel')
+        #print('\nChanging Channel')
         self.command_book.deff.main()
         time.sleep(7.00)
         num_steps = randint(1, 10)
