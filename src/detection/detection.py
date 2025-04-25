@@ -60,18 +60,19 @@ def run_inference_for_single_image(model, image):
 
     image = np.asarray(image)
 
-    input_tensor = tf.convert_to_tensor(image)
-    input_tensor = input_tensor[tf.newaxis,...]
+    with tf.device('/GPU:0'):
+        input_tensor = tf.convert_to_tensor(image)
+        input_tensor = input_tensor[tf.newaxis,...]
 
-    model_fn = model.signatures['serving_default']
-    output_dict = model_fn(input_tensor)
+        model_fn = model.signatures['serving_default']
+        output_dict = model_fn(input_tensor)
 
-    num_detections = int(output_dict.pop('num_detections'))
-    output_dict = {key: value[0,:num_detections].numpy() 
-                   for key, value in output_dict.items()}
-    output_dict['num_detections'] = num_detections
-    output_dict['detection_classes'] = output_dict['detection_classes'].astype(np.int64)
-    return output_dict
+        num_detections = int(output_dict.pop('num_detections'))
+        output_dict = {key: value[0,:num_detections].numpy()
+                       for key, value in output_dict.items()}
+        output_dict['num_detections'] = num_detections
+        output_dict['detection_classes'] = output_dict['detection_classes'].astype(np.int64)
+        return output_dict
 
 
 def sort_by_confidence(model, image):
@@ -157,14 +158,11 @@ def merge_detection(model, image):
 
         # Run detection on preprocessed image
         lst = sort_by_confidence(model, preprocessed)
-        uuid_1 = uuid.uuid1()
-        #cv2.imwrite(f"assets/training/{uuid_1}.png", preprocessed)
         lst.sort(key=lambda x: x[1][1])
         classes = [label_map[item[2]] for item in lst]
 
         # Run detection on rotated image
         rotated = cv2.rotate(preprocessed, cv2.ROTATE_90_COUNTERCLOCKWISE)
-        #cv2.imwrite(f"assets/training/{uuid_1}-rotated.png", rotated)
         lst = sort_by_confidence(model, rotated)
         lst.sort(key=lambda x: x[1][2], reverse=True)
         rotated_classes = [converter[label_map[item[2]]]
@@ -176,6 +174,10 @@ def merge_detection(model, image):
             if rotated_classes and classes[i] in ['left', 'right']:
                 classes[i] = rotated_classes.pop(0)
 
+        # if len(classes) != 4:
+        #     uuid_1 = uuid.uuid1()
+        #     cv2.imwrite(f"assets/training/{uuid_1}.png", preprocessed)
+        #     cv2.imwrite(f"assets/training/{uuid_1}-rotated.png", rotated)
     return classes
 
 # Script for testing the detection module by itself

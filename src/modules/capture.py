@@ -111,6 +111,7 @@ class Capture:
                 max(minimap_top_left[0] + PT_WIDTH, bottom_right[0] - MINIMAP_BOTTOM_BORDER),
                 max(minimap_top_left[1] + PT_HEIGHT, bottom_right[1] - MINIMAP_BOTTOM_BORDER)
             )
+
             self.minimap_ratio = (minimap_bottom_right[0] - minimap_top_left[0]) / (minimap_bottom_right[1] - minimap_top_left[1])
             self.minimap_sample = self.frame[minimap_top_left[1]:minimap_bottom_right[1], minimap_top_left[0]:minimap_bottom_right[0]]
 
@@ -149,11 +150,11 @@ class Capture:
                     }
 
                     # Tells whether hp or mp are low
-                    #print(f"HP: {hp[2]} -> {abs(hp[2] - 255) > COLOR_DIFF_THRESHOLD}")
-                    #print(f"MP: {mp[0]} -> {abs(mp[0] - 255) > COLOR_DIFF_THRESHOLD}")
+                    #print(f"HP: {hp} {int(hp[2])} -> {abs(int(hp[2]) - 255)} {abs(int(hp[2]) - 255) > COLOR_DIFF_THRESHOLD}")
+                    #print(f"MP: {mp} {int(mp[0])} -> {abs(int(mp[0]) - 255)} {abs(int(mp[0]) - 255) > COLOR_DIFF_THRESHOLD}")
                     self.hp_mp_info = {
-                        'hp_low': abs(hp[2] - 255) > COLOR_DIFF_THRESHOLD,
-                        'mp_low': abs(mp[0] - 255) > COLOR_DIFF_THRESHOLD
+                        'hp_low': abs(int(hp[2]) - 255) > COLOR_DIFF_THRESHOLD,
+                        'mp_low': abs(int(mp[0]) - 255) > COLOR_DIFF_THRESHOLD
                     }
 
                     if not self.ready:

@@ -21,8 +21,7 @@ from random import randint
 
 # The rune's buff icon
 RUNE_BUFF_TEMPLATE = cv2.imread('assets/rune_buff_template.jpg', 0)
-NUM_FRAMES_TO_PROCESS = 60
-TIME_BETWEEN_FRAMES = 0.05
+
 
 class Bot(Configurable):
     """A class that interprets and executes user-defined routines."""
@@ -38,6 +37,11 @@ class Bot(Configurable):
 
         super().__init__('keybindings')
         config.bot = self
+
+        self.NUM_DETECTION_WORKERS = 2
+        self.NUM_FRAMES_TO_PROCESS = self.NUM_DETECTION_WORKERS * 10
+        self.TIME_BETWEEN_FRAMES = 0.15
+        self.TIME_TO_SOLVE = 10
 
         self.cc_flag = False
         self.command_book = None            # CommandBook instance
@@ -122,17 +126,19 @@ class Bot(Configurable):
         adjust = self.command_book['adjust']
         self.command_book.deff.main()
         adjust(*self.rune_pos).execute()
-        time.sleep(0.2)
+        time.sleep(0.3)
 
         print('\nSolving rune:')
+        config.detection_result = None
         press(self.config['Interact'], 1, down_time=0.2)  # Inherited from Configurable
+        time.sleep(1.5)
 
-        for _ in range(NUM_FRAMES_TO_PROCESS):
+        for _ in range(self.NUM_FRAMES_TO_PROCESS):
             config.frame_queue.put(config.capture.frame)
-            time.sleep(TIME_BETWEEN_FRAMES)
+            time.sleep(self.TIME_BETWEEN_FRAMES)
 
         now = time.time()
-        while time.time() - now < 15 and config.frame_queue.unfinished_tasks:
+        while time.time() - now < self.TIME_TO_SOLVE and config.frame_queue.unfinished_tasks:
             time.sleep(0.1)
 
         if config.detection_result is not None:
@@ -141,6 +147,7 @@ class Bot(Configurable):
                 press(arrow, 1, down_time=0.15)
             self.rune_active = False
         else:
+            config.auto_pot_enabled = True
             self.change_channel()
 
         config.auto_pot_enabled = True
@@ -156,7 +163,7 @@ class Bot(Configurable):
         """
         #print('\nChanging Channel')
         self.command_book.deff.main()
-        time.sleep(7.00)
+        time.sleep(5.00)
         num_steps = randint(1, 10)
         press(self.config['Change Channel'], 1)
         for i in range(num_steps):

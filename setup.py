@@ -37,6 +37,15 @@ def create_desktop_shortcut():
         print(" -  Leaving command prompt open after program finishes")
 
     # https://www.tensorflow.org/install/pip#windows-native_1
+    #   NEED python 3.10
+    #   conda create --name tf python=3.9
+    #   conda activate tf
+    #   conda install -c conda-forge cudatoolkit=11.2 cudnn=8.1.0
+    #   conda install -c conda-forge cudatoolkit-dev
+    #   pip install --upgrade pip
+    #   pip install "tensorflow<2.11"
+    #   pip install numpy==1.26.4
+    #   conda env config vars set LD_LIBRARY_PATH="C:\ProgramData\miniconda3;C:\ProgramData\miniconda3\Library\mingw-w64\bin;C:\ProgramData\miniconda3\Library\usr\bin;C:\ProgramData\miniconda3\Library\bin;C:\ProgramData\miniconda3\Scripts"
     gpu_cmd = ""
     if args.gpu:
         home_dir = os.path.expanduser( '~' )
