@@ -16,7 +16,7 @@ player_pos = (0, 0)
 
 # Describes whether the main bot loop is currently running or not
 enabled = False
-auto_pot_enabled = True
+auto_pot_enabled = False
 
 # If there is another player in the map, Auto Maple will purposely make random human-like mistakes
 stage_fright = False
@@ -54,3 +54,4 @@ model = detection.load_model()
 frame_queue = queue.Queue()
 detection_inferences = {}
 detection_result = None
+solve_rune_attempt = 0

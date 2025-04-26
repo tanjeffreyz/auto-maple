@@ -146,14 +146,16 @@ class Bot(Configurable):
             for arrow in config.detection_result:
                 press(arrow, 1, down_time=0.15)
             self.rune_active = False
-        else:
-            config.auto_pot_enabled = True
+        if config.solve_rune_attempt > 3:
+            config.auto_pot_enabled = False
             self.change_channel()
+            config.solve_rune_attempt = 0
 
-        config.auto_pot_enabled = True
+        config.auto_pot_enabled = False
         config.detection_result = None
         #print(config.detection_inferences)
         config.detection_inferences.clear()
+        config.solve_rune_attempt += 1
         return
 
     def change_channel(self):
