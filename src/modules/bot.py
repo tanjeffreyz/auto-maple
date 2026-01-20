@@ -1,4 +1,10 @@
-"""An interpreter that reads and executes user-created routines."""
+"""
+[機器人核心模組]
+這是整個程式的總指揮。它負責：
+1. 載入 AI 模型 (用來看懂輪的箭頭)。
+2. 不斷檢查現在該做什麼動作。
+3. 執行腳本裡的指令。
+"""
 
 import threading
 import time
@@ -18,91 +24,100 @@ from src.common.vkeys import press, click
 from src.common.interfaces import Configurable
 
 
-# The rune's buff icon
+# 讀取「輪」解完後的 Buff 圖示，用來確認有沒有解成功
 RUNE_BUFF_TEMPLATE = cv2.imread('assets/rune_buff_template.jpg', 0)
 
 
 class Bot(Configurable):
-    """A class that interprets and executes user-defined routines."""
+    """
+    Bot 類別：負責解釋並執行你寫好的腳本。
+    """
 
+    # 預設的按鍵設定 (如果沒有讀取到設定檔會用這個)
     DEFAULT_CONFIG = {
-        'Interact': 'y',
-        'Feed pet': '9'
+        'Interact': 'y',  # 採集/對話鍵 (解輪用)
+        'Feed pet': '9'   # 餵寵物鍵
     }
 
     def __init__(self):
-        """Loads a user-defined routine on start up and initializes this Bot's main thread."""
-
+        """程式啟動時會執行這裡，進行初始化。"""
         super().__init__('keybindings')
         config.bot = self
 
-        self.rune_active = False
-        self.rune_pos = (0, 0)
-        self.rune_closest_pos = (0, 0)      # Location of the Point closest to rune
+        self.rune_active = False        # 現在是不是有輪出現？
+        self.rune_pos = (0, 0)          # 輪在哪裡？
+        self.rune_closest_pos = (0, 0)  # 離輪最近的腳本點位在哪？
         self.submodules = []
-        self.command_book = None            # CommandBook instance
-        # self.module_name = None
-        # self.buff = components.Buff()
-
-        # self.command_book = {}
-        # for c in (components.Wait, components.Walk, components.Fall,
-        #           components.Move, components.Adjust, components.Buff):
-        #     self.command_book[c.__name__.lower()] = c
-
-        config.routine = Routine()
+        self.command_book = None        # 目前載入的職業指令書
+        
+        config.routine = Routine()      # 初始化腳本管理器
 
         self.ready = False
+        # 建立一個獨立的執行緒 (Thread) 來跑機器人，這樣才不會卡死介面
         self.thread = threading.Thread(target=self._main)
         self.thread.daemon = True
 
     def start(self):
-        """
-        Starts this Bot object's thread.
-        :return:    None
-        """
-
+        """按下開始後，啟動機器人的主迴圈。"""
         self.update_submodules()
-        print('\n[~] Started main bot loop')
+        print('\n[~] 已啟動機器人主迴圈')
         self.thread.start()
 
     def _main(self):
         """
-        The main body of Bot that executes the user's routine.
-        :return:    None
+        [核心迴圈]
+        這就是機器人一直在做的事情，就像人的心跳一樣不會停。
         """
-
-        print('\n[~] Initializing detection algorithm:\n')
+        print('\n[~] 正在載入 AI 偵測模型 (這可能需要一點時間)...\n')
         model = detection.load_model()
-        print('\n[~] Initialized detection algorithm')
+        print('\n[~] AI 模型載入完成！')
 
         self.ready = True
         config.listener.enabled = True
-        last_fed = time.time()
+        last_fed = time.time()  # 紀錄上次餵寵物的時間
+
         while True:
+            # 只有在「啟用中 (enabled)」且「腳本不為空」時才做事
             if config.enabled and len(config.routine) > 0:
-                # Buff and feed pets
+                
+                # 1. 執行自動放技能 (Buff)
                 self.command_book.buff.main()
+                
+                # 2. 檢查寵物是不是餓了
                 pet_settings = config.gui.settings.pets
                 auto_feed = pet_settings.auto_feed.get()
                 num_pets = pet_settings.num_pets.get()
                 now = time.time()
+                
+                # 如果開啟自動餵食，且時間到了 (根據寵物數量計算間隔)
                 if auto_feed and now - last_fed > 1200 / num_pets:
                     press(self.config['Feed pet'], 1)
                     last_fed = now
 
-                # Highlight the current Point
+                # 3. 在介面上高亮顯示目前執行到的步驟
                 config.gui.view.routine.select(config.routine.index)
                 config.gui.view.details.display_info(config.routine.index)
 
-                # Execute next Point in the routine
+                # 4. 取得這一步驟的動作 (Point)
                 element = config.routine[config.routine.index]
+                
+                # 如果有輪出現，而且我們剛好走到了負責解輪的點位
                 if self.rune_active and isinstance(element, Point) \
                         and element.location == self.rune_closest_pos:
-                    self._solve_rune(model)
+                    self._solve_rune(model) # 去解輪！
+                
+                # 5. 執行這個點位的動作 (移動、跳躍、攻擊...)
                 element.execute()
+                
+                # 6. 前往腳本的下一步
                 config.routine.step()
             else:
+                # 如果沒事做，休息 0.01 秒避免電腦太操勞
                 time.sleep(0.01)
+
+    # ... (後續的 _solve_rune 等函式暫時省略，先讓同事理解主迴圈即可) ...
+    # 為了保持檔案完整性，若需要完整檔案請告訴我，這裡先展示核心邏輯中文化。
+    # 建議同事在修改時，只需替換上述有中文註解的部分，保留原有的 auxiliary functions。
 
     @utils.run_if_enabled
     def _solve_rune(self, model):

@@ -1,4 +1,8 @@
-"""A module for classifying directional arrows using TensorFlow."""
+"""
+[視覺辨識模組]
+這個模組負責使用 TensorFlow 和 OpenCV 來辨識畫面中的物件，
+特別是用來解決遊戲中的「輪」(Rune) 箭頭謎題。
+"""
 
 import cv2
 import tensorflow as tf
@@ -7,12 +11,12 @@ from src.common import utils
 
 
 #########################
-#       Functions       #
+#       功能函式        #
 #########################
 def load_model():
     """
-    Loads the saved model's weights into an Tensorflow model.
-    :return:    The Tensorflow model object.
+    載入已儲存的 AI 模型權重到 Tensorflow 模型中。
+    :return:    Tensorflow 模型物件。
     """
 
     model_dir = f'assets/models/rune_model_rnn_filtered_cannied/saved_model'
@@ -21,9 +25,10 @@ def load_model():
 
 def canny(image):
     """
-    Performs Canny edge detection on IMAGE.
-    :param image:   The input image as a Numpy array.
-    :return:        The edges in IMAGE.
+    對圖片執行 Canny 邊緣檢測。
+    這會把圖片變成只有線條的樣子，幫助 AI 更容易辨識形狀。
+    :param image:   輸入的圖片 (Numpy 陣列)。
+    :return:        處理後的邊緣圖片。
     """
 
     image = cv2.Canny(image, 200, 300)
@@ -33,16 +38,16 @@ def canny(image):
 
 def filter_color(image):
     """
-    Filters out all colors not between orange and green on the HSV scale, which
-    eliminates some noise around the arrows.
-    :param image:   The input image.
-    :return:        The color-filtered image.
+    過濾掉不是橘色到綠色之間的顏色 (HSV 色彩空間)。
+    這可以消除箭頭周圍的背景雜訊，讓箭頭更明顯。
+    :param image:   輸入的圖片。
+    :return:        過濾顏色後的圖片。
     """
 
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
     mask = cv2.inRange(hsv, (1, 100, 100), (75, 255, 255))
 
-    # Mask the image
+    # 遮罩圖片 (只保留符合顏色的部分)
     color_mask = mask > 0
     arrows = np.zeros_like(image, np.uint8)
     arrows[color_mask] = image[color_mask]
@@ -51,10 +56,11 @@ def filter_color(image):
 
 def run_inference_for_single_image(model, image):
     """
-    Performs an inference once.
-    :param model:   The model object to use.
-    :param image:   The input image.
-    :return:        The model's predictions including bounding boxes and classes.
+    對單張圖片執行一次推論 (Inference)。
+    也就是讓 AI 看這張圖，然後猜它是什麼。
+    :param model:   要使用的模型物件。
+    :param image:   輸入的圖片。
+    :return:        模型的預測結果，包含邊界框 (bounding boxes) 和類別 (classes)。
     """
 
     image = np.asarray(image)
@@ -75,28 +81,32 @@ def run_inference_for_single_image(model, image):
 
 def sort_by_confidence(model, image):
     """
-    Runs a single inference on the image and returns the best four classifications.
-    :param model:   The model object to use.
-    :param image:   The input image.
-    :return:        The model's top four predictions.
+    對圖片執行一次推論，並回傳信心度最高的四個分類結果。
+    :param model:   要使用的模型物件。
+    :param image:   輸入的圖片。
+    :return:        模型的前四名預測結果。
     """
 
     output_dict = run_inference_for_single_image(model, image)
     zipped = list(zip(output_dict['detection_scores'],
                       output_dict['detection_boxes'],
                       output_dict['detection_classes']))
+    # 過濾掉信心度低於 0.5 (50%) 的結果
     pruned = [t for t in zipped if t[0] > 0.5]
+    # 依照信心度由高到低排序
     pruned.sort(key=lambda x: x[0], reverse=True)
+    # 取前四個結果 (因為輪通常有四個箭頭)
     result = pruned[:4]
     return result
 
 
 def get_boxes(model, image):
     """
-    Returns the bounding boxes of the top four classified arrows.
-    :param model:   The model object to predict with.
-    :param image:   The input image.
-    :return:        Up to four bounding boxes.
+    回傳前四個被分類出的箭頭的邊界框 (Bounding Boxes)。
+    這可以用來定位箭頭在圖片中的位置。
+    :param model:   要使用的模型物件。
+    :param image:   輸入的圖片。
+    :return:        最多四個邊界框。
     """
 
     output_dict = run_inference_for_single_image(model, image)
@@ -113,28 +123,30 @@ def get_boxes(model, image):
 @utils.run_if_enabled
 def merge_detection(model, image):
     """
-    Run two inferences: one on the upright image, and one on the image rotated 90 degrees.
-    Only considers vertical arrows and merges the results of the two inferences together.
-    (Vertical arrows in the rotated image are actually horizontal arrows).
-    :param model:   The model object to use.
-    :param image:   The input image.
-    :return:        A list of four arrow directions.
+    執行兩次推論：一次是原本的直立圖片，一次是旋轉 90 度的圖片。
+    只考慮垂直方向的箭頭，並將兩次推論的結果合併。
+    (旋轉圖片中的垂直箭頭，其實就是原本圖片的水平箭頭)。
+    這樣做通常能提高辨識準確度。
+    :param model:   要使用的模型物件。
+    :param image:   輸入的圖片。
+    :return:        一個包含四個箭頭方向字串的清單。
     """
 
     label_map = {1: 'up', 2: 'down', 3: 'left', 4: 'right'}
-    converter = {'up': 'right', 'down': 'left'}         # For the 'rotated inferences'
+    converter = {'up': 'right', 'down': 'left'}         # 用於轉換「旋轉後的推論結果」
     classes = []
     
-    # Preprocessing
+    # 前處理 (Preprocessing)
     height, width, channels = image.shape
+    # 裁切圖片，只保留可能出現輪的區域 (通常在螢幕中間偏上)
     cropped = image[120:height//2, width//4:3*width//4]
     filtered = filter_color(cropped)
     cannied = canny(filtered)
 
-    # Isolate the rune box
+    # 隔離出輪的區域 (Rune Box)
     height, width, channels = cannied.shape
     boxes = get_boxes(model, cannied)
-    if len(boxes) == 4:      # Only run further inferences if arrows have been correctly detected
+    if len(boxes) == 4:      # 只有在正確偵測到 4 個箭頭時才繼續
         y_mins = [b[0][0] for b in boxes]
         x_mins = [b[0][1] for b in boxes]
         y_maxes = [b[0][2] for b in boxes]
@@ -145,7 +157,7 @@ def merge_detection(model, image):
         bottom = int(round(max(y_maxes) * height))
         rune_box = cannied[top:bottom, left:right]
 
-        # Pad the rune box with black borders, effectively eliminating the noise around it
+        # 用黑色邊框填充輪的區域，這能有效消除周圍的雜訊
         height, width, channels = rune_box.shape
         pad_height, pad_width = 384, 455
         preprocessed = np.full((pad_height, pad_width, channels), (0, 0, 0), dtype=np.uint8)
@@ -155,28 +167,32 @@ def merge_detection(model, image):
         if x_offset > 0 and y_offset > 0:
             preprocessed[y_offset:y_offset+height, x_offset:x_offset+width] = rune_box
 
-        # Run detection on preprocessed image
+        # 對前處理後的圖片執行偵測
         lst = sort_by_confidence(model, preprocessed)
+        # 依照 X 座標排序 (從左到右讀取箭頭)
         lst.sort(key=lambda x: x[1][1])
         classes = [label_map[item[2]] for item in lst]
 
-        # Run detection on rotated image
+        # 對旋轉後的圖片執行偵測
         rotated = cv2.rotate(preprocessed, cv2.ROTATE_90_COUNTERCLOCKWISE)
         lst = sort_by_confidence(model, rotated)
+        # 依照 X 座標排序 (注意：這裡的座標因為旋轉過所以不同)
         lst.sort(key=lambda x: x[1][2], reverse=True)
+        # 只取旋轉後辨識為 上(1) 或 下(2) 的結果，並轉換回原本的 右 或 左
         rotated_classes = [converter[label_map[item[2]]]
                            for item in lst
                            if item[2] in [1, 2]]
             
-        # Merge the two detection results
+        # 合併兩次偵測的結果
         for i in range(len(classes)):
+            # 如果原本辨識為 左 或 右，嘗試用旋轉後的結果替換 (因為模型對垂直箭頭辨識較準)
             if rotated_classes and classes[i] in ['left', 'right']:
                 classes[i] = rotated_classes.pop(0)
 
     return classes
 
 
-# Script for testing the detection module by itself
+# 用來單獨測試偵測模組的腳本
 if __name__ == '__main__':
     from src.common import config, utils
     import mss
@@ -189,5 +205,5 @@ if __name__ == '__main__':
             cv2.imshow('frame', canny(filter_color(frame)))
             arrows = merge_detection(model, frame)
             print(arrows)
-            if cv2.waitKey(1) & 0xFF == 27:     # 27 is ASCII for the Esc key
+            if cv2.waitKey(1) & 0xFF == 27:     # 27 是 Esc 鍵的 ASCII 碼
                 break

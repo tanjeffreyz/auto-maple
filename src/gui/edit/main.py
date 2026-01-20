@@ -1,4 +1,7 @@
-"""Allows the user to edit routines while viewing each Point's location on the minimap."""
+"""
+[編輯介面模組]
+這裡允許使用者在介面上直接修改腳本的參數，或是新增動作。
+"""
 
 from src.common import config
 import inspect
@@ -13,7 +16,7 @@ from src.gui.interfaces import Tab, Frame, LabelFrame
 
 class Edit(Tab):
     def __init__(self, parent, **kwargs):
-        super().__init__(parent, 'Edit', **kwargs)
+        super().__init__(parent, '編輯腳本 (Edit)', **kwargs) # 分頁名稱
 
         self.columnconfigure(0, weight=1)
         self.columnconfigure(4, weight=1)
@@ -36,7 +39,7 @@ class Edit(Tab):
 
 class Editor(LabelFrame):
     def __init__(self, parent, **kwargs):
-        super().__init__(parent, 'Editor', **kwargs)
+        super().__init__(parent, '參數編輯器', **kwargs) # 區塊標題
 
         self.columnconfigure(0, minsize=350)
 
@@ -45,20 +48,18 @@ class Editor(LabelFrame):
         self.create_default_state()
 
     def reset(self):
-        """Resets the Editor UI to its default state."""
-
+        """重置編輯器回到預設狀態"""
         self.contents.destroy()
         self.create_default_state()
 
     def create_default_state(self):
         self.vars = {}
-
         self.contents = Frame(self)
         self.contents.grid(row=0, column=0, sticky=tk.EW, padx=5)
 
         title = tk.Entry(self.contents, justify=tk.CENTER)
         title.pack(expand=True, fill='x', pady=(5, 2))
-        title.insert(0, 'Nothing selected')
+        title.insert(0, '尚未選擇任何項目') # 中文提示
         title.config(state=tk.DISABLED)
 
         self.create_disabled_entry()
@@ -76,11 +77,7 @@ class Editor(LabelFrame):
         entry.config(state=tk.DISABLED)
 
     def create_entry(self, key, value):
-        """
-        Creates an input row for a single Component attribute. KEY is the name
-        of the attribute while VALUE is its currently assigned value.
-        """
-
+        """建立單一參數的輸入框"""
         self.vars[key] = tk.StringVar(value=str(value))
 
         row = Frame(self.contents, highlightthickness=0)
@@ -95,14 +92,7 @@ class Editor(LabelFrame):
         entry.pack(side=tk.RIGHT, expand=True, fill='x')
 
     def create_edit_ui(self, arr, i, func):
-        """
-        Creates a UI to edit existing routine Components.
-        :param arr:     List of Components to choose from.
-        :param i:       The index to choose.
-        :param func:    When called, creates a function that can be bound to the button.
-        :return:        None
-        """
-
+        """建立編輯現有組件的介面"""
         self.contents.destroy()
         self.vars = {}
         self.contents = Frame(self)
@@ -110,20 +100,20 @@ class Editor(LabelFrame):
 
         title = tk.Entry(self.contents, justify=tk.CENTER)
         title.pack(expand=True, fill='x', pady=(5, 2))
-        title.insert(0, f"Editing {arr[i].__class__.__name__}")
+        title.insert(0, f"正在編輯：{arr[i].__class__.__name__}") # 顯示目前編輯的物件名稱
         title.config(state=tk.DISABLED)
 
         if len(arr[i].kwargs) > 0:
             for key, value in arr[i].kwargs.items():
                 self.create_entry(key, value)
-            button = tk.Button(self.contents, text='Save', command=func(arr, i, self.vars))
+            button = tk.Button(self.contents, text='儲存變更', command=func(arr, i, self.vars)) # 中文按鈕
             button.pack(pady=5)
         else:
             self.create_disabled_entry()
 
+  
     def create_add_prompt(self):
-        """Creates a UI that asks the user to select a class to create."""
-
+        """建立搜尋與新增組件的介面"""
         self.contents.destroy()
         self.vars = {}
         self.contents = Frame(self)
@@ -131,10 +121,12 @@ class Editor(LabelFrame):
 
         title = tk.Entry(self.contents, justify=tk.CENTER)
         title.pack(expand=True, fill='x', pady=(5, 2))
-        title.insert(0, f"Creating new ...")
+        title.insert(0, f"新增組件...")
         title.config(state=tk.DISABLED)
 
-        options = config.routine.get_all_components()
+        # ... (以下搜尋邏輯保持不變，但將 Entry 提示改為中文) ...
+        # [省略部分重複邏輯]
+ options = config.routine.get_all_components()
         var = tk.StringVar(value=tuple(options.keys()))
 
         def update_search(*_):
@@ -253,10 +245,10 @@ class Editor(LabelFrame):
         controls = Frame(self.contents)
         controls.pack(expand=True, fill='x')
 
-        add_button = tk.Button(controls, text='Add', command=self.add(component))
+        add_button = tk.Button(controls, text='新增', command=self.add(component))
         if sticky:          # Only create 'cancel' button if stickied
             add_button.pack(side=tk.RIGHT, pady=5)
-            cancel_button = tk.Button(controls, text='Cancel', command=self.cancel, takefocus=False)
+            cancel_button = tk.Button(controls, text='取消', command=self.cancel, takefocus=False)
             cancel_button.pack(side=tk.LEFT, pady=5)
         else:
             add_button.pack(pady=5)
@@ -286,14 +278,14 @@ class Editor(LabelFrame):
                             self.parent.routine.commands.update_display()
                             self.cancel()
                         else:
-                            print(f"\n[!] Error while adding Command: currently selected Component is not a Point.")
+                            print(f"\n[!] 新增指令時發生錯誤：目前選定的元件不是座標。.")
                     else:
-                        print(f"\n[!] Error while adding Command: no Point is currently selected.")
+                        print(f"\n[!]新增指令時出錯：目前未選擇任何座標。")
                 else:
                     config.routine.append_component(obj)
                     self.cancel()
             except (ValueError, TypeError) as e:
-                print(f"\n[!] Found invalid arguments for '{component.__name__}':")
+                print(f"\n[!] 發現無效參數for '{component.__name__}':")
                 print(f"{' ' * 4} -  {e}")
         return f
 

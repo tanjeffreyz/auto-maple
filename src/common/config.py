@@ -1,45 +1,49 @@
-"""A collection of variables shared across multiple modules."""
-
+"""
+[全域變數模組]
+這個檔案就像是程式的「共用筆記本」所有的模組 (機器人、介面、偵測器) 都會來這裡讀取或寫入資料。
+"""
 
 #########################
-#       Constants       #
+#       常數設定        #
 #########################
-RESOURCES_DIR = 'resources'
+RESOURCES_DIR = 'resources'  # 資源資料夾的名稱 (放腳本和指令書的地方)
 
 
 #################################
-#       Global Variables        #
+#       遊戲即時狀態        #
 #################################
-# The player's position relative to the minimap
+# 玩家目前在小地圖上的相對座標 (x, y)，範圍是 0 到 1
 player_pos = (0, 0)
 
-# Describes whether the main bot loop is currently running or not
+# 總開關：True 代表程式正在自動練功，False 代表暫停
 enabled = False
 
-# If there is another player in the map, Auto Maple will purposely make random human-like mistakes
+# 舞台恐懼症：當地圖有其他玩家時，設為 True，機器人會故意裝得像人類一點
 stage_fright = False
 
-# Represents the current shortest path that the bot is taking
+# 目前正在規劃的移動路徑 (一連串的座標點)
 path = []
 
 
 #############################
-#       Shared Modules      #
+#       核心模組引用      #
 #############################
-# A Routine object that manages the 'machine code' of the current routine
+# 這裡儲存了程式的各個重要器官，方便大家互相呼叫
+
+# Routine: 負責讀取並執行你的 .csv 腳本
 routine = None
 
-# Stores the Layout object associated with the current routine
+# Layout: 負責紀錄地圖的地形，幫忙導航
 layout = None
 
-# Shares the main bot loop
+# Bot: 機器人的大腦，負責決定下一秒要做什麼
 bot = None
 
-# Shares the video capture loop
+# Capture: 機器人的眼睛，負責截圖和辨識小地圖
 capture = None
 
-# Shares the keyboard listener
+# Listener: 機器人的耳朵，負責監聽你有沒有按下 Insert 或 F6
 listener = None
 
-# Shares the gui to all modules
+# GUI: 機器人的臉，也就是你看到的那個視窗介面
 gui = None
